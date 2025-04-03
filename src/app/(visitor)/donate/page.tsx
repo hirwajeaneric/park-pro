@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { PageBanner } from "@/components/widget/PageBanner";
 import { Services } from "@/data/data";
+import ProtectedRoute from "@/lib/ProtectedRoute";
 
 export default function page() {
   return (
-    <div>
+    <ProtectedRoute>
       <PageBanner title="Donate to Conservation Efforts" backgroundImage={Services[2].image} />
       <section className="pb-16">
         <div className="container mx-auto px-4">
@@ -134,6 +135,6 @@ export default function page() {
           </div>
         </div>
       </section>
-    </div>
+    </ProtectedRoute>
   )
 }

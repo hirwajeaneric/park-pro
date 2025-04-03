@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { PageBanner } from "@/components/widget/PageBanner";
 import { Services } from "@/data/data";
+import ProtectedRoute from "@/lib/ProtectedRoute";
 
 export default function page() {
   return (
-    <div>
+    <ProtectedRoute>
       <PageBanner title="Provide Services" backgroundImage={Services[1].image} />
       <section className="pb-16">
         <div className="container mx-auto px-4">
@@ -46,7 +47,7 @@ export default function page() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Service Type</label>
-                  <select className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                  <select title="Services" name="services" defaultValue={""}  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="">Select a service</option>
                     <option value="guide">Tour Guide</option>
                     <option value="transportation">Transportation</option>
@@ -82,7 +83,7 @@ export default function page() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Upload Documentation (CV, Certificates, etc.)</label>
-                  <input 
+                  <input aria-label="CV" 
                     type="file" 
                     className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                     multiple
@@ -99,6 +100,6 @@ export default function page() {
           </div>
         </div>
       </section>
-    </div>
+    </ProtectedRoute>
   )
 }

@@ -1,5 +1,7 @@
+import ProtectedRoute from "@/lib/ProtectedRoute";
+
 export default function page() {
   return (
-    <div>page</div>
+    <ProtectedRoute>Profile</ProtectedRoute>
   )
 }

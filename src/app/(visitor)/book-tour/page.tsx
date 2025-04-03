@@ -5,18 +5,19 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageBanner } from "@/components/widget/PageBanner";
 import { Services } from "@/data/data";
+import ProtectedRoute from "@/lib/ProtectedRoute";
 
 export default function page() {
 
-    return (
-        <div>
-            <PageBanner title="Book Tour" backgroundImage={Services[0].image} />
-            <section className="py-8 bg-white">
-                <div className="container mx-auto px-4">
-                    <p className="text-xl text-center">Experience the wonders of Loango National Park with our professionally guided tours. Choose from a variety of packages to suit your interests and schedule.</p>
-                </div>
-            </section>
-            <div className="flex-1 bg-white py-12">
+  return (
+    <ProtectedRoute>
+      <PageBanner title="Book Tour" backgroundImage={Services[0].image} />
+      <section className="py-8 bg-white">
+        <div className="container mx-auto px-4">
+          <p className="text-xl text-center">Experience the wonders of Loango National Park with our professionally guided tours. Choose from a variety of packages to suit your interests and schedule.</p>
+        </div>
+      </section>
+      <div className="flex-1 bg-white py-12">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <p className="text-lg mb-6">Fill out the form below to book for a tour in Loango National Park</p>
@@ -184,6 +185,6 @@ export default function page() {
           </div>
         </div>
       </div>
-        </div>
-    )
+    </ProtectedRoute>
+  )
 }

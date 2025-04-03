@@ -19,7 +19,7 @@ import { SignInFormTypes } from "@/types"
 import { getProfileData, signIn } from "@/lib/api"
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useDispatch } from "react-redux"
 import { setUser } from "@/store/slices/userSlice"
 
@@ -29,7 +29,6 @@ const FormSchema = z.object({
 })
 
 export default function SignInForm() {
-    const router = useRouter();
     const searchParams = useSearchParams();
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +55,8 @@ export default function SignInForm() {
             dispatch(setUser(profile));
 
             // Redirect to either the specified URL or home
-            router.push(redirectUrl);
+            // router.push(redirectUrl);
+            window.location.replace(redirectUrl);
         },
         onError: (error: Error) => {
             toast.error(error.message || "Login failed");

@@ -6,6 +6,7 @@ import { Services } from "@/data/data";
 export default function Home() {
   const Images = {
     descriptionImage: "/Kyle-de-Nobrega-Gabon-Loango-22-of-81-2.jpg",
+    panoramicImageSection: '/1280px-Gabon_Loango_National_Park_Southern_Camping_Ground_Panoramic.jpeg'
   };
 
   return (
@@ -80,6 +81,13 @@ export default function Home() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="w-full h-150" style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${Images.panoramicImageSection})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}>
       </section>
 
       {/* Donor Recognition */}
