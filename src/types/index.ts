@@ -3,6 +3,20 @@ export type SignInFormTypes = {
     password: string;
 }
 
+export type ForgotPasswordFormTypes = {
+    email: string;
+}
+
+export type ChangePasswordFormTypes = {
+    newPassword: string;
+    token?: string
+}
+
+export type VerifyTokenFormTypes = {
+    email: string;
+    code: string;
+}
+
 export type SignUpFormTypes = {
     firstName: string;
     lastName: string;

@@ -54,7 +54,7 @@ export default function SignInForm() {
             const profile = await getProfileData(token);
             localStorage.setItem("user-profile", JSON.stringify(profile));
             dispatch(setUser(profile));
-            
+
             // Redirect to either the specified URL or home
             router.push(redirectUrl);
         },
@@ -94,8 +94,8 @@ export default function SignInForm() {
                         <FormItem>
                             <FormLabel className="flex justify-between items-center">
                                 <span>Password</span>
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     className="cursor-pointer text-sm text-muted-foreground hover:text-primary"
                                     onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                                 >
@@ -103,26 +103,32 @@ export default function SignInForm() {
                                 </button>
                             </FormLabel>
                             <FormControl>
-                                <Input 
-                                    type={isPasswordVisible ? "text" : "password"} 
-                                    placeholder="Your password" 
-                                    {...field} 
+                                <Input
+                                    type={isPasswordVisible ? "text" : "password"}
+                                    placeholder="Your password"
+                                    {...field}
                                 />
                             </FormControl>
                             <FormMessage />
+                            <div className="flex w-full justify-end">
+                                <span className="text-sm">
+                                    Forgot Password?&nbsp; 
+                                    <Link href={"/auth/forgot-password"} className="underline">Click Here.</Link>
+                                </span>
+                            </div>
                         </FormItem>
                     )}
                 />
-                <Button 
-                    type="submit" 
-                    className="w-full" 
+                <Button
+                    type="submit"
+                    className="w-full"
                     disabled={isLoading}
                 >
                     {isLoading ? "Logging in..." : "Login"}
                 </Button>
                 <p className="text-center text-sm text-muted-foreground">
                     You do not have an account?{' '}
-                    <Link 
+                    <Link
                         href={`/auth/signup${redirectUrl !== '/' ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`}
                         className="font-medium text-primary hover:underline"
                     >

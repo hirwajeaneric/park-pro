@@ -3,11 +3,13 @@ import React from "react";
 interface PageBannerProps {
   title: string;
   backgroundImage?: string;
+  description?: string;
 }
 
 export const PageBanner: React.FC<PageBannerProps> = ({
   title,
-  backgroundImage = "https://journeysbydesign.com/wp-content/uploads/2022/08/Kyle-de-Nobrega-Gabon-Loango-45-of-81.jpg"
+  backgroundImage = "https://journeysbydesign.com/wp-content/uploads/2022/08/Kyle-de-Nobrega-Gabon-Loango-45-of-81.jpg",
+  description
 }) => {
   return (
     <section
@@ -20,6 +22,7 @@ export const PageBanner: React.FC<PageBannerProps> = ({
     >
       <div className="container mx-auto px-4">
         <h1 className="text-5xl font-bold text-white">{title}</h1>
+        <p className="text-white mt-5 text-xl">{description}</p>
       </div>
     </section>
   );

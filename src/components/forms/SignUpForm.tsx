@@ -16,6 +16,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
+import { useState } from "react"
+import { SignUpFormTypes } from "@/types"
+import { useMutation } from "@tanstack/react-query"
+import { signUp } from "@/lib/api"
+import { useRouter } from "next/navigation"
 
 const FormSchema = z.object({
   firstName: z.string().min(3, "First name is too short"),
@@ -25,7 +30,12 @@ const FormSchema = z.object({
 })
 
 export default function SignUpForm() {
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+  const form = useForm<SignUpFormTypes>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       firstName: "",
@@ -33,11 +43,24 @@ export default function SignUpForm() {
       email: "",
       password: ""
     },
-  })
+  });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    
-  }
+  const signUpMutation = useMutation({
+    mutationFn: (data: SignUpFormTypes) => signUp(data),
+    onSuccess: async () => {
+      form.reset();
+      toast.success("Account created successfully! Please verify your email and confirm your account to continue.");
+      setTimeout(() => {
+        router.push(`/auth/verify/?user=${userEmail}`);
+      }, 3000);
+    }
+  });
+
+  function onSubmit(data: SignUpFormTypes) {
+    setIsLoading(true);
+    setUserEmail(data.email);
+    signUpMutation.mutate(data);
+  };
 
   return (
     <Form {...form}>
@@ -85,18 +108,37 @@ export default function SignUpForm() {
         />
         <FormField
           control={form.control}
-          name="email"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="flex justify-between items-center">
+                <span>Password</span>
+                <button
+                  type="button"
+                  className="cursor-pointer text-sm text-muted-foreground hover:text-primary"
+                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                >
+                  {isPasswordVisible ? "Hide" : "Show"} Password
+                </button>
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Your password" {...field} />
+                <Input
+                  type={isPasswordVisible ? "text" : "password"}
+                  placeholder="Your password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Create account</Button>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating your account..." : "Create account"}
+        </Button>
         <p>Already have an account? <Link href={"/auth/signin"} className="text-blue-600">Login</Link></p>
       </form>
     </Form>
