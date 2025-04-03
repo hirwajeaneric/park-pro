@@ -16,7 +16,12 @@ import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
 import { SignInFormTypes } from "@/types"
-import { signIn } from "@/lib/api"
+import { getProfileData, signIn } from "@/lib/api"
+import { useState } from "react"
+import { useMutation } from "@tanstack/react-query"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useDispatch } from "react-redux"
+import { setUser } from "@/store/slices/userSlice"
 
 const FormSchema = z.object({
     email: z.string().email().min(2, { message: "Please provide a valid Email" }),
@@ -24,10 +29,15 @@ const FormSchema = z.object({
 })
 
 export default function SignInForm() {
-    const { handleSubmit, formState: { errors }, reset } = useForm({
-        resolver: zodResolver(FormSchema),
-    });
-    
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Get redirect URL from query params or default to home
+    const redirectUrl = searchParams.get('redirect') || '/';
+
     const form = useForm<SignInFormTypes>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -36,24 +46,34 @@ export default function SignInForm() {
         }
     });
 
-    async function onSubmit(data: SignInFormTypes) {
-        try {
-            // signIn(data)
-            // .then(response => {
-            //     toast.success("Login Successful!");
-            //     localStorage.setItem("AccessToken", response.data);
-            // })
-            // .catch()
-
-        } catch (error) {
-            console.log(error);
-            toast.error("Error Loging In ");
+    const loginMutation = useMutation({
+        mutationFn: (data: SignInFormTypes) => signIn(data),
+        onSuccess: async (token) => {
+            localStorage.setItem("access-token", token);
+            form.reset();
+            const profile = await getProfileData(token);
+            localStorage.setItem("user-profile", JSON.stringify(profile));
+            dispatch(setUser(profile));
+            
+            // Redirect to either the specified URL or home
+            router.push(redirectUrl);
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Login failed");
+        },
+        onSettled: () => {
+            setIsLoading(false);
         }
+    });
+
+    function onSubmit(data: SignInFormTypes) {
+        setIsLoading(true);
+        loginMutation.mutate(data);
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full md:w-2/3 lg:w-1/3 space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-2/3 lg:w-1/3 space-y-6">
                 <FormField
                     control={form.control}
                     name="email"
@@ -69,19 +89,46 @@ export default function SignInForm() {
                 />
                 <FormField
                     control={form.control}
-                    name="email"
+                    name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel className="flex justify-between items-center">
+                                <span>Password</span>
+                                <button 
+                                    type="button" 
+                                    className="cursor-pointer text-sm text-muted-foreground hover:text-primary"
+                                    onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                                >
+                                    {isPasswordVisible ? "Hide" : "Show"} Password
+                                </button>
+                            </FormLabel>
                             <FormControl>
-                                <Input placeholder="Your password" {...field} />
+                                <Input 
+                                    type={isPasswordVisible ? "text" : "password"} 
+                                    placeholder="Your password" 
+                                    {...field} 
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                <Button type="submit">Login</Button>
-                <p>You do not have an account? <Link href={"/auth/signup"} className="text-blue-600">Create Account</Link></p>
+                <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                >
+                    {isLoading ? "Logging in..." : "Login"}
+                </Button>
+                <p className="text-center text-sm text-muted-foreground">
+                    You do not have an account?{' '}
+                    <Link 
+                        href={`/auth/signup${redirectUrl !== '/' ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`}
+                        className="font-medium text-primary hover:underline"
+                    >
+                        Create Account
+                    </Link>
+                </p>
             </form>
         </Form>
     )

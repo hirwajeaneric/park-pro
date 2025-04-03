@@ -10,6 +10,11 @@ export type SignUpFormTypes = {
     password: string;
 }
 
-export type signInResponseType = {
-    token: string;
-}
+export type UserProfileType = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+    parkId: string;
+  }
