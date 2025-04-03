@@ -46,7 +46,7 @@ export default function Header(){
                             </button>
                         </>
                     ) : (
-                        <Link href="/login" className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600/10 transition-colors">
+                        <Link href="/auth/signin" className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600/10 transition-colors">
                             Login
                         </Link>
                     )}

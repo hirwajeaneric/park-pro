@@ -1,8 +1,13 @@
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import HeroSection from "@/components/widget/HeroSection"
+import Link from "next/link";
+import { Services } from "@/data/data";
 
 export default function Home() {
+  const Images = {
+    descriptionImage: "/Kyle-de-Nobrega-Gabon-Loango-22-of-81-2.jpg",
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
@@ -35,7 +40,7 @@ export default function Home() {
             </div>
             <div>
               <Image
-                src="/placeholder.svg?height=600&width=400"
+                src={Images.descriptionImage ? Images.descriptionImage : "/placeholder.svg?height=600&width=400"}
                 alt="Wildlife in Loango"
                 width={400}
                 height={600}
@@ -51,25 +56,25 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">We Are At Your Service</h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
+            {Services.map((service, index) => (
+              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <Image
-                  src="/placeholder.svg?height=300&width=400"
+                  src={service.image ? service.image : "/placeholder.svg?height=300&width=400"}
                   alt="Service"
                   width={400}
                   height={300}
                   className="w-full h-48 object-cover"
                 />
-                <div className="p-6">
+                <div className="p-6 flex flex-col justify-between ">
                   <h3 className="text-xl font-semibold mb-2">
-                    {i === 1 ? "Book a Tour" : i === 2 ? "Provide Tourism Services" : "Donate For Conservation"}
+                    {service.name}
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    These are services Loango National Park offers you and what you can do with us.
+                    {service.description}
                   </p>
-                  <Button className="w-full bg-blue-500 hover:bg-blue-600">
-                    {i === 1 ? "Book a Tour" : i === 2 ? "Provide Tourism Services" : "Donate For Conservation"}
-                  </Button>
+                  <Link href={service.slug} className="w-full border flex text-center items-center justify-center font-semibold text-nowrap text-sm rounded-md py-2">
+                    {service.name}
+                  </Link>
                 </div>
               </div>
             ))}
@@ -82,7 +87,6 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Donor Recognition</h2>
           <p className="text-center text-gray-600 mb-8">Thank you for your support</p>
-
           <div className="max-w-3xl mx-auto">
             {[
               { name: "Jane Doe", title: "XYZ Corporation", position: "Managing Director" },
