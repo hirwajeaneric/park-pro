@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { UserProfileFormSchema } from '@/components/forms/UserProfileForm';
 import { ChangePasswordFormTypes, ForgotPasswordFormTypes, RequestNewVerificationCodeTypes, SignInFormTypes, SignUpFormTypes, VerifyTokenFormTypes } from '@/types';
 import axios from 'axios';
+import { z } from 'zod';
 
 // Define a standard error response type from your backend
 interface BackendErrorResponse {
@@ -88,6 +90,19 @@ export const getNewVerificationCode = async (data: RequestNewVerificationCodeTyp
 export const signUp = async (data: SignUpFormTypes) => {
   try {
     const response = await api.post("/api/signup", data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateProfile = async (data: z.infer<typeof UserProfileFormSchema>, token: string | null) => {
+  try {
+    const response = await api.post(`/api/users/${data.id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;

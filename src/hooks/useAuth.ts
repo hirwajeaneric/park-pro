@@ -3,14 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface UserProfile {
+export type UserProfile = {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  parkId?: string;
   role: string;
-}
+  parkId: string | null | undefined;
+  phone: string | null | undefined;
+  gender: 'male' | 'female' | 'other' | 'prefer-not-to-say' | null | undefined;
+  age: number;
+  passportNationalId: string | null | undefined;
+  nationality: string | null | undefined;
+  isActive: boolean;
+};
 
 export function useAuth() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -21,8 +27,7 @@ export function useAuth() {
   useEffect(() => {
     // Check localStorage only on client side
     const token = localStorage.getItem('access-token');
-    const profile = localStorage.getItem('user-profile');
-    
+    const profile = localStorage.getItem('user-profile');  
     setAccessToken(token);
     setUserProfile(profile ? JSON.parse(profile) : null);
     setIsLoading(false);

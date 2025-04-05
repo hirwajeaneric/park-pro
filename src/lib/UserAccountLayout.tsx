@@ -44,10 +44,10 @@ export default function UserAccountLayout({ children, title, subTitle }: Account
     return (
         <ProtectedRoute>
             <PageBanner title={title} />
-            <section className="py-16 bg-white">
+            <section className="pb-16 bg-white">
                 <div className="container mx-auto px-4 w-full">
                     <div className="flex flex-col md:flex-row shadow-md">
-                        <nav className="bg-slate-50 w-full md:w-64 p-6 gap-1">
+                        <nav className="bg-slate-50 w-full flex flex-col md:w-64 p-6 gap-2">
                             {accountNavMenu.map((menu, index) =>
                             (<Link key={index} href={menu.url} className={cn(title === menu.label ? "bg-slate-300": "", "flex gap-2 items-center px-3 py-3 hover:bg-slate-200 rounded-md")}>
                                 {menu.icon}

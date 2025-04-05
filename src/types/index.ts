@@ -28,11 +28,17 @@ export type SignUpFormTypes = {
     password: string;
 }
 
-export type UserProfileType = {
+export type UserProfile = {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
     role: string;
-    parkId: string;
-  }
+    parkId?: string | null;
+    phone: string;
+    gender: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+    age: number;
+    passportNationalId: string;
+    nationality: string;
+    isActive: boolean;
+  };

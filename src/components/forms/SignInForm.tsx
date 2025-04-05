@@ -53,9 +53,6 @@ export default function SignInForm() {
             const profile = await getProfileData(token);
             localStorage.setItem("user-profile", JSON.stringify(profile));
             dispatch(setUser(profile));
-
-            // Redirect to either the specified URL or home
-            // router.push(redirectUrl);
             window.location.replace(redirectUrl);
         },
         onError: (error: Error) => {
