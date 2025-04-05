@@ -1,5 +1,6 @@
 import ResetPasswordForm from "@/components/forms/ResetPasswordForm";
 import { PageBanner } from "@/components/widget/PageBanner";
+import SkeletonCardOne from "@/components/widget/SkeletonCardOne";
 import { Suspense } from "react";
 
 export default function page() {
@@ -11,7 +12,7 @@ export default function page() {
       />
       <section className="py-8 bg-white mx-auto w-full flex flex-col items-center justify-center">
         <div className="container px-4 flex w-full items-center justify-center">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<SkeletonCardOne />}>
             <ResetPasswordForm />
           </Suspense>
         </div>

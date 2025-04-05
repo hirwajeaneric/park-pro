@@ -1,7 +1,5 @@
-import ProtectedRoute from "@/lib/ProtectedRoute";
+import { redirect } from "next/navigation";
 
 export default function page() {
-  return (
-    <ProtectedRoute>Profile</ProtectedRoute>
-  )
+  redirect("/account/profile");
 }

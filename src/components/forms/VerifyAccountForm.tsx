@@ -15,8 +15,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
-import { VerifyTokenFormTypes } from "@/types"
-import { verifyToken } from "@/lib/api"
+import { RequestNewVerificationCodeTypes, VerifyTokenFormTypes } from "@/types"
+import { getNewVerificationCode, verifyToken } from "@/lib/api"
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
@@ -30,6 +30,7 @@ export default function VerifyAccountForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoading2, setIsLoading2] = useState(false);
 
     const form = useForm<VerifyTokenFormTypes>({
         resolver: zodResolver(FormSchema),
@@ -46,7 +47,7 @@ export default function VerifyAccountForm() {
             toast.success("Account verified! Continue to login.");
             setTimeout(() => {
                 router.push("/auth/signin");
-              }, 2000)
+            }, 2000)
         },
         onError: (error: Error) => {
             toast.error(error.message || "Login failed");
@@ -56,44 +57,73 @@ export default function VerifyAccountForm() {
         }
     });
 
+    const requestNewCodeMutation = useMutation({
+        mutationFn: (data: RequestNewVerificationCodeTypes) => getNewVerificationCode(data),
+        onSuccess: async () => {
+            toast.success("New verification code sent to your email.");
+        },
+        onError: (error: Error) => {
+            toast.error(error.message || "Failed to send you a new verification code. Try again later.")
+        },
+        onSettled: () => {
+            setIsLoading2(false);
+        }
+    });
+
     function onSubmit(data: VerifyTokenFormTypes) {
         setIsLoading(true);
         verifyAccountMutation.mutate(data);
     }
 
+    function requestNewVerificationCode() {
+        setIsLoading2(true);
+        const userEmail = form.getValues("email");
+        requestNewCodeMutation.mutate({ email: userEmail });
+    }
+
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-2/3 lg:w-1/3 space-y-6">
-                <FormField
-                    control={form.control}
-                    name="code"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Verification Code</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Verification code" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Button 
-                    type="submit" 
-                    className="w-full" 
-                    disabled={isLoading}
-                >
-                    {isLoading ? "Verifying" : "Verify"}
-                </Button>
-                <p className="text-center text-sm text-muted-foreground">
-                    Go to ?{' '}
-                    <Link 
-                        href={`/auth/signin`}
-                        className="font-medium text-primary hover:underline"
+        <>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="w-full md:w-2/3 lg:w-1/3 space-y-6">
+                    <FormField
+                        control={form.control}
+                        name="code"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Verification Code</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Verification code" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isLoading}
                     >
-                        Login
-                    </Link>
-                </p>
-            </form>
-        </Form>
+                        {isLoading ? "Verifying" : "Verify"}
+                    </Button>
+                    <p className="text-center text-sm text-muted-foreground">
+                        Go to ?{' '}
+                        <Link
+                            href={`/auth/signin`}
+                            className="font-medium text-primary hover:underline"
+                        >
+                            Login
+                        </Link>
+                    </p>
+                </form>
+            </Form>
+            <Button 
+                type="button"
+                variant={'outline'} 
+                className="mt-5 cursor-pointer"
+                onClick={requestNewVerificationCode}
+            >
+                {isLoading2 ? "Sending request..." : "Get new verification code"}
+            </Button>
+        </>
     )
 }

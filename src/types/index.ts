@@ -7,6 +7,10 @@ export type ForgotPasswordFormTypes = {
     email: string;
 }
 
+export type RequestNewVerificationCodeTypes = {
+    email: string;
+}
+
 export type ChangePasswordFormTypes = {
     newPassword: string;
     token?: string

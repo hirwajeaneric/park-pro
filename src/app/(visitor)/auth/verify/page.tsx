@@ -1,5 +1,6 @@
 import VerifyAccountForm from "@/components/forms/VerifyAccountForm";
 import { PageBanner } from "@/components/widget/PageBanner";
+import SkeletonCardOne from "@/components/widget/SkeletonCardOne";
 import { Suspense } from "react";
 
 export default function page() {
@@ -11,8 +12,8 @@ export default function page() {
       />
       <section className="py-8 bg-white mx-auto w-full flex flex-col items-center justify-center">
         <p className="mb-5 font-semibold">Confirm your account by entering your verification code.</p>
-        <div className="container px-4 flex w-full items-center justify-center">
-          <Suspense fallback={<div>Loading...</div>}>
+        <div className="container px-4 flex w-full items-center justify-center flex-col">
+          <Suspense fallback={<SkeletonCardOne />}>
             <VerifyAccountForm />
           </Suspense>
         </div>
