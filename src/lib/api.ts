@@ -98,7 +98,7 @@ export const signUp = async (data: SignUpFormTypes) => {
 
 export const updateProfile = async (data: z.infer<typeof UserProfileFormSchema>, token: string | null) => {
   try {
-    const response = await api.post(`/api/users/${data.id}`, data, {
+    const response = await api.patch(`/api/users/${data.id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`
       }

@@ -1,5 +1,6 @@
 "use client";
 
+import SkeletonCardThree from "@/components/widget/SkeletonCardThree";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 
@@ -13,7 +14,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   }, [isAuthenticated, isLoading, requireAuth]);
 
   if (isLoading || !isAuthenticated) {
-    return <div>Loading...</div>;
+    return <SkeletonCardThree />;
   }
 
   return <>{children}</>;
