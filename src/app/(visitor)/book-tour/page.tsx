@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { PageBanner } from "@/components/widget/PageBanner";
 import ParkActivityCard, { ParkActivityCardProps } from "@/components/widget/ParkActivityCard";
@@ -7,18 +7,44 @@ import ProtectedRoute from "@/lib/ProtectedRoute";
 import { useQuery } from "@tanstack/react-query";
 import { getParkActivities } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+
+// Cache time constants (in milliseconds)
+const CACHE_SETTINGS = {
+  STALE_TIME: 5 * 60 * 1000, // 5 minutes - data is fresh for this duration
+  CACHE_TIME: 30 * 60 * 1000, // 30 minutes - data remains in cache
+  RETRY_DELAY: 3000, // 3 seconds between retries
+  RETRY_COUNT: 2, // Number of retry attempts
+};
 
 export default function BookTourPage() {
   const parkId = process.env.NEXT_PUBLIC_PARK_ID as string;
 
-  // Fetch activities using Tanstack Query
-  const { data: activities, isLoading, error } = useQuery({
-    queryKey: ['parkActivities'],
+  const {
+    data: activities,
+    isLoading,
+    error,
+    isRefetching,
+  } = useQuery({
+    queryKey: ['parkActivities', parkId],
     queryFn: () => getParkActivities(parkId),
-    enabled: !!parkId, // Only fetch if parkId exists
+    enabled: !!parkId,
+    
+    // Cache management settings
+    staleTime: CACHE_SETTINGS.STALE_TIME,
+    gcTime: CACHE_SETTINGS.CACHE_TIME,
+    
+    // Retry settings
+    retry: CACHE_SETTINGS.RETRY_COUNT,
+    retryDelay: CACHE_SETTINGS.RETRY_DELAY,
+    
+    // Optimistic updates and refetching behavior
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
   });
 
-  if (isLoading) {
+  if (isLoading && !isRefetching) {
     return (
       <ProtectedRoute>
         <PageBanner title="Book Tour" backgroundImage={Services[0].image} />
@@ -47,6 +73,12 @@ export default function BookTourPage() {
             <p className="text-lg text-red-500">
               {error instanceof Error ? error.message : 'Failed to load activities'}
             </p>
+            <Button 
+              onClick={() => window.location.reload()}
+              variant="outline"
+            >
+              Retry
+            </Button>
           </div>
         </section>
       </ProtectedRoute>
@@ -58,17 +90,22 @@ export default function BookTourPage() {
       <PageBanner title="Book Tour" backgroundImage={Services[0].image} />
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4 flex flex-col gap-6">
-          <h1 className="text-2xl font-semibold">Choose A Fun Activity From a number of Our Activities</h1>
-          <p className="text-lg">Experience the wonders of Loango National Park with our professionally guided tours. Choose from a variety of packages to suit your interests and schedule.
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold">Choose A Fun Activity</h1>
+              <p className="text-lg">
+                Experience the wonders of our park with professionally guided tours.
+              </p>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-5">
             {activities?.map((activity: ParkActivityCardProps) => (
               <ParkActivityCard 
                 key={activity.id} 
                 activity={{
                   ...activity,
-                  // Ensure picture is always a string (fallback to empty string if null)
-                  picture: activity.picture || ''
+                  picture: activity.picture
                 }} 
               />
             ))}

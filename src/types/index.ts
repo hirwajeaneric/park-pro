@@ -41,4 +41,10 @@ export type UserProfile = {
     passportNationalId: string;
     nationality: string;
     isActive: boolean;
-  };
+};
+
+export type BookFormTypes = {
+    activityId: string;
+    visitDate: string;
+    paymentMethodId: string;
+};

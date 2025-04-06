@@ -8,7 +8,7 @@ interface PageBannerProps {
 
 export const PageBanner: React.FC<PageBannerProps> = ({
   title,
-  backgroundImage = "https://journeysbydesign.com/wp-content/uploads/2022/08/Kyle-de-Nobrega-Gabon-Loango-45-of-81.jpg",
+  backgroundImage = "/placeholder.svg?height=100&width=100",
   description
 }) => {
   return (

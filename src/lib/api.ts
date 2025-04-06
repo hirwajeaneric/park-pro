@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { UserProfileFormSchema } from '@/components/forms/UserProfileForm';
-import { ChangePasswordFormTypes, ForgotPasswordFormTypes, RequestNewVerificationCodeTypes, SignInFormTypes, SignUpFormTypes, VerifyTokenFormTypes } from '@/types';
+import { BookFormTypes, ChangePasswordFormTypes, ForgotPasswordFormTypes, RequestNewVerificationCodeTypes, SignInFormTypes, SignUpFormTypes, VerifyTokenFormTypes } from '@/types';
 import axios from 'axios';
 import { z } from 'zod';
 
@@ -146,7 +146,6 @@ export const getProfileData = async (token: string) => {
 
 export const getParkActivities = async (parkId: string) => {
   try {
-    console.log(`/api/parks/${parkId}/activities`);
     const response = await api.get(`/api/parks/${parkId}/activities`);
     return response.data;
   } catch (error) {
@@ -162,5 +161,33 @@ export const getParkActivityDetails = async (activityId: string) => {
     throw error;
   }
 }
+
+export const bookTour = async ({
+  activityId,
+  visitDate,
+  paymentMethodId,
+  token,
+}: {
+  activityId: string;
+  visitDate: string;
+  paymentMethodId: string;
+  token: string;
+}) => {
+  try {
+    const response = await api.post(
+      '/api/bookings',
+      { activityId, visitDate },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { paymentMethodId },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 export default api;

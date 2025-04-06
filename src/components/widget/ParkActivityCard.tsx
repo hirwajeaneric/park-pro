@@ -19,15 +19,16 @@ export default function ParkActivityCard({ activity }: { activity: ParkActivityC
             <div
                 className="h-48 bg-cover bg-center"
                 style={{
-                    backgroundImage: "url(/placeholder.svg?height=600&width=400)"
+                    backgroundImage: activity.picture ? `url(${activity.picture})`: "url(/placeholder.svg?height=600&width=400)"
                 }}
             ></div>
-            <div className="p-6">
+            <div className="p-4">
                 <h2 className="text-2xl font-semibold mb-4">{activity.name}</h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 mb-4">
                     {activity.description}
                 </p>
-                <Button variant="outline" className="w-full">
+                <span className="text-blue-500 font-semibold text-sm">XAF {activity.price}</span>
+                <Button variant="outline" className="w-full mt-4">
                     <Link href={`/book-tour/${activity.id}`}>Book Now</Link>
                 </Button>
             </div>
