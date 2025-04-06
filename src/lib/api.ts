@@ -190,4 +190,38 @@ export const bookTour = async ({
   }
 };
 
+export const makeDonation = async (
+  data: {
+    parkId: string;
+    amount: string;
+    motiveForDonation: string;
+    token: string;
+  },
+  paymentMethodId: string
+) => {
+  try {
+    const response = await api.post(
+      "/api/donations",
+      {
+        parkId: data.parkId,
+        amount: data.amount,
+        motiveForDonation: data.motiveForDonation
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${data.token}`
+        },
+        params: { paymentMethodId }
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to process donation. Please try again.');
+  }
+};
+
+
 export default api;
