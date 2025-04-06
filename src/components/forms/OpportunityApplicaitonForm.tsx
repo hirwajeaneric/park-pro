@@ -1,0 +1,169 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useMutation } from "@tanstack/react-query";
+import { applyForOpportunity } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Opportunity } from "@/types";
+import Link from "next/link";
+import { FileUpload } from "@/components/ui/file-upload";
+
+const ApplicationFormSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  applicationLetter: z.string().min(10, "Application letter must be at least 10 characters"),
+  resumeUrl: z.string().url("Please upload a valid resume"),
+});
+
+export default function ApplicationForm({ opportunity }: { opportunity: Opportunity }) {
+  const { userProfile, accessToken } = useAuth();
+  const form = useForm<z.infer<typeof ApplicationFormSchema>>({
+    resolver: zodResolver(ApplicationFormSchema),
+    defaultValues: {
+      firstName: userProfile?.firstName || "",
+      lastName: userProfile?.lastName || "",
+      email: userProfile?.email || "",
+      applicationLetter: "",
+      resumeUrl: "",
+    },
+  });
+
+  const applicationMutation = useMutation({
+    mutationFn: (data: z.infer<typeof ApplicationFormSchema>) => 
+      applyForOpportunity({
+        opportunityId: opportunity.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        applicationLetterUrl: data.resumeUrl,
+      }, accessToken as string),
+    onSuccess: () => {
+      toast.success("Application submitted successfully!");
+      form.reset();
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to submit application");
+    },
+  });
+
+  function onSubmit(data: z.infer<typeof ApplicationFormSchema>) {
+    applicationMutation.mutate(data);
+  }
+
+  return (
+    <section className="py-8 bg-white">
+      <div className="container mx-auto px-4 max-w-2xl">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold">Apply for: {opportunity.title}</h2>
+          <p className="text-gray-600">{opportunity.description}</p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="john.doe@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="applicationLetter"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Application Letter</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Explain why you're a good fit for this opportunity..."
+                      className="min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="resumeUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Resume/CV</FormLabel>
+                  <FormControl>
+                    <FileUpload
+                      endpoint="resumeUpload"
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-4">
+              <Button
+                type="submit"
+                disabled={applicationMutation.isPending}
+                className="w-full"
+              >
+                {applicationMutation.isPending ? "Submitting..." : "Submit Application"}
+              </Button>
+              <Link href={`/opportunities/${opportunity.id}`} className="w-full">
+                <Button variant="outline" className="w-full">
+                  Cancel
+                </Button>
+              </Link>
+            </div>
+          </form>
+        </Form>
+      </div>
+    </section>
+  );
+}

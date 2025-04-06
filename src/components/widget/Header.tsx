@@ -40,11 +40,11 @@ export default function Header() {
             Book Tour
           </Link>
           <Link 
-            href="/provide-services" 
+            href="/opportunities" 
             onClick={(e) => handleProtectedLink(e, '/provide-services')}
             className="text-gray-600 hover:text-primary transition-colors"
           >
-            Provide Services
+            Careers & Opportunities
           </Link>
         </div>
 

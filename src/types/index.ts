@@ -48,3 +48,30 @@ export type BookFormTypes = {
     visitDate: string;
     paymentMethodId: string;
 };
+
+export type Opportunity = {
+    id: string;
+    title: string;
+    description: string;
+    details: string | null;
+    type: 'JOB' | 'VOLUNTEER' | 'INVESTMENT' | 'SERVICE';
+    status: 'OPEN' | 'CLOSED';
+    visibility: 'PUBLIC' | 'PRIVATE';
+    createdById: string;
+    parkId: string;
+    parkName: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  
+  export type OpportunityApplication = {
+    id: string;
+    opportunityId: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    applicationLetterUrl: string;
+    status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED';
+    createdAt: string;
+    updatedAt: string;
+  };

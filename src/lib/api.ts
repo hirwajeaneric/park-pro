@@ -223,5 +223,60 @@ export const makeDonation = async (
   }
 };
 
+export const getParkOpportunities = async (parkId: string) => {
+  try {
+    const response = await api.get(`/api/park/${parkId}/opportunities`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to fetch opportunities');
+  }
+};
+
+export const getOpportunityDetails = async (opportunityId: string) => {
+  try {
+    const response = await api.get(`/api/opportunities/${opportunityId}`);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to fetch opportunity details');
+  }
+};
+
+export const applyForOpportunity = async (data: {
+  opportunityId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  applicationLetterUrl: string;
+}, token: string) => {
+  try {
+    const response = await api.post(
+      '/api/opportunity-applications',
+      {
+        opportunityId: data.opportunityId,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        applicationLetterUrl: data.applicationLetterUrl
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to submit application');
+  }
+};
 
 export default api;
