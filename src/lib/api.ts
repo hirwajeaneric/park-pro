@@ -16,6 +16,8 @@ const api = axios.create({
   baseURL: "http://localhost:8080",
 });
 
+// const parkId = process.env.PARK_ID;
+
 // Add request interceptor for common headers
 api.interceptors.request.use(config => {
   // You can add auth tokens or other headers here if needed
@@ -141,5 +143,24 @@ export const getProfileData = async (token: string) => {
     throw error;
   }
 };
+
+export const getParkActivities = async (parkId: string) => {
+  try {
+    console.log(`/api/parks/${parkId}/activities`);
+    const response = await api.get(`/api/parks/${parkId}/activities`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getParkActivityDetails = async (activityId: string) => {
+  try {
+    const response = await api.get(`/api/activities/${activityId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export default api;

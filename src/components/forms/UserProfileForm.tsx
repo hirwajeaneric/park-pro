@@ -57,13 +57,13 @@ export default function UserProfileForm() {
       lastName: userProfile?.lastName || "",
       email: userProfile?.email || "",
       phone: userProfile?.phone || "",
-      gender: userProfile?.gender || undefined,
+      gender: userProfile?.gender as z.infer<typeof UserProfileFormSchema>['gender'] || undefined,
       age: userProfile?.age || 18,
       passportNationalId: userProfile?.passportNationalId || "",
       nationality: userProfile?.nationality || ""
     },
   });
-
+  
   // Reset form when userProfile changes
   useEffect(() => {
     if (userProfile) {
@@ -73,7 +73,7 @@ export default function UserProfileForm() {
         lastName: userProfile.lastName,
         email: userProfile.email,
         phone: userProfile.phone || "",
-        gender: userProfile.gender || undefined,
+        gender: userProfile.gender as z.infer<typeof UserProfileFormSchema>['gender'] || undefined,
         age: userProfile.age || 18,
         passportNationalId: userProfile.passportNationalId || "",
         nationality: userProfile.nationality || ""
@@ -84,6 +84,7 @@ export default function UserProfileForm() {
   const updateProfileMutation = useMutation({
     mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data, accessToken),
     onSuccess: async (data) => {
+      console.log(data);
       localStorage.setItem("user-profile", JSON.stringify(data));
       toast.success("Profile updated successfully!");
       setTimeout(() => {
@@ -185,7 +186,11 @@ export default function UserProfileForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value} // Remove the || undefined
+                  defaultValue={field.value} // Add defaultValue
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
@@ -250,7 +255,11 @@ export default function UserProfileForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nationality</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value} // Remove the || undefined
+                  defaultValue={field.value} // Add defaultValue
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select country" />
@@ -269,7 +278,6 @@ export default function UserProfileForm() {
             )}
           />
         </div>
-
         {/* Submit Button */}
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Updating..." : "Update Profile"}
