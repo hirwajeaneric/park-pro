@@ -8,7 +8,7 @@ import { cn } from "./utils";
 type AccountNavMenuTypes = {
     label: string;
     icon: React.ReactNode;
-    url: string,
+    url: string;
 }
 
 const accountNavMenu: AccountNavMenuTypes[] = [
@@ -38,12 +38,13 @@ type AccountProps = {
     children: ReactNode;
     title: string;
     subTitle: string;
+    bannerPicture: string;
 }
 
-export default function UserAccountLayout({ children, title, subTitle }: AccountProps) {
+export default function UserAccountLayout({ children, title, subTitle, bannerPicture }: AccountProps) {
     return (
         <ProtectedRoute>
-            <PageBanner title={title} />
+            <PageBanner title={title} backgroundImage={bannerPicture}/>
             <section className="pb-16 bg-white">
                 <div className="container mx-auto px-4 w-full">
                     <div className="flex flex-col md:flex-row shadow-md">

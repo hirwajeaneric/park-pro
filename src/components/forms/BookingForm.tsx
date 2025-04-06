@@ -19,6 +19,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 // Dynamically import CheckoutForm with SSR disabled
 const CheckoutForm = dynamic(() => import("./CheckoutForm"), { ssr: false });
@@ -26,13 +27,17 @@ const CheckoutForm = dynamic(() => import("./CheckoutForm"), { ssr: false });
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const BookingFormSchema = z.object({
-  visitDate: z.string().min(1, "Please select a date"),
+  visitDate: z.string().min(1, "Please select a date")
+    .refine(date => new Date(date) >= new Date(), {
+      message: "Date must be in the future"
+    }),
 });
 
 type BookingFormValues = z.infer<typeof BookingFormSchema>;
 
 export default function BookingForm({ activityId, price }: { activityId: string; price: number }) {
   const { accessToken } = useAuth();
+  const router = useRouter();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
 
@@ -100,7 +105,7 @@ export default function BookingForm({ activityId, price }: { activityId: string;
             <DialogTitle>Complete Payment</DialogTitle>
           </DialogHeader>
           <Elements stripe={stripePromise}>
-            <CheckoutForm onPaymentSuccess={handlePaymentSuccess} amount={price} />
+            <CheckoutForm onPaymentSuccess={handlePaymentSuccess} amount={price} onClose={() => setIsPaymentDialogOpen(false)}/>
           </Elements>
         </DialogContent>
       </Dialog>
@@ -111,8 +116,20 @@ export default function BookingForm({ activityId, price }: { activityId: string;
           <DialogHeader>
             <DialogTitle>Booking Confirmed!</DialogTitle>
           </DialogHeader>
-          <p>Your booking has been successfully created and payment processed.</p>
-          <Button onClick={() => setIsSuccessDialogOpen(false)}>Close</Button>
+          <div className="space-y-2">
+            <p>Your booking with code <span className="font-semibold">{activityId}</span> has been confirmed.</p>
+            <p>Amount: <span className="font-semibold">{price}</span> XAF</p>
+            <p>We&apos;ve sent the details to your email.</p>
+          </div>
+          <Button
+            onClick={() => {
+              setIsSuccessDialogOpen(false);
+              router.push('/account/bookings'); // Redirect to bookings page
+            }}
+            className="mt-4"
+          >
+            View My Bookings
+          </Button>
         </DialogContent>
       </Dialog>
     </>

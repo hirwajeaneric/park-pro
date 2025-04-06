@@ -52,39 +52,40 @@ export default function UserProfileForm() {
   const form = useForm<z.infer<typeof UserProfileFormSchema>>({
     resolver: zodResolver(UserProfileFormSchema),
     defaultValues: {
-      id: userProfile?.id || "",
-      firstName: userProfile?.firstName || "",
-      lastName: userProfile?.lastName || "",
-      email: userProfile?.email || "",
-      phone: userProfile?.phone || "",
-      gender: userProfile?.gender as z.infer<typeof UserProfileFormSchema>['gender'] || undefined,
-      age: userProfile?.age || 18,
-      passportNationalId: userProfile?.passportNationalId || "",
-      nationality: userProfile?.nationality || ""
+      id: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      gender: undefined,
+      age: 18,
+      passportNationalId: "",
+      nationality: ""
     },
   });
   
   // Reset form when userProfile changes
   useEffect(() => {
     if (userProfile) {
-      form.reset({
-        id: userProfile.id,
-        firstName: userProfile.firstName,
-        lastName: userProfile.lastName,
-        email: userProfile.email,
+      const defaultValues = {
+        id: userProfile.id || "",
+        firstName: userProfile.firstName || "",
+        lastName: userProfile.lastName || "",
+        email: userProfile.email || "",
         phone: userProfile.phone || "",
-        gender: userProfile.gender as z.infer<typeof UserProfileFormSchema>['gender'] || undefined,
+        gender: (userProfile.gender as z.infer<typeof UserProfileFormSchema>['gender']) || undefined,
         age: userProfile.age || 18,
         passportNationalId: userProfile.passportNationalId || "",
         nationality: userProfile.nationality || ""
-      });
+      };
+      
+      form.reset(defaultValues);
     }
   }, [userProfile, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data, accessToken),
     onSuccess: async (data) => {
-      console.log(data);
       localStorage.setItem("user-profile", JSON.stringify(data));
       toast.success("Profile updated successfully!");
       setTimeout(() => {
@@ -119,7 +120,7 @@ export default function UserProfileForm() {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name: {userProfile?.firstName}</FormLabel>
+                <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input placeholder="John" {...field} />
                 </FormControl>
@@ -168,7 +169,7 @@ export default function UserProfileForm() {
                 <FormControl>
                   <PhoneInput
                     placeholder="Enter phone number"
-                    value={field.value || ""}
+                    value={field.value}
                     onChange={field.onChange}
                   />
                 </FormControl>
@@ -188,12 +189,12 @@ export default function UserProfileForm() {
                 <FormLabel>Gender</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value} // Remove the || undefined
-                  defaultValue={field.value} // Add defaultValue
+                  value={field.value}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select gender" />
+                      <SelectValue placeholder={"Select your gender"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -222,7 +223,7 @@ export default function UserProfileForm() {
                     placeholder="25"
                     min={18}
                     max={120}
-                    value={field.value}
+                    value={field.value || ""}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
@@ -241,7 +242,7 @@ export default function UserProfileForm() {
               <FormItem>
                 <FormLabel>Passport/National ID</FormLabel>
                 <FormControl>
-                  <Input placeholder="A12345678" {...field} value={field.value || ""} />
+                  <Input placeholder="A12345678" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -257,8 +258,8 @@ export default function UserProfileForm() {
                 <FormLabel>Nationality</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value} // Remove the || undefined
-                  defaultValue={field.value} // Add defaultValue
+                  value={field.value}
+                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

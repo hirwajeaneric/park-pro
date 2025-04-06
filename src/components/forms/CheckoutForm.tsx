@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 interface CheckoutFormProps {
   onPaymentSuccess: (paymentMethodId: string) => void;
   amount: number;
+  onClose: () => void;
 }
 
-export default function CheckoutForm({ onPaymentSuccess, amount }: CheckoutFormProps) {
+export default function CheckoutForm({ onPaymentSuccess, amount, onClose }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -66,9 +67,23 @@ export default function CheckoutForm({ onPaymentSuccess, amount }: CheckoutFormP
         }}
       />
       {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
-      <Button type="submit" disabled={!stripe || isLoading} className="mt-4 w-full">
-        {isLoading ? "Processing..." : `Pay ${amount} XAF`}
-      </Button>
+      <div className="flex gap-2 mt-4">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={isLoading}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          className="flex-1"
+          disabled={!stripe || isLoading}
+        >
+          {isLoading ? "Processing..." : `Pay ${amount} XAF`}
+        </Button>
+      </div>
     </form>
   );
 }
