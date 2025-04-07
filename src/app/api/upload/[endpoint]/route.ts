@@ -18,7 +18,6 @@ export async function POST(
   try {
     // Upload to UploadThing
     const response = await utapi.uploadFiles(file);
-    console.log("Upload things response: ", response);
     if (!response.data?.url) {
       throw new Error("Upload failed");
     }

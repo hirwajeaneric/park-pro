@@ -5,7 +5,8 @@ import ProtectedRoute from '@/lib/ProtectedRoute';
 import OpportunityDetails from '@/components/widget/opportunities/OpportunityDetails';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const opportunity = await getOpportunityDetails(params.id);
+  const { id } = await params;
+  const opportunity = await getOpportunityDetails(id);
   return {
     title: `${opportunity.title} - Wildlife Park Opportunity`,
     description: opportunity.description,
@@ -13,7 +14,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function page({ params }: { params: { id: string } }) {
-  const opportunity = await getOpportunityDetails(params.id);
+  const { id } = await params;
+  const opportunity = await getOpportunityDetails(id);
 
   return (
     <ProtectedRoute>

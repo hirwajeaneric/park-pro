@@ -5,7 +5,8 @@ import { PageBanner } from '@/components/widget/PageBanner';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const opportunity = await getOpportunityDetails(params.id);
+  const { id } = await params;
+  const opportunity = await getOpportunityDetails(id);
   return {
     title: `Apply for ${opportunity.title}`,
     description: `Application page for ${opportunity.title} position`,
@@ -13,7 +14,8 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 }
 
 export default async function page({ params }: { params: { id: string } }) {
-  const opportunity = await getOpportunityDetails(params.id);
+  const { id } = await params;
+  const opportunity = await getOpportunityDetails(id);
 
   return (
     <ProtectedRoute>

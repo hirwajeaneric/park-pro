@@ -11,7 +11,8 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const activity = await getParkActivityDetails(params.id);
+  const { id } = await params;
+  const activity = await getParkActivityDetails(id);
   return {
     title: `Book - ${activity.name}`,
     description: activity.description,
@@ -19,7 +20,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ActivityPage({ params }: PageProps) {
-  const activity = await getParkActivityDetails(params.id);
+  const { id } = await params;
+  const activity = await getParkActivityDetails(id);
 
   return (
     <ProtectedRoute>
