@@ -279,4 +279,52 @@ export const applyForOpportunity = async (data: {
   }
 };
 
+export const getUserBookings = async (token: string) => {
+  try {
+    const response = await api.get("/api/bookings/my", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to fetch bookings');
+  }
+};
+
+export const getUserDonations = async (token: string) => {
+  try {
+    const response = await api.get("/api/donations/my", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to fetch donations');
+  }
+};
+
+export const getUserApplications = async (token: string) => {
+  try {
+    const response = await api.get("/api/opportunity-applications/my", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to fetch applications');
+  }
+};
+
 export default api;

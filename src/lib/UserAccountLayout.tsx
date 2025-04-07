@@ -14,22 +14,22 @@ type AccountNavMenuTypes = {
 const accountNavMenu: AccountNavMenuTypes[] = [
     {
         label: "Profile",
-        icon: <UserIcon />,
+        icon: <UserIcon className="w-5" />,
         url: "/account/profile",
     },
     {
         label: "Booking History",
-        icon: <Calendar />,
+        icon: <Calendar className="w-5" />,
         url: "/account/bookings",
     },
     {
         label: "Donations",
-        icon: <CreditCard />,
+        icon: <CreditCard className="w-5" />,
         url: "/account/donations",
     },
     {
         label: "Applications",
-        icon: <File />,
+        icon: <File className="w-5" />,
         url: "/account/applications",
     }
 ];
@@ -52,7 +52,7 @@ export default function UserAccountLayout({ children, title, subTitle, bannerPic
                             {accountNavMenu.map((menu, index) =>
                             (<Link key={index} href={menu.url} className={cn(title === menu.label ? "bg-slate-300": "", "flex gap-2 items-center px-3 py-3 hover:bg-slate-200 rounded-md")}>
                                 {menu.icon}
-                                <span className="text-lg">{menu.label}</span>
+                                <span className="text-base">{menu.label}</span>
                             </Link>))}
                         </nav>
                         <div className="flex flex-col flex-1 gap-3 p-6 md:p-8">

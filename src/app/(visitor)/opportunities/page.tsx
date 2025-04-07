@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import { PageBanner } from '@/components/widget/PageBanner';
 import { Services } from '@/data/data';
-import ProtectedRoute from '@/lib/ProtectedRoute';
 import OpportunitiesList from '@/components/widget/opportunities/OpportunitiesList';
 
 export const metadata: Metadata = {
@@ -27,13 +26,13 @@ export const metadata: Metadata = {
 
 export default function page() {
   return (
-    <ProtectedRoute>
+    <>
       <PageBanner 
         title="Join Our Team" 
         backgroundImage={Services[1].image}
         description="Explore opportunities to work with us or support our mission"
       />
       <OpportunitiesList />
-    </ProtectedRoute>
+    </>
   );
 }
