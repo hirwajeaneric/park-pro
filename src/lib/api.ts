@@ -33,10 +33,10 @@ api.interceptors.response.use(
     if (error.response) {
       // The request was made and the server responded with a status code
       const backendError: BackendErrorResponse = error.response.data;
-      
+
       // Format the error message
       let errorMessage = backendError.message || 'An error occurred';
-      
+
       // Handle field-specific errors if they exist
       if (backendError.errors) {
         const fieldErrors = Object.entries(backendError.errors)
@@ -44,12 +44,12 @@ api.interceptors.response.use(
           .join('; ');
         errorMessage = `${errorMessage}. ${fieldErrors}`;
       }
-      
+
       // Create a new error with the formatted message
       const apiError = new Error(errorMessage);
       (apiError as any).status = error.response.status;
       (apiError as any).data = backendError;
-      
+
       return Promise.reject(apiError);
     } else if (error.request) {
       // The request was made but no response was received
@@ -122,8 +122,8 @@ export const requestPasswordReset = async (data: ForgotPasswordFormTypes) => {
 
 export const changePassword = async (data: ChangePasswordFormTypes) => {
   try {
-    const response = await api.post(`/api/password-reset/confirm?token=${data.token}`, { 
-      newPassword: data.newPassword 
+    const response = await api.post(`/api/password-reset/confirm?token=${data.token}`, {
+      newPassword: data.newPassword
     });
     return response.data;
   } catch (error) {
@@ -162,17 +162,7 @@ export const getParkActivityDetails = async (activityId: string) => {
   }
 }
 
-export const bookTour = async ({
-  activityId,
-  visitDate,
-  paymentMethodId,
-  token,
-}: {
-  activityId: string;
-  visitDate: string;
-  paymentMethodId: string;
-  token: string;
-}) => {
+export const bookTour = async ({ activityId, visitDate, paymentMethodId, token, }: { activityId: string; visitDate: string; paymentMethodId: string; token: string; }) => {
   try {
     const response = await api.post(
       '/api/bookings',
@@ -190,15 +180,7 @@ export const bookTour = async ({
   }
 };
 
-export const makeDonation = async (
-  data: {
-    parkId: string;
-    amount: string;
-    motiveForDonation: string;
-    token: string;
-  },
-  paymentMethodId: string
-) => {
+export const makeDonation = async ( data: { parkId: string; amount: string; motiveForDonation: string; token: string; }, paymentMethodId: string ) => {
   try {
     const response = await api.post(
       "/api/donations",
@@ -247,13 +229,7 @@ export const getOpportunityDetails = async (opportunityId: string) => {
   }
 };
 
-export const applyForOpportunity = async (data: {
-  opportunityId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  applicationLetterUrl: string;
-}, token: string) => {
+export const applyForOpportunity = async (data: { opportunityId: string; firstName: string; lastName: string; email: string; applicationLetterUrl: string; }, token: string) => {
   try {
     const response = await api.post(
       '/api/opportunity-applications',

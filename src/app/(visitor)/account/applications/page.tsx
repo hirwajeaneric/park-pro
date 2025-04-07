@@ -52,7 +52,7 @@ export default function ApplicationsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status");
+        const status = row.getValue("status") as "APPROVED" | "REJECTED" | "REVIEWED";
         return (
           <Badge
             variant={

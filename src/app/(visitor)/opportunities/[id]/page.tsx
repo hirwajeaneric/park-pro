@@ -3,8 +3,13 @@ import { getOpportunityDetails } from '@/lib/api';
 import { PageBanner } from '@/components/widget/PageBanner';
 import OpportunityDetails from '@/components/widget/opportunities/OpportunityDetails';
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const { id } = await params;
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = params;
   const opportunity = await getOpportunityDetails(id);
   return {
     title: `${opportunity.title} - Wildlife Park Opportunity`,
@@ -12,7 +17,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
   };
 }
 
-export default async function page({ params }: { params: { id: string } }) {
+export default async function page({ params }: Props) {
   const { id } = await params;
   const opportunity = await getOpportunityDetails(id);
 

@@ -19,6 +19,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { ComponentProps } from "react";
 
 interface DataTablePaginationProps<TData> {
   table: TableType<TData>;
@@ -89,7 +90,7 @@ export function DataTablePagination<TData>({
   );
 }
 
-function PaginationButton({ children, ...props }: ButtonProps) {
+function PaginationButton({ children, ...props }: ComponentProps<typeof Button>) {
   return (
     <Button
       variant="outline"

@@ -92,7 +92,7 @@ export default function BookingForm({ activityId, price }: { activityId: string;
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={bookMutation.isPending}>
+          <Button type="submit" disabled={bookMutation.isPending} className="cursor-pointer">
             {bookMutation.isPending ? "Booking..." : `Book Tour (${price} XAF)`}
           </Button>
         </form>

@@ -58,7 +58,7 @@ export default function BookingsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status");
+        const status = row.getValue("status") as "CONFIRMED" | "PENDING" | "CANCELLED";
         return (
           <Badge
             variant={

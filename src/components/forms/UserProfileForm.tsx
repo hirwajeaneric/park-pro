@@ -280,7 +280,7 @@ export default function UserProfileForm() {
           />
         </div>
         {/* Submit Button */}
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting}>
           {isSubmitting ? "Updating..." : "Update Profile"}
         </Button>
       </form>

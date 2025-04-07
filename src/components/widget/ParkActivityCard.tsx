@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 export type ParkActivityCardProps = {
     id: string;
@@ -14,6 +14,7 @@ export type ParkActivityCardProps = {
 }
 
 export default function ParkActivityCard({ activity }: { activity: ParkActivityCardProps }) {
+    const router = useRouter();
     return (
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div
@@ -28,8 +29,8 @@ export default function ParkActivityCard({ activity }: { activity: ParkActivityC
                     {activity.description}
                 </p>
                 <span className="text-blue-500 font-semibold text-sm">XAF {activity.price}</span>
-                <Button variant="outline" className="w-full mt-4">
-                    <Link href={`/book-tour/${activity.id}`}>Book Now</Link>
+                <Button variant="outline" onClick={() => router.push(`/book-tour/${activity.id}`)} className="w-full cursor-pointer mt-4">
+                    Book Now
                 </Button>
             </div>
         </div>

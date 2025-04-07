@@ -26,11 +26,11 @@ export default function ActivityDetails({ activity }: { activity: ParkActivityCa
                 <div className="container mx-auto px-4">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="details">
+                            <TabsTrigger value="details" className="cursor-pointer">
                                 <span className="font-semibold">Step 1: </span>
                                 Activity Details and personal information
                             </TabsTrigger>
-                            <TabsTrigger value="book">
+                            <TabsTrigger value="book" className="cursor-pointer">
                                 <span className="font-semibold">Step 2: </span>
                                 Book Now
                             </TabsTrigger>

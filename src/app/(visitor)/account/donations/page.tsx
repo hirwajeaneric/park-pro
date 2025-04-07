@@ -57,7 +57,7 @@ export default function DonationsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status");
+        const status = row.getValue("status") as "CONFIRMED" | "PENDING";
         return (
           <Badge
             variant={
