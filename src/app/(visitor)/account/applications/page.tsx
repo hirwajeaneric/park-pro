@@ -128,7 +128,7 @@ export default function ApplicationsPage() {
               ],
             },
           ]}
-        />
+        /> 
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogContent>
