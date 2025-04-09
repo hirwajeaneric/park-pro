@@ -11,7 +11,7 @@ export default function page() {
     //   position: "middle"
     // },
     {
-      label: "Overview",
+      label: "Users",
       link: "",
       position: "end"
     }
@@ -21,8 +21,8 @@ export default function page() {
     <div className="w-full bg-white">
       <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
         <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
-        <h1 className="mt-6 font-bold text-4xl">Welcome to ParkPro User Manager</h1>
-
+        <h1 className="mt-6 font-bold text-3xl">Users</h1>
+        
       </div>
     </div>
   );
