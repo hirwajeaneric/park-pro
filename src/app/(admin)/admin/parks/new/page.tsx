@@ -6,8 +6,8 @@ import BreadcrumbWithCustomSeparator, { BreadCrumLinkTypes } from "@/components/
 export default function page() {
   const breadCrumLinks: BreadCrumLinkTypes[] = [
     {
-      label: "Users",
-      link: "/admin/users",
+      label: "Parks",
+      link: "/admin/parks",
       position: "middle"
     },
     {
@@ -21,7 +21,7 @@ export default function page() {
     <div className="w-full bg-white">
       <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
         <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
-        <h1 className="mt-6 font-bold text-3xl">Add New User</h1>
+        <h1 className="mt-6 font-bold text-3xl">Add New Park</h1>
 
       </div>
     </div>

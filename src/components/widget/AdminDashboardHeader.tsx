@@ -13,6 +13,7 @@ export default function AdminDashboardHeader() {
     { href: "/admin", label: "Home" },
     { href: "/admin/users", label: "Users" },
     { href: "/admin/users/new", label: "Add User" },
+    { href: "/admin/parks", label: "Parks" },
     { href: "/admin/profile", label: "Profile" },
   ];
 
@@ -22,7 +23,7 @@ export default function AdminDashboardHeader() {
         <div className="flex w-full">
           <LogoComponent />
         </div>
-        <nav className="flex bg-slate-200 py-2 px-7 rounded-sm gap-10 mt-5">
+        <nav className="flex bg-slate-200 shadow-sm py-2 px-7 rounded-sm gap-10 mt-5">
           {navItems.map((item) => (
             <Link
               key={item.href}
