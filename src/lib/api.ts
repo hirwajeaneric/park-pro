@@ -303,4 +303,116 @@ export const getUserApplications = async (token: string) => {
   }
 };
 
+export const getUsers = async (token: string, params?: { role?: string; parkId?: string }) => {
+  try {
+    const response = await api.get("/api/users", {
+      headers: { Authorization: `Bearer ${token}` },
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserById = async (userId: string, token: string) => {
+  try {
+    const response = await api.get(`/api/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createUser = async (data: any, token: string) => {
+  try {
+    const response = await api.post("/api/users", data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const assignUserToPark = async (userId: string, parkId: string, token: string) => {
+  try {
+    const response = await api.post(`/api/users/${userId}/parks/${parkId}`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteUser = async (userId: string, token: string) => {
+  try {
+    const response = await api.delete(`/api/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getParks = async (token: string, page: number = 0, size: number = 10) => {
+  try {
+    const response = await api.get("/api/parks", {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { page, size },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getParkById = async (parkId: string, token: string) => {
+  try {
+    const response = await api.get(`/api/parks/${parkId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createPark = async (data: any, token: string) => {
+  try {
+    const response = await api.post("/api/parks", data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updatePark = async (parkId: string, data: any, token: string) => {
+  try {
+    const response = await api.put(`/api/parks/${parkId}`, data, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deletePark = async (parkId: string, token: string) => {
+  try {
+    const response = await api.delete(`/api/parks/${parkId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default api;

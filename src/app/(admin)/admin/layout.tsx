@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../../globals.css";
 import AdminDashboardHeader from "@/components/widget/AdminDashboardHeader";
 import AdminDashboardFooter from "@/components/widget/AdminDashboardFooter";
+import Providers from "@/lib/Providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,11 +30,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-col w-full items-center justify-between">
-          <AdminDashboardHeader />
-          {children}
-          <AdminDashboardFooter />
-        </div>
+        <Providers>
+          <div className="flex flex-col w-full items-center justify-between">
+            <AdminDashboardHeader />
+            {children}
+            <AdminDashboardFooter />
+          </div>
+        </Providers>
       </body>
     </html>
   );

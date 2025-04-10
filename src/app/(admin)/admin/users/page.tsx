@@ -1,15 +1,9 @@
-// page.tsx
 "use client";
 
 import BreadcrumbWithCustomSeparator, { BreadCrumLinkTypes } from "@/components/widget/BreadCrumComponent";
 
 export default function page() {
   const breadCrumLinks: BreadCrumLinkTypes[] = [
-    // {
-    //   label: "Admins",
-    //   link: "/users",
-    //   position: "middle"
-    // },
     {
       label: "Users",
       link: "",
