@@ -47,7 +47,7 @@ export default function LoginForm({ user }: { user: string }) {
         onSuccess: async (token) => {
             localStorage.setItem("access-token", token);
             form.reset();
-            const profile = await getProfileData(token);
+            const profile = await getProfileData();
             localStorage.setItem("user-profile", JSON.stringify(profile));
             window.location.replace(redirectUrl);
         },

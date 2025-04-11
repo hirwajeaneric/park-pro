@@ -1,90 +1,74 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Metadata } from 'next';
+import BreadcrumbWithCustomSeparator, {
+  BreadCrumLinkTypes,
+} from '@/components/widget/BreadCrumComponent';
+import UserUpdateForm from '@/components/forms/UserUpdateForm';
+import { getUserById } from '@/lib/api';
+import { User } from '@/types';
+import { cookies } from 'next/headers';
+import ProtectedRoute from '@/lib/ProtectedRoute';
 
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { fetchUserById, assignParkToUser, removeUser, fetchParks } from "@/store/slices/adminSlice";
-import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
-import BreadcrumbWithCustomSeparator, { BreadCrumLinkTypes } from "@/components/widget/BreadCrumComponent";
-import { RootState } from "@/store";
-import { SelectContent, SelectItem } from "@radix-ui/react-select";
+interface Props {
+  params: { id: string };
+}
 
-export default function UserPage({ params }: { params: { id: string } }) {
-  const { accessToken } = useAuth();
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const { selectedUser, parks, loading } = useSelector((state: RootState) => state.admin);
-  const [parkId, setParkId] = useState("");
-
-  useEffect(() => {
-    if (accessToken) {
-      dispatch(fetchUserById({ userId: params.id, token: accessToken }));
-      dispatch(fetchParks(accessToken));
-    }
-  }, [accessToken, dispatch, params.id]);
-
-  const handleAssignPark = () => {
-    if (parkId && accessToken) {
-      dispatch(assignParkToUser({ userId: params.id, parkId, token: accessToken }));
-    }
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const cookieStore = cookies();
+  const token = cookieStore.get('access-token')?.value;
+  let user: User;
+  try {
+    user = await getUserById(params.id);
+  } catch (error) {
+    return {
+      title: 'User Not Found',
+      description: 'User details not available',
+    };
+  }
+  return {
+    title: `${user.firstName} ${user.lastName} - User Management`,
+    description: `Manage user ${user.email}`,
   };
+}
 
-  const handleDelete = () => {
-    if (accessToken) {
-      dispatch(removeUser({ userId: params.id, token: accessToken }));
-      router.push("/admin/users");
-    }
-  };
+export default async function UserPage({ params }: Props) {
+  const cookieStore = cookies();
+  const token = cookieStore.get('access-token')?.value;
+  let user: User;
+  try {
+    user = await getUserById(params.id);
+  } catch (error) {
+    return (
+      <ProtectedRoute>
+        <div className="w-full bg-white">
+          <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
+            <h1 className="mt-6 font-bold text-3xl">User Not Found</h1>
+          </div>
+        </div>
+      </ProtectedRoute>
+    );
+  }
 
   const breadCrumLinks: BreadCrumLinkTypes[] = [
-    { label: "Users", link: "/admin/users", position: "middle" },
-    { label: selectedUser?.email || "User", link: "", position: "end" },
+    { label: 'Users', link: '/admin/users', position: 'middle' },
+    {
+      label: `${user.firstName} ${user.lastName}`,
+      link: '',
+      position: 'end',
+    },
   ];
 
-  if (loading || !selectedUser) return <div>Loading...</div>;
-
   return (
-    <div className="w-full bg-white">
-      <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
-        <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
-        <h1 className="mt-6 font-bold text-3xl">User Details</h1>
-        <div className="mt-6 space-y-4">
-          <div>
-            <label>First Name:</label>
-            <Input value={selectedUser.firstName} disabled />
+    <ProtectedRoute>
+      <div className="w-full bg-white">
+        <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
+          <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
+          <h1 className="mt-6 font-bold text-3xl">User Details</h1>
+          <div className="mt-6 max-w-2xl">
+            <UserUpdateForm user={user} />
           </div>
-          <div>
-            <label>Last Name:</label>
-            <Input value={selectedUser.lastName} disabled />
-          </div>
-          <div>
-            <label>Email:</label>
-            <Input value={selectedUser.email} disabled />
-          </div>
-          <div>
-            <label>Role:</label>
-            <Input value={selectedUser.role} disabled />
-          </div>
-          <div>
-            <label>Assign Park:</label>
-            <Select value={parkId} onValueChange={setParkId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a park" />
-              </SelectTrigger>
-              <SelectContent>
-                {parks.map(park => (
-                  <SelectItem key={park.id} value={park.id}>{park.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleAssignPark} className="mt-2">Assign</Button>
-          </div>
-          <Button variant="destructive" onClick={handleDelete}>Delete User</Button>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

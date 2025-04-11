@@ -1,73 +1,54 @@
-"use client";
+import { Metadata } from 'next';
+import BreadcrumbWithCustomSeparator, {
+  BreadCrumLinkTypes,
+} from '@/components/widget/BreadCrumComponent';
+import UsersTable from '@/components/tables/UsersTable';
+import { getUsers } from '@/lib/api';
+import { User } from '@/types';
+import { cookies } from 'next/headers';
+import ProtectedRoute from '@/lib/ProtectedRoute';
 
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { fetchUsers } from "@/store/slices/adminSlice";
-import { useAuth } from "@/hooks/useAuth";
-import { DataTable } from "@/components/ui/data-table";
-import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
-import { useRouter } from "next/navigation";
-import BreadcrumbWithCustomSeparator, { BreadCrumLinkTypes } from "@/components/widget/BreadCrumComponent";
-import { RootState } from "@/store";
+export const metadata: Metadata = {
+  title: 'Users - Admin Dashboard',
+  description: 'Manage users in the system',
+};
 
-export default function UsersPage() {
-  const { accessToken } = useAuth();
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const { users, loading } = useSelector((state: RootState) => state.admin);
+export default async function UsersPage() {
+  const cookieStore = cookies();
+  const token = cookieStore.get('access-token')?.value;
 
-  useEffect(() => {
-    if (accessToken) {
-      dispatch(fetchUsers(accessToken));
+  let users: User[] = [];
+  try {
+    if (token) {
+      users = await getUsers();
     }
-  }, [accessToken, dispatch]);
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+  }
 
-  const columns: ColumnDef<any>[] = [
-    { accessorKey: "firstName", header: "First Name" },
-    { accessorKey: "lastName", header: "Last Name" },
-    { accessorKey: "email", header: "Email" },
-    { accessorKey: "role", header: "Role" },
-    { accessorKey: "parkId", header: "Park ID" },
-    {
-      id: "actions",
-      cell: ({ row }) => (
-        <Button variant="ghost" size="sm" onClick={() => router.push(`/admin/users/details/${row.original.id}`)}>
-          <Eye className="h-4 w-4" />
-        </Button>
-      ),
-    },
+  const breadCrumLinks: BreadCrumLinkTypes[] = [
+    { label: 'Users', link: '/admin/users', position: 'end' },
   ];
 
-  const breadCrumLinks: BreadCrumLinkTypes[] = [{ label: "Users", link: "/admin/users", position: "end" }];
-
   return (
-    <div className="w-full bg-white">
-      <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
-        <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
-        <h1 className="mt-6 font-bold text-3xl">Users</h1>
-        <DataTable
-          columns={columns}
-          data={users}
-          isLoading={loading}
-          searchKey="email"
-          filters={[
-            {
-              column: "role",
-              title: "Role",
-              options: [
-                { label: "Admin", value: "ADMIN" },
-                { label: "Visitor", value: "VISITOR" },
-                { label: "Finance Officer", value: "FINANCE_OFFICER" },
-                { label: "Park Manager", value: "PARK MANAGER" },
-                { label: "Auditor", value: "AUDITOR" },
-                { label: "Government Officer", value: "GOVERNMENT_OFFICER" },
-              ],
-            },
-          ]}
-        />
+    <ProtectedRoute>
+      <div className="w-full bg-white">
+        <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18">
+          <BreadcrumbWithCustomSeparator breadCrumLinks={breadCrumLinks} />
+          <div className="flex justify-between items-center mt-6">
+            <h1 className="font-bold text-3xl">Users</h1>
+            <a
+              href="/admin/users/new"
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+            >
+              Add User
+            </a>
+          </div>
+          <div className="mt-6">
+            <UsersTable users={users} isLoading={false} />
+          </div>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

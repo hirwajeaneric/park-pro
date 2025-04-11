@@ -1,77 +1,100 @@
+// types.ts
 export type SignInFormTypes = {
-    email: string;
-    password: string;
-}
+  email: string;
+  password: string;
+};
 
 export type ForgotPasswordFormTypes = {
-    email: string;
-}
+  email: string;
+};
 
 export type RequestNewVerificationCodeTypes = {
-    email: string;
-}
+  email: string;
+};
 
 export type ChangePasswordFormTypes = {
-    newPassword: string;
-    token?: string
-}
+  newPassword: string;
+  token?: string;
+};
 
 export type VerifyTokenFormTypes = {
-    email: string;
-    code: string;
-}
+  email: string;
+  code: string;
+};
 
 export type SignUpFormTypes = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-}
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 
 export type UserProfile = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: string;
-    parkId?: string | null;
-    phone: string;
-    gender: 'male' | 'female' | 'other' | 'prefer-not-to-say';
-    age: number;
-    passportNationalId: string;
-    nationality: string;
-    isActive: boolean;
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  parkId?: string | null;
+  phone?: string | null;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say' | null;
+  age: number;
+  passportNationalId?: string | null;
+  nationality?: string | null;
+  isActive: boolean;
 };
 
-export type BookFormTypes = {
-    activityId: string;
-    visitDate: string;
-    paymentMethodId: string;
+export type User = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say' | null;
+  passportNationalId?: string | null;
+  nationality?: string | null;
+  age: number;
+  role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER';
+  parkId?: string | null;
+  lastLogin?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 };
 
-export type Opportunity = {
-    id: string;
-    title: string;
-    description: string;
-    details: string | null;
-    type: 'JOB' | 'VOLUNTEER' | 'INVESTMENT' | 'SERVICE';
-    status: 'OPEN' | 'CLOSED';
-    visibility: 'PUBLIC' | 'PRIVATE';
-    createdById: string;
-    parkId: string;
-    parkName: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-  
-  export type OpportunityApplication = {
-    id: string;
-    opportunityId: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    applicationLetterUrl: string;
-    status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED';
-    createdAt: string;
-    updatedAt: string;
-  };
+export type Park = {
+  id: string;
+  name: string;
+  location: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateUserForm = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER' | 'GOVERNMENT_OFFICER' | 'AUDITOR';
+};
+
+export type UpdateUserForm = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER' | 'GOVERNMENT_OFFICER' | 'AUDITOR';
+  parkId?: string | null;
+};
+
+export type CreateParkForm = {
+  name: string;
+  location: string;
+  description: string;
+};
+
+export type UpdateParkForm = {
+  name?: string;
+  location?: string;
+  description?: string;
+};
