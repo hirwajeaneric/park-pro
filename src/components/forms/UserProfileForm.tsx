@@ -46,7 +46,7 @@ export const UserProfileFormSchema = z.object({
 
 export default function UserProfileForm() {
   const router = useRouter();
-  const { userProfile, accessToken, isLoading: authLoading } = useAuth();
+  const { userProfile, isLoading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof UserProfileFormSchema>>({
@@ -84,7 +84,7 @@ export default function UserProfileForm() {
   }, [userProfile, form]);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data, accessToken),
+    mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data),
     onSuccess: async (data) => {
       localStorage.setItem("user-profile", JSON.stringify(data));
       toast.success("Profile updated successfully!");
