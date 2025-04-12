@@ -32,7 +32,7 @@ export default function LoginForm({ user }: { user: string }) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     // Get redirect URL from query params or default to home
-    const redirectUrl = searchParams.get('redirect') || '/admin';
+    const redirectUrl = searchParams.get('redirect') || `/${user}`;
 
     const form = useForm<SignInFormTypes>({
         resolver: zodResolver(FormSchema),
