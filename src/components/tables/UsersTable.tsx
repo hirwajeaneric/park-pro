@@ -27,6 +27,7 @@ export default function UsersTable({ users, isLoading }: UsersTableProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('User deleted successfully');
+      router.refresh();
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to delete user');

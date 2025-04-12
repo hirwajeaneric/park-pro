@@ -44,6 +44,17 @@ export type UserProfile = {
   isActive: boolean;
 };
 
+export type UpdateProfileForm = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say' | null;
+  age?: number;
+  passportNationalId?: string | null;
+  nationality?: string | null;
+};
+
 export type User = {
   id: string;
   firstName: string;
@@ -54,12 +65,12 @@ export type User = {
   passportNationalId?: string | null;
   nationality?: string | null;
   age: number;
-  role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER';
+  role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER' | 'GOVERNMENT_OFFICER' | 'AUDITOR';
   parkId?: string | null;
   lastLogin?: string | null;
   createdAt: string;
   updatedAt: string;
-  active: boolean;
+  isActive: boolean;
 };
 
 export type Park = {
@@ -85,6 +96,7 @@ export type UpdateUserForm = {
   email: string;
   role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER' | 'GOVERNMENT_OFFICER' | 'AUDITOR';
   parkId?: string | null;
+  isActive: boolean
 };
 
 export type CreateParkForm = {
@@ -94,7 +106,7 @@ export type CreateParkForm = {
 };
 
 export type UpdateParkForm = {
-  name?: string;
-  location?: string;
-  description?: string;
+  name: string;
+  location: string;
+  description: string;
 };

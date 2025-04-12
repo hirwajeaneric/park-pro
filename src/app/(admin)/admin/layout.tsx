@@ -4,6 +4,7 @@ import "../../globals.css";
 import AdminDashboardHeader from "@/components/widget/AdminDashboardHeader";
 import AdminDashboardFooter from "@/components/widget/AdminDashboardFooter";
 import Providers from "@/lib/Providers";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
             {children}
             <AdminDashboardFooter />
           </div>
+          <Toaster />
         </Providers>
       </body>
     </html>
