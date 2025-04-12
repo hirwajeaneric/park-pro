@@ -85,16 +85,16 @@ const data: {
     },
     {
       title: 'Budget Categories',
-      url: '/finance/budget-categories',
+      url: '/finance/budget-category',
       icon: Frame,
       items: [
         {
           title: 'View Budgets',
-          url: '/finance/budget-categories',
+          url: '/finance/budget-category',
         },
         {
           title: 'Create Budget',
-          url: '/finance/budget-categories/new',
+          url: '/finance/budget-category/new',
         },
       ],
     },
