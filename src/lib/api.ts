@@ -154,6 +154,8 @@ export const updateUser = async (
   id: string
 ) => {
   try {
+    console.log(data);
+    
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');

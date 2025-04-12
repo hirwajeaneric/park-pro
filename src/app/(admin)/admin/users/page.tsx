@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function UsersPage() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('access-token')?.value;
 
   let users: User[] = [];

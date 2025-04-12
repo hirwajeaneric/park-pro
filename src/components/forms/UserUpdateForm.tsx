@@ -27,6 +27,7 @@ import {
 import { UpdateUserForm, Park, User } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { getParks } from '@/lib/api';
+import { useRouter } from 'next/router';
 
 interface UserUpdateFormProps {
   user: User;
@@ -42,6 +43,7 @@ export const UserUpdateFormSchema = z.object({
 
 export default function UserUpdateForm({ user }: UserUpdateFormProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { data: parks } = useQuery({
     queryKey: ['parks'],
@@ -66,6 +68,7 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('User updated successfully');
+      router.reload();
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to update user');
@@ -77,6 +80,7 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('Park assigned successfully');
+      router.reload();
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to assign park');
@@ -148,6 +152,8 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
                     <SelectItem value="ADMIN">Admin</SelectItem>
                     <SelectItem value="FINANCE_OFFICER">Finance Officer</SelectItem>
                     <SelectItem value="PARK_MANAGER">Park Manager</SelectItem>
+                    <SelectItem value="GOVERNMENT_OFFICER">Government Officer</SelectItem>
+                    <SelectItem value="AUDITOR">Auditor</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

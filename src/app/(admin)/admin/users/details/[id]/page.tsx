@@ -9,16 +9,22 @@ import { User } from '@/types';
 import { cookies } from 'next/headers';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 
-interface Props {
-  params: { id: string };
-}
+export const dynamicParams = true;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const cookieStore = cookies();
+type Props = {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata(
+  { params }: { params: { id: string } }
+): Promise<Metadata> {
+  const { id } = await params;
+  const cookieStore = await cookies();
   const token = cookieStore.get('access-token')?.value;
   let user: User;
   try {
-    user = await getUserById(params.id);
+    user = await getUserById(id);
   } catch (error) {
     return {
       title: 'User Not Found',
@@ -32,11 +38,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function UserPage({ params }: Props) {
-  const cookieStore = cookies();
+  const { id } = await params;
+  const cookieStore = await cookies();
   const token = cookieStore.get('access-token')?.value;
   let user: User;
   try {
-    user = await getUserById(params.id);
+    user = await getUserById(id);
   } catch (error) {
     return (
       <ProtectedRoute>
