@@ -159,7 +159,7 @@ export const updateUser = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch(`/api/users/${id}`, data, {
+    const response = await api.patch(`/api/users/${id}/admin`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -266,14 +266,18 @@ export const createUser = async (data: CreateUserForm) => {
   }
 };
 
-export const assignUserToPark = async (userId: string, parkId: string) => {
+// lib/api.ts
+export const assignUserToPark = async (
+  userId: string,
+  parkId: string | null
+): Promise<any> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
     const response = await api.post(
-      `/api/users/${userId}/parks/${parkId}`,
-      {},
+      `/api/users/${userId}/parks${parkId ? `/${parkId}` : ''}`,
+      parkId ? {} : { parkId: null },
       {
         headers: {
           Authorization: `Bearer ${token}`,

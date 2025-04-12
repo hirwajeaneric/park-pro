@@ -70,7 +70,7 @@ export type User = {
   lastLogin?: string | null;
   createdAt: string;
   updatedAt: string;
-  active: boolean;
+  isActive: boolean;
 };
 
 export type Park = {
@@ -96,6 +96,7 @@ export type UpdateUserForm = {
   email: string;
   role: 'VISITOR' | 'ADMIN' | 'FINANCE_OFFICER' | 'PARK_MANAGER' | 'GOVERNMENT_OFFICER' | 'AUDITOR';
   parkId?: string | null;
+  isActive: boolean
 };
 
 export type CreateParkForm = {
