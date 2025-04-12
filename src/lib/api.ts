@@ -1,8 +1,6 @@
-// lib/api.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { UserProfileFormSchema } from '@/components/forms/UserProfileForm';
 import { UserUpdateFormSchema } from '@/components/forms/UserUpdateForm';
 import {
   ChangePasswordFormTypes,
@@ -14,6 +12,7 @@ import {
   CreateUserForm,
   CreateParkForm,
   UpdateParkForm,
+  UpdateProfileForm,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -134,14 +133,12 @@ export const changePassword = async (data: ChangePasswordFormTypes) => {
 };
 
 // Authenticated endpoints (token fetched from cookies)
-export const updateProfile = async (
-  data: z.infer<typeof UserProfileFormSchema>
-) => {
+export const updateProfile = async (data: UpdateProfileForm) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch(`/api/users/${data.id}`, data, {
+    const response = await api.patch('/api/users/me', data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -33,7 +33,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('access-token')?.value;
   let park: Park;
   try {
@@ -156,7 +156,7 @@ function ParkUpdateForm({ park }: { park: Park }) {
 }
 
 export default async function ParkPage({ params }: Props) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('access-token')?.value;
   let park: Park;
   try {
