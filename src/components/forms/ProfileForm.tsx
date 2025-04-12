@@ -1,4 +1,3 @@
-// components/forms/ProfileForm.tsx
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,10 +22,10 @@ import {
 } from '@/components/ui/select';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { updateProfile } from '@/lib/api';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { UpdateProfileForm, UserProfile } from '@/types';
 import { countries } from '@/lib/countries';
+import { useRouter } from 'next/navigation';
 
 const ProfileFormSchema = z.object({
   firstName: z.string().min(1, { message: 'First name is required' }),
@@ -47,8 +46,8 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ profile }: ProfileFormProps) {
-  const { logout } = useAuth();
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const form = useForm<UpdateProfileForm>({
     resolver: zodResolver(ProfileFormSchema),
@@ -75,6 +74,15 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       toast.error(error.message || 'Failed to update profile');
     },
   });
+
+  const deleteCookie = async () => await fetch('/api/logout', { method: 'POST' });
+
+  const customLogout = () => {
+    deleteCookie();
+    localStorage.removeItem('access-token');
+    localStorage.removeItem('user-profile');
+    router.push('/auth/admin');
+  }
 
   const onSubmit = (data: UpdateProfileForm) => {
     mutation.mutate(data);
@@ -281,8 +289,9 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             </Button>
             <Button
               variant="destructive"
-              onClick={logout}
-              className="w-full sm:w-auto"
+              type='button'
+              onClick={customLogout}
+              className="w-full sm:w-auto cursor-pointer"
             >
               Logout
             </Button>
