@@ -48,6 +48,10 @@ const data: {
       icon: Home,
       items: [
         {
+          title: 'Dashboard',
+          url: '/finance',
+        },
+        {
           title: 'Revenue Streams',
           url: '/finance/revenue',
         },

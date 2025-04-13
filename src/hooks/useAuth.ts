@@ -48,7 +48,6 @@ export function useAuth(): AuthState {
     const initializeAuth = async () => {
       try {
         const storedProfile = localStorage.getItem('user-profile');
-        console.log(storedProfile);
         if (storedProfile) {
           setUser(JSON.parse(storedProfile));
         }

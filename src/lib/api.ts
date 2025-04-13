@@ -118,10 +118,10 @@ export const requestPasswordReset = async (data: ForgotPasswordFormTypes) => {
   }
 };
 
-export const changePassword = async (data: ChangePasswordFormTypes) => {
+export const changePassword = async (data: ChangePasswordFormTypes, token: string) => {
   try {
     const response = await api.post(
-      `/api/password-reset/confirm?token=${data.token}`,
+      `/api/password-reset/confirm?token=${token}`,
       {
         newPassword: data.newPassword,
       }
@@ -155,7 +155,7 @@ export const updateUser = async (
 ) => {
   try {
     console.log(data);
-    
+
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
@@ -323,6 +323,22 @@ export const getParks = async (page: number = 0, size: number = 10) => {
 };
 
 export const getParkById = async (id: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getParkInfoById = async (id: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;

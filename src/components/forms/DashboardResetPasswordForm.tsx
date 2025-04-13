@@ -15,58 +15,53 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import Link from "next/link"
-import { SignInFormTypes } from "@/types"
-import { getParkInfoById, getProfileData, signIn } from "@/lib/api"
+import { ChangePasswordFormTypes } from "@/types"
 import { useState } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { changePassword } from "@/lib/api"
 
 const FormSchema = z.object({
-    email: z.string().email().min(2, { message: "Please provide a valid Email" }),
-    password: z.string().min(6, { message: "Password must be at least 8 characters long." })
+    newPassword: z.string().min(6, { message: "Password must be at least 8 characters long." })
 })
 
-export default function LoginForm({ user }: { user: string }) {
+export default function DashboardResetPasswordForm({ user }: { user: string }) {
+    const router = useRouter();
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    // Get redirect URL from query params or default to home
+    const resetToken = searchParams.get("token") as string;
     const redirectUrl = searchParams.get('redirect') || `/${user}`;
 
-    const form = useForm<SignInFormTypes>({
+    const form = useForm<ChangePasswordFormTypes>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            email: "",
-            password: ""
+            newPassword: "",
+            token: resetToken
         }
     });
 
-    const loginMutation = useMutation({
-        mutationFn: (data: SignInFormTypes) => signIn(data),
-        onSuccess: async (token) => {
-            localStorage.setItem("access-token", token);
+    const resetPasswordMutation = useMutation({
+        mutationFn: (data: ChangePasswordFormTypes) => changePassword(data, resetToken),
+        onSuccess: async () => {
             form.reset();
-            const profile = await getProfileData();
-            localStorage.setItem("user-profile", JSON.stringify(profile));
-            if (profile.parkId) {
-                const parkInfo = await getParkInfoById(profile.parkId);
-                localStorage.setItem("park-data", JSON.stringify(parkInfo));
-            }
-            toast.success("Login successful!");
-            window.location.replace(redirectUrl);
+            toast.success("Password Changed");
+            setTimeout(() => {
+                router.push(`/auth/${redirectUrl}`);
+            }, 3000);
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Login failed");
+        onError: (e: Error) => {
+            toast.error(e.message);
         },
         onSettled: () => {
             setIsLoading(false);
         }
     });
 
-    function onSubmit(data: SignInFormTypes) {
+    function onSubmit(data: ChangePasswordFormTypes) {
         setIsLoading(true);
-        loginMutation.mutate(data);
+        resetPasswordMutation.mutate(data);
     }
 
     return (
@@ -74,24 +69,11 @@ export default function LoginForm({ user }: { user: string }) {
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
                 <FormField
                     control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Your email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="password"
+                    name="newPassword"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="flex justify-between items-center">
-                                <span>Password</span>
+                                <span>New Password</span>
                                 <button
                                     type="button"
                                     className="cursor-pointer text-sm text-muted-foreground hover:text-primary"
@@ -108,12 +90,6 @@ export default function LoginForm({ user }: { user: string }) {
                                 />
                             </FormControl>
                             <FormMessage />
-                            <div className="flex w-full justify-end">
-                                <span className="text-sm">
-                                    Forgot Password?&nbsp;
-                                    <Link href={`/auth/${user}/request-reset-password`} className="underline">Click Here.</Link>
-                                </span>
-                            </div>
                         </FormItem>
                     )}
                 />
@@ -122,8 +98,9 @@ export default function LoginForm({ user }: { user: string }) {
                     className="w-full"
                     disabled={isLoading}
                 >
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? "Sending request..." : "Confirm new password"}
                 </Button>
+                <p className="text-sm">Do you want to go back to login? <Link href={`/auth/${redirectUrl}`} className="text-blue-600">Login</Link></p>
             </form>
         </Form>
     )

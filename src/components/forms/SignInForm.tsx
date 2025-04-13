@@ -50,9 +50,10 @@ export default function SignInForm() {
         onSuccess: async (token) => {
             localStorage.setItem("access-token", token);
             form.reset();
-            const profile = await getProfileData(token);
+            const profile = await getProfileData();
             localStorage.setItem("user-profile", JSON.stringify(profile));
             dispatch(setUser(profile));
+            toast.success("Login successful!");
             window.location.replace(redirectUrl);
         },
         onError: (error: Error) => {
