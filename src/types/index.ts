@@ -110,3 +110,50 @@ export type UpdateParkForm = {
   location: string;
   description: string;
 };
+
+export type Budget = {
+  id: string;
+  parkId: string;
+  fiscalYear: number;
+  totalAmount: number;
+  balance: number;
+  status: "DRAFT" | "APPROVED" | "REJECTED";
+  createdBy: string;
+  approvedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateBudgetForm = {
+  fiscalYear: number;
+  totalAmount: number;
+  status: "DRAFT"
+}
+
+export type UpdateBudgetForm = {
+  fiscalYear: number;
+  totalAmount: number;
+  status: "DRAFT"
+}
+
+export type BudgetCategory = {
+  id: string;
+  budgetId: string;
+  name: string;
+  allocatedAmount: number;
+  usedAmount: number;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CreateBudgetCategoryForm = {
+  name: string;
+  allocatedAmount: number;
+}
+
+export type UpdateBudgetCategoryForm = {
+  name: string;
+  allocatedAmount: number;
+}
+

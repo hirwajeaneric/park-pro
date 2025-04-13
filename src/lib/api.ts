@@ -13,6 +13,8 @@ import {
   CreateParkForm,
   UpdateParkForm,
   UpdateProfileForm,
+  CreateBudgetForm,
+  UpdateBudgetForm,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -266,7 +268,6 @@ export const createUser = async (data: CreateUserForm) => {
   }
 };
 
-// lib/api.ts
 export const assignUserToPark = async (
   userId: string,
   parkId: string | null
@@ -564,5 +565,70 @@ export const getUserApplications = async () => {
     throw error;
   }
 };
+
+// Budget APIs
+export const createBudget = async (data: CreateBudgetForm, parkId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/parks/${parkId}/budgets`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateBudget = async (id: string, data: UpdateBudgetForm) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.put(`/api/budgets/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getBudgetById = async (id: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const listBudgetsByPark = async (parkId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${parkId}/budgets`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export default api;
