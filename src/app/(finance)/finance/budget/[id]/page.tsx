@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import UpdateBudgetForm from "@/components/forms/UpdateBudgetForm";
+import ListBudgetCategoriesTable from "@/components/tables/ListBudgetCategoriesTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { getBudgetById } from "@/lib/api";
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import { Budget } from "@/types";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const dynamicParams = true;
 
@@ -31,6 +36,8 @@ export async function generateMetadata(
 }
 
 export default async function ParkPage({ params }: Props) {
+  let budgetCategoryBadgeVariant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' = 'default';
+
   const { id } = await params;
   let budget: Budget;
   try {
@@ -52,11 +59,51 @@ export default async function ParkPage({ params }: Props) {
     )
   }
 
+  switch(budget.status) {
+    case 'APPROVED':
+      budgetCategoryBadgeVariant = 'success'
+      break;
+    case 'REJECTED':
+      budgetCategoryBadgeVariant = 'destructive'
+      break;
+    case 'DRAFT':
+      budgetCategoryBadgeVariant = 'warning'
+      break;
+    default:
+      budgetCategoryBadgeVariant = 'default' 
+      break;
+  }
+
   return (
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <h1 className="text-2xl font-bold">Bugets</h1>
-        <UpdateBudgetForm budget={budget} />
+        <h1 className="text-2xl font-bold">Budget for {budget.fiscalYear}</h1>
+        <Card>
+          <CardHeader>
+            <CardTitle>Budget Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p><strong>Balance: </strong>{budget.balance}</p>
+            <p><strong>Status: </strong><Badge variant={budgetCategoryBadgeVariant}>{budget.status.toLowerCase()}</Badge></p>
+            <p><strong>Approver: </strong>{budget.approvedBy}</p>
+          </CardContent>
+          <CardFooter>
+            <UpdateBudgetForm budget={budget} />
+          </CardFooter>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex w-full justify-between">
+              <h2 className="text-2xl font-bold">Budget Categories</h2>
+              <Button variant={'secondary'}>
+                <Link href={`/finance/budget/${budget.id}/category/new`}>Add New Category</Link>
+              </Button>
+            </CardTitle>
+            <CardDescription>
+              <ListBudgetCategoriesTable budgetId={budget.id} />
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     </ProtectedRoute>
   )

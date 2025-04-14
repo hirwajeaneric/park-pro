@@ -15,6 +15,8 @@ import {
   UpdateProfileForm,
   CreateBudgetForm,
   UpdateBudgetForm,
+  CreateBudgetCategoryForm,
+  UpdateBudgetCategoryForm,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -621,6 +623,71 @@ export const listBudgetsByPark = async (parkId: string) => {
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
     const response = await api.get(`/api/parks/${parkId}/budgets`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Budget categories
+export const createBudgetCategory = async (data: CreateBudgetCategoryForm, budgetId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/budgets/${budgetId}/categories`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateBudgetCategory = async (budgetId: string, categoryId: string, data: UpdateBudgetCategoryForm) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.put(`/api/budgets/${budgetId}/categories/${categoryId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getBudgetCategoryById = async (budgetId: string, categoryId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/categories/${categoryId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const listBudgetCategoriesByBudget = async (budgetId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/categories`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -14,48 +14,42 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { updateBudget } from '@/lib/api';
+import { updateBudgetCategory } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Budget, UpdateBudgetForm as UpdateBudgetFormTypes } from '@/types';
+import { BudgetCategory, UpdateBudgetCategoryForm as UpdateBudgetCategoryFormTypes } from '@/types';
 
-const BudgetUpdateFormSchema = z.object({
-  fiscalYear: z.number(),
-  totalAmount: z.number(),
-  status: z.enum(['APPROVED', 'REJECTED', 'DRAFT'])
+const UpdateBudgetCategoryFormSchema = z.object({
+  name: z.string().min(3, "The name must atleast be 3 character long."),
+  allocatedAmount: z.number()
 });
 
-interface BudgetUpdateFormProps {
-  budget: Budget;
-}
-
-export default function UpdateBudgetForm({ budget }: BudgetUpdateFormProps) {
+export default function UpdateBudgetCategoryForm({ category }: { category: BudgetCategory }) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const form = useForm<UpdateBudgetFormTypes>({
-    resolver: zodResolver(BudgetUpdateFormSchema),
+  const form = useForm<UpdateBudgetCategoryFormTypes>({
+    resolver: zodResolver(UpdateBudgetCategoryFormSchema),
     defaultValues: {
-      fiscalYear: new Date().getFullYear(),
-      totalAmount: budget.totalAmount,
-      status: budget.status
+      name: category.name,
+      allocatedAmount: category.allocatedAmount,
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (data: UpdateBudgetFormTypes) => updateBudget(budget.id, data),
+  const updateBudgetCategoryMutation = useMutation({
+    mutationFn: (data: UpdateBudgetCategoryFormTypes) => updateBudgetCategory(category.budgetId, category.id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets'] });
-      toast.success('Budget updated successfully');
-      router.refresh();
+      queryClient.invalidateQueries({ queryKey: ['budget-categories'] });
+      toast.success('Budget category Updated!');
+      router.push(`/finance/budgets/${category.budgetId}`);
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update budget');
+      toast.error(error.message || 'Failed to update budget category');
     },
   });
 
-  const onSubmit = (data: UpdateBudgetFormTypes) => {
-    updateMutation.mutate(data);
+  const onSubmit = (data: UpdateBudgetCategoryFormTypes) => {
+    updateBudgetCategoryMutation.mutate(data);
   };
 
   return (
@@ -64,15 +58,15 @@ export default function UpdateBudgetForm({ budget }: BudgetUpdateFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className="gap-4 flex justify-between items-end flex-col md:flex-row w-full">
           <FormField
             control={form.control}
-            name="fiscalYear"
+            name="name"
             render={({ field }) => (
               <FormItem className='w-full'>
                 <FormLabel className="text-sm font-medium">
-                  Fiscal Year
+                  Name
                 </FormLabel>
                 <FormControl>
                   <Input
-                    type='number'
+                    type='text'
                     placeholder="Enter the fiscal year"
                     {...field}
                     aria-required="true"
@@ -84,15 +78,15 @@ export default function UpdateBudgetForm({ budget }: BudgetUpdateFormProps) {
           />
           <FormField
             control={form.control}
-            name="totalAmount"
+            name="allocatedAmount"
             render={({ field }) => (
               <FormItem className='w-full'>
                 <FormLabel className="text-sm font-medium">
-                  Total Amount
+                  Allocated amount
                 </FormLabel>
                 <FormControl>
                   <Input
-                    type='totalAmount'
+                    type='number'
                     placeholder="Enter the total amount"
                     {...field}
                     aria-required="true"
@@ -104,10 +98,10 @@ export default function UpdateBudgetForm({ budget }: BudgetUpdateFormProps) {
           />
           <Button
             type="submit"
-            disabled={updateMutation.isPending}
+            disabled={updateBudgetCategoryMutation.isPending}
             className="w-full sm:w-auto"
           >
-            {updateMutation.isPending ? 'Updating...' : 'Update Budget'}
+            {updateBudgetCategoryMutation.isPending ? 'Updating...' : 'Update Budget Category'}
           </Button>
         </form>
       </Form>
