@@ -6,7 +6,7 @@ import { UserProfile } from '@/types';
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Profile - Finance Dashboard',
+  title: 'Profile - Park Manager Dashboard',
   description: 'Manage your profile settings and personal information',
 };
 

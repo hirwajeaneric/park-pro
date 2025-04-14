@@ -21,6 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useRouter } from 'next/navigation';
 
 interface NavUserProps {
   user: {
@@ -37,8 +38,18 @@ const getInitials = (firstName: string, lastName: string): string => {
   return `${first}${last}`.trim() || 'G'; // Fallback to 'G' for Guest/empty
 };
 
+export const deleteCookie = async () => await fetch('/api/logout', { method: 'POST' });
+
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+
+  const customLogout = () => {
+    deleteCookie();
+    localStorage.removeItem('access-token');
+    localStorage.removeItem('user-profile');
+    router.push('/auth/finance');
+  }
 
   return (
     <SidebarMenu>
@@ -88,7 +99,7 @@ export function NavUser({ user }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={customLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>

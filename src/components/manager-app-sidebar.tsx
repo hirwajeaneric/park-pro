@@ -2,10 +2,8 @@
 
 import type * as React from 'react';
 import {
-  BookOpen,
   Home,
   LucideIcon,
-  MailIcon,
   Map,
   PieChart,
   User as UserIcon,
@@ -43,91 +41,42 @@ const data: {
   navMain: [
     {
       title: 'Overview',
-      url: '/finance',
+      url: '/manager',
       icon: Home,
       items: [
         {
           title: 'Dashboard',
-          url: '/finance',
-        },
-        {
-          title: 'Revenue Streams',
-          url: '/finance/revenue',
-        },
+          url: '/manager',
+        }
       ],
     },
     {
-      title: 'Budget',
-      url: '/finance/budget',
+      title: 'Expenses',
+      url: '/manager/expense',
       icon: PieChart,
       items: [
         {
-          title: 'View Budgets',
-          url: '/finance/budget',
+          title: 'View expenses',
+          url: '/manager/expense',
         },
         {
-          title: 'Create Budget',
-          url: '/finance/budget/new',
+          title: 'Create expense',
+          url: '/manager/expense/new',
         },
       ],
     },
     {
-      title: 'Opportunities',
-      url: '/finance/opportunities',
+      title: 'Withdraw Request',
+      url: '/manager/withdraw-request',
       icon: Map,
       items: [
         {
-          title: 'Jobs',
-          url: '/finance/opportunities?type=job',
+          title: 'List Requests',
+          url: '/manager/withdraw-request',
         },
         {
-          title: 'Service Providers',
-          url: '/finance/opportunities?type=partnership',
-        },
-      ],
-    },
-    {
-      title: 'Finance Movements',
-      url: '/finance/withdraws',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Withdraw Requests',
-          url: '/finance/withdraws',
-        },
-        {
-          title: 'Expenses',
-          url: '/finance/expenses',
-        },
-      ],
-    },
-    {
-      title: 'Requests for Extra-funds',
-      url: '/finance/extra-funds',
-      icon: MailIcon,
-      items: [
-        {
-          title: 'All requests',
-          url: '/finance/extra-funds',
-        },
-        {
-          title: 'New Request',
-          url: '/finance/extra-funds/new',
-        },
-      ],
-    },
-    {
-      title: 'Requests for Emergency',
-      url: '/finance/emergency-relief',
-      icon: MailIcon,
-      items: [
-        {
-          title: 'All requests',
-          url: '/finance/emergency-relief',
-        },
-        {
-          title: 'New Request',
-          url: '/finance/emergency-relief/new',
+          title: 'Send Request',
+          url: '/manager/withdraw-request/new',
         },
       ],
     },
@@ -135,13 +84,13 @@ const data: {
   secondaryMenu: [
     {
       name: 'Profile',
-      url: '/finance/profile',
+      url: '/manager/profile',
       icon: UserIcon,
     },
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function ManagerAppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
   const navUser = user
     ? {

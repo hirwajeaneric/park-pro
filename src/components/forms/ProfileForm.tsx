@@ -45,6 +45,8 @@ interface ProfileFormProps {
   profile: UserProfile;
 }
 
+export const deleteCookie = async () => await fetch('/api/logout', { method: 'POST' });
+
 export default function ProfileForm({ profile }: ProfileFormProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -74,8 +76,6 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       toast.error(error.message || 'Failed to update profile');
     },
   });
-
-  const deleteCookie = async () => await fetch('/api/logout', { method: 'POST' });
 
   const customLogout = () => {
     deleteCookie();
