@@ -6,8 +6,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import DashboardRequestPasswordReset from "@/components/forms/DashboardRequestPasswordReset";
+import { Metadata } from "next";
 
 export const dynamicParams = true;
+
+export const metadata: Metadata = {
+  title: 'Forgot / Reset password',
+  description: 'Request for password reset',
+};
 
 type Props = {
   params: { user: string };
@@ -45,7 +51,7 @@ export default async function page({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DashboardRequestPasswordReset user={user}/>
+          <DashboardRequestPasswordReset user={user} />
         </CardContent>
       </Card>
     </div>

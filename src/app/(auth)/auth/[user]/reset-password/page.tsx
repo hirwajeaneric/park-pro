@@ -6,8 +6,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import DashboardResetPasswordForm from "@/components/forms/DashboardResetPasswordForm";
+import { Metadata } from "next";
 
 export const dynamicParams = true;
+
+export const metadata: Metadata = {
+  title: 'Reset Password',
+  description: 'Change your password',
+};
 
 type Props = {
   params: { user: string };

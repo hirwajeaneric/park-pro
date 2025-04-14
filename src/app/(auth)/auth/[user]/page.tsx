@@ -6,8 +6,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import LoginForm from "@/components/forms/LoginForm"
+import { Metadata } from "next";
 
 export const dynamicParams = true;
+
+export const metadata: Metadata = {
+  title: 'Sign In',
+  description: 'Login Into your account',
+};
 
 type Props = {
   params: { user: string };
