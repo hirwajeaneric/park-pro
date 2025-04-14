@@ -127,13 +127,13 @@ export type Budget = {
 export type CreateBudgetForm = {
   fiscalYear: number;
   totalAmount: number;
-  status: "DRAFT"
+  status: "DRAFT" | "APPROVED" | "REJECTED"
 }
 
 export type UpdateBudgetForm = {
   fiscalYear: number;
   totalAmount: number;
-  status: "DRAFT"
+  status: "DRAFT" | "APPROVED" | "REJECTED"
 }
 
 export type BudgetCategory = {
