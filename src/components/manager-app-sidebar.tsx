@@ -122,7 +122,7 @@ export function ManagerAppSidebar({ ...props }: React.ComponentProps<typeof Side
         }))} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navUser} />
+        <NavUser user={navUser} userRole={user?.role} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

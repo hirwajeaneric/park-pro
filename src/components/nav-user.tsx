@@ -29,6 +29,7 @@ interface NavUserProps {
     lastName: string;
     email: string;
   };
+  userRole?: string
 }
 
 // Generate initials from firstName and lastName (e.g., "John Doe" → "JD")
@@ -40,15 +41,34 @@ const getInitials = (firstName: string, lastName: string): string => {
 
 export const deleteCookie = async () => await fetch('/api/logout', { method: 'POST' });
 
-export function NavUser({ user }: NavUserProps) {
+export function NavUser({ user, userRole }: NavUserProps) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+
+  let username = "";
+  switch (userRole) {
+    case "ADMIN":
+      username = "admin";
+      break;
+    case "FINANCE_OFFICER":
+      username = "finance";
+      break;
+    case "PARK_MANAGER":
+      username = "manager";
+      break;
+    case "GOVERNMENT_OFFICER":
+      username = "government";
+      break;
+    default:
+      username = "auditor"
+      break;
+  }
 
   const customLogout = () => {
     deleteCookie();
     localStorage.removeItem('access-token');
     localStorage.removeItem('user-profile');
-    router.push('/auth/finance');
+    router.push(`/auth/${username}`);
   }
 
   return (

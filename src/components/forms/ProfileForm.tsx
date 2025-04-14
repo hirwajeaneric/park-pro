@@ -77,11 +77,30 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     },
   });
 
+  let username = "";
+  switch (profile.role) {
+    case "ADMIN":
+      username = "admin";
+      break;
+    case "FINANCE_OFFICER":
+      username = "finance";
+      break;
+    case "PARK_MANAGER":
+      username = "manager";
+      break;
+    case "GOVERNMENT_OFFICER":
+      username = "government";
+      break;
+    default:
+      username = "auditor"
+      break;
+  }
+
   const customLogout = () => {
     deleteCookie();
     localStorage.removeItem('access-token');
     localStorage.removeItem('user-profile');
-    router.push('/auth/admin');
+    router.push(`/auth/${username}`);
   }
 
   const onSubmit = (data: UpdateProfileForm) => {
