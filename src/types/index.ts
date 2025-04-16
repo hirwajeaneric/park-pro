@@ -157,3 +157,32 @@ export type UpdateBudgetCategoryForm = {
   allocatedAmount: number;
 }
 
+export type Expense = {
+  id: string;
+  amount: string;
+  description: string;
+  category: string;
+  budgetCategoryId: string;
+  parkId: string;
+  createdBy: string;
+  status: string;
+  approvedBy: string;
+  approvedAt: string;
+  receiptUrl: string;
+  currency: string;
+  createdAt: string;
+  updateAt: string;
+}
+
+export type CreateExpenseForm = {
+  amount: string;
+  description: string;
+  category: string;
+  budgetCategoryId: string;
+  parkId: string;
+  receiptUrl: string;
+}
+
+// export type UpdateExpenseForm = {
+
+// }
