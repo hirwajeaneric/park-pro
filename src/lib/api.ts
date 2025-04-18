@@ -137,12 +137,15 @@ export const changePassword = async (data: ChangePasswordFormTypes, token: strin
 };
 
 // Authenticated endpoints (token fetched from cookies)
-export const updateProfile = async (data: UpdateProfileForm) => {
+export const updateProfile = async (userId: string, data: UpdateProfileForm) => {
+  console.log(userId);
+  console.log(data);
+  
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch('/api/users/me', data, {
+    const response = await api.patch(`/api/users/${userId}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -727,7 +730,7 @@ export const listBudgetExpenses = async (budgetId: string) => {
  * @param budgetId 
  * @returns 
  */
-export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, budgetId: string ) => {
+export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, budgetId: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
@@ -748,7 +751,7 @@ export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, bu
  * @param categoryId 
  * @returns 
  */
-export const getExpensesByBudgetCategory = async (categoryId: string ) => {
+export const getExpensesByBudgetCategory = async (categoryId: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;

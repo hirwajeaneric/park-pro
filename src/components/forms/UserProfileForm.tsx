@@ -84,7 +84,7 @@ export default function UserProfileForm() {
   }, [user, form]);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data),
+    mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data.id, data),
     onSuccess: async (data) => {
       localStorage.setItem("user-profile", JSON.stringify(data));
       toast.success("Profile updated successfully!");
