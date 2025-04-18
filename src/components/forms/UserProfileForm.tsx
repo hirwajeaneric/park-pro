@@ -46,7 +46,7 @@ export const UserProfileFormSchema = z.object({
 
 export default function UserProfileForm() {
   const router = useRouter();
-  const { userProfile, isLoading: authLoading } = useAuth();
+  const { isLoading: authLoading, user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof UserProfileFormSchema>>({
@@ -64,24 +64,24 @@ export default function UserProfileForm() {
     },
   });
   
-  // Reset form when userProfile changes
+  // Reset form when user changes
   useEffect(() => {
-    if (userProfile) {
+    if (user) {
       const defaultValues = {
-        id: userProfile.id || "",
-        firstName: userProfile.firstName || "",
-        lastName: userProfile.lastName || "",
-        email: userProfile.email || "",
-        phone: userProfile.phone || "",
-        gender: (userProfile.gender as z.infer<typeof UserProfileFormSchema>['gender']) || undefined,
-        age: userProfile.age || 18,
-        passportNationalId: userProfile.passportNationalId || "",
-        nationality: userProfile.nationality || ""
+        id: user.id || "",
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        gender: (user.gender as z.infer<typeof UserProfileFormSchema>['gender']) || undefined,
+        age: user.age || 18,
+        passportNationalId: user.passportNationalId || "",
+        nationality: user.nationality || ""
       };
       
       form.reset(defaultValues);
     }
-  }, [userProfile, form]);
+  }, [user, form]);
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: z.infer<typeof UserProfileFormSchema>) => updateProfile(data),

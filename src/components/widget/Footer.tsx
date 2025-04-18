@@ -1,3 +1,4 @@
+import { Facebook, Linkedin, Youtube, Instagram } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -25,11 +26,18 @@ export default function Footer() {
                 </div>
 
                 <div className="flex justify-center space-x-6">
-                    {["facebook", "linkedin", "twitter", "youtube", "instagram"].map((social) => (
-                        <Link key={social} href={`#${social}`} className="hover:opacity-80">
-                            <div className="w-6 h-6 bg-white rounded-full"></div>
-                        </Link>
-                    ))}
+                    <Link href={`#`} className="hover:opacity-80">
+                        <Facebook />
+                    </Link>
+                    <Link href={`#`} className="hover:opacity-80">
+                        <Linkedin />
+                    </Link>
+                    <Link href={`#`} className="hover:opacity-80">
+                        <Youtube />
+                    </Link>
+                    <Link href={`#`} className="hover:opacity-80">
+                        <Instagram />
+                    </Link>
                 </div>
             </div>
         </footer>

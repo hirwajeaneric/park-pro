@@ -698,6 +698,13 @@ export const listBudgetCategoriesByBudget = async (budgetId: string) => {
   }
 }
 
+// EXPENSES =================================
+
+/**
+ * List all expenses for a given budget
+ * @param budgetId 
+ * @returns 
+ */
 export const listBudgetExpenses = async (budgetId: string) => {
   try {
     const cookieStore = await cookies();
@@ -714,6 +721,12 @@ export const listBudgetExpenses = async (budgetId: string) => {
   }
 }
 
+/**
+ * Create Expense for Budget Category
+ * @param data 
+ * @param budgetId 
+ * @returns 
+ */
 export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, budgetId: string ) => {
   try {
     const cookieStore = await cookies();
@@ -730,38 +743,11 @@ export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, bu
   }
 }
 
-export const approveExpense = async (expenseId: string ) => {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('access-token')?.value;
-    if (!token) throw new Error('Authentication required');
-    const response = await api.post(`/api/budgets/expenses/${expenseId}/approve`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-export const rejectExpense = async (expenseId: string ) => {
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('access-token')?.value;
-    if (!token) throw new Error('Authentication required');
-    const response = await api.post(`/api/budgets/expenses/${expenseId}/reject`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
+/**
+ * Get expenses by budget category
+ * @param categoryId 
+ * @returns 
+ */
 export const getExpensesByBudgetCategory = async (categoryId: string ) => {
   try {
     const cookieStore = await cookies();
@@ -778,9 +764,14 @@ export const getExpensesByBudgetCategory = async (categoryId: string ) => {
   }
 }
 
-// Get all expenses for a given
+// Get all expenses for a given Park Id and budget Category
 
 // Get expense by Id
+
+// Update expense
+
+// Delete expense
+
 
 
 export default api;
