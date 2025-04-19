@@ -17,12 +17,14 @@ import {
   UpdateBudgetForm,
   CreateBudgetCategoryForm,
   UpdateBudgetCategoryForm,
+  CreateExpenseForm,
+  UpdateExpenseForm,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
-// Define a standard error response type from your backend
+// Define a standard error response type from the backend
 interface BackendErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
@@ -67,7 +69,12 @@ api.interceptors.response.use(
   }
 );
 
-// Public endpoints (no token required)
+/**
+ * Authenticates a user and sets an access token cookie.
+ * @param data - The sign-in credentials (email and password).
+ * @returns A promise resolving to the access token string.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const signIn = async (data: SignInFormTypes): Promise<string> => {
   try {
     const response = await api.post('/api/login', data);
@@ -84,6 +91,12 @@ export const signIn = async (data: SignInFormTypes): Promise<string> => {
   }
 };
 
+/**
+ * Verifies a user's account using an email and verification code.
+ * @param data - The verification data (email and code).
+ * @returns A promise resolving to the verification response data.
+ * @throws Error if verification fails or the request errors.
+ */
 export const verifyToken = async (data: VerifyTokenFormTypes) => {
   try {
     const response = await api.post('/api/verify-account', data);
@@ -93,6 +106,12 @@ export const verifyToken = async (data: VerifyTokenFormTypes) => {
   }
 };
 
+/**
+ * Requests a new verification code for a user.
+ * @param data - The request data (email).
+ * @returns A promise resolving to the response data.
+ * @throws Error if the request fails.
+ */
 export const getNewVerificationCode = async (
   data: RequestNewVerificationCodeTypes
 ) => {
@@ -104,6 +123,12 @@ export const getNewVerificationCode = async (
   }
 };
 
+/**
+ * Registers a new user.
+ * @param data - The sign-up data (firstName, lastName, email, password).
+ * @returns A promise resolving to the response data.
+ * @throws Error if registration fails or the request errors.
+ */
 export const signUp = async (data: SignUpFormTypes) => {
   try {
     const response = await api.post('/api/signup', data);
@@ -113,6 +138,12 @@ export const signUp = async (data: SignUpFormTypes) => {
   }
 };
 
+/**
+ * Initiates a password reset request for a user.
+ * @param data - The request data (email).
+ * @returns A promise resolving to the response data.
+ * @throws Error if the request fails.
+ */
 export const requestPasswordReset = async (data: ForgotPasswordFormTypes) => {
   try {
     const response = await api.post('/api/password-reset/request', data);
@@ -122,6 +153,13 @@ export const requestPasswordReset = async (data: ForgotPasswordFormTypes) => {
   }
 };
 
+/**
+ * Changes a user's password using a reset token.
+ * @param data - The new password data.
+ * @param token - The password reset token.
+ * @returns A promise resolving to the response data.
+ * @throws Error if the password change fails or the request errors.
+ */
 export const changePassword = async (data: ChangePasswordFormTypes, token: string) => {
   try {
     const response = await api.post(
@@ -136,11 +174,14 @@ export const changePassword = async (data: ChangePasswordFormTypes, token: strin
   }
 };
 
-// Authenticated endpoints (token fetched from cookies)
+/**
+ * Updates the authenticated user's profile.
+ * @param userId - The ID of the user to update.
+ * @param data - The profile update data.
+ * @returns A promise resolving to the updated user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const updateProfile = async (userId: string, data: UpdateProfileForm) => {
-  console.log(userId);
-  console.log(data);
-  
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
@@ -156,13 +197,18 @@ export const updateProfile = async (userId: string, data: UpdateProfileForm) => 
   }
 };
 
+/**
+ * Updates a user's data as an admin.
+ * @param data - The user update data (validated by UserUpdateFormSchema).
+ * @param id - The ID of the user to update.
+ * @returns A promise resolving to the updated user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const updateUser = async (
   data: z.infer<typeof UserUpdateFormSchema>,
   id: string
 ) => {
   try {
-    console.log(data);
-
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
@@ -177,6 +223,11 @@ export const updateUser = async (
   }
 };
 
+/**
+ * Retrieves the authenticated user's profile data.
+ * @returns A promise resolving to the user's profile data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getProfileData = async () => {
   try {
     const cookieStore = await cookies();
@@ -193,6 +244,11 @@ export const getProfileData = async () => {
   }
 };
 
+/**
+ * Retrieves a list of all users.
+ * @returns A promise resolving to an array of user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUsers = async () => {
   try {
     const cookieStore = await cookies();
@@ -209,6 +265,12 @@ export const getUsers = async () => {
   }
 };
 
+/**
+ * Retrieves users filtered by role.
+ * @param role - The role to filter users by.
+ * @returns A promise resolving to an array of user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUsersByRole = async (role: string) => {
   try {
     const cookieStore = await cookies();
@@ -225,6 +287,12 @@ export const getUsersByRole = async (role: string) => {
   }
 };
 
+/**
+ * Retrieves users associated with a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUsersByPark = async (parkId: string) => {
   try {
     const cookieStore = await cookies();
@@ -241,6 +309,12 @@ export const getUsersByPark = async (parkId: string) => {
   }
 };
 
+/**
+ * Retrieves a user by their ID.
+ * @param id - The ID of the user.
+ * @returns A promise resolving to the user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUserById = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -257,6 +331,12 @@ export const getUserById = async (id: string) => {
   }
 };
 
+/**
+ * Creates a new user.
+ * @param data - The user creation data.
+ * @returns A promise resolving to the created user data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const createUser = async (data: CreateUserForm) => {
   try {
     const cookieStore = await cookies();
@@ -273,10 +353,17 @@ export const createUser = async (data: CreateUserForm) => {
   }
 };
 
+/**
+ * Assigns or removes a user from a park.
+ * @param userId - The ID of the user.
+ * @param parkId - The ID of the park, or null to remove assignment.
+ * @returns A promise resolving to the response data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const assignUserToPark = async (
   userId: string,
   parkId: string | null
-): Promise<any> => {
+): Promise<unknown> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
@@ -296,6 +383,12 @@ export const assignUserToPark = async (
   }
 };
 
+/**
+ * Deletes a user by their ID.
+ * @param id - The ID of the user to delete.
+ * @returns A promise resolving to the response data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const deleteUser = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -312,6 +405,13 @@ export const deleteUser = async (id: string) => {
   }
 };
 
+/**
+ * Retrieves a paginated list of parks.
+ * @param page - The page number (default: 0).
+ * @param size - The number of parks per page (default: 10).
+ * @returns A promise resolving to the paginated park data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getParks = async (page: number = 0, size: number = 10) => {
   try {
     const cookieStore = await cookies();
@@ -328,6 +428,12 @@ export const getParks = async (page: number = 0, size: number = 10) => {
   }
 };
 
+/**
+ * Retrieves a park by its ID.
+ * @param id - The ID of the park.
+ * @returns A promise resolving to the park data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getParkById = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -344,6 +450,13 @@ export const getParkById = async (id: string) => {
   }
 };
 
+/**
+ * Retrieves detailed information for a park by its ID.
+ * @param id - The ID of the park.
+ * @returns A promise resolving to the park data.
+ * @throws Error if authentication fails or the request errors.
+ * @remarks This function is similar to getParkById; consider consolidating.
+ */
 export const getParkInfoById = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -360,6 +473,12 @@ export const getParkInfoById = async (id: string) => {
   }
 };
 
+/**
+ * Creates a new park.
+ * @param data - The park creation data.
+ * @returns A promise resolving to the created park data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const createPark = async (data: CreateParkForm) => {
   try {
     const cookieStore = await cookies();
@@ -376,6 +495,13 @@ export const createPark = async (data: CreateParkForm) => {
   }
 };
 
+/**
+ * Updates a park's details.
+ * @param id - The ID of the park to update.
+ * @param data - The park update data.
+ * @returns A promise resolving to the updated park data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const updatePark = async (id: string, data: UpdateParkForm) => {
   try {
     const cookieStore = await cookies();
@@ -392,6 +518,12 @@ export const updatePark = async (id: string, data: UpdateParkForm) => {
   }
 };
 
+/**
+ * Deletes a park by its ID.
+ * @param id - The ID of the park to delete.
+ * @returns A promise resolving to the response data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const deletePark = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -408,6 +540,13 @@ export const deletePark = async (id: string) => {
   }
 };
 
+/**
+ * Retrieves activities for a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to the park's activity data.
+ * @throws Error if the request errors.
+ * @remarks This endpoint does not require authentication.
+ */
 export const getParkActivities = async (parkId: string) => {
   try {
     const response = await api.get(`/api/parks/${parkId}/activities`);
@@ -417,6 +556,13 @@ export const getParkActivities = async (parkId: string) => {
   }
 };
 
+/**
+ * Retrieves details for a specific park activity.
+ * @param activityId - The ID of the activity.
+ * @returns A promise resolving to the activity data.
+ * @throws Error if the request errors.
+ * @remarks This endpoint does not require authentication.
+ */
 export const getParkActivityDetails = async (activityId: string) => {
   try {
     const response = await api.get(`/api/activities/${activityId}`);
@@ -426,6 +572,12 @@ export const getParkActivityDetails = async (activityId: string) => {
   }
 };
 
+/**
+ * Books a tour for an activity.
+ * @param params - The booking details (activityId, visitDate, paymentMethodId).
+ * @returns A promise resolving to the booking data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const bookTour = async ({
   activityId,
   visitDate,
@@ -455,6 +607,13 @@ export const bookTour = async ({
   }
 };
 
+/**
+ * Makes a donation to a park.
+ * @param data - The donation details (parkId, amount, motiveForDonation).
+ * @param paymentMethodId - The ID of the payment method.
+ * @returns A promise resolving to the donation data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const makeDonation = async (
   data: { parkId: string; amount: string; motiveForDonation: string },
   paymentMethodId: string
@@ -483,6 +642,13 @@ export const makeDonation = async (
   }
 };
 
+/**
+ * Retrieves opportunities for a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to the opportunity data.
+ * @throws Error if the request errors.
+ * @remarks This endpoint does not require authentication.
+ */
 export const getParkOpportunities = async (parkId: string) => {
   try {
     const response = await api.get(`/api/park/${parkId}/opportunities`);
@@ -492,6 +658,13 @@ export const getParkOpportunities = async (parkId: string) => {
   }
 };
 
+/**
+ * Retrieves details for a specific opportunity.
+ * @param opportunityId - The ID of the opportunity.
+ * @returns A promise resolving to the opportunity data.
+ * @throws Error if the request errors.
+ * @remarks This endpoint does not require authentication.
+ */
 export const getOpportunityDetails = async (opportunityId: string) => {
   try {
     const response = await api.get(`/api/opportunities/${opportunityId}`);
@@ -501,6 +674,12 @@ export const getOpportunityDetails = async (opportunityId: string) => {
   }
 };
 
+/**
+ * Applies for an opportunity.
+ * @param data - The application data (opportunityId, firstName, lastName, email, applicationLetterUrl).
+ * @returns A promise resolving to the application data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const applyForOpportunity = async (data: {
   opportunityId: string;
   firstName: string;
@@ -523,6 +702,11 @@ export const applyForOpportunity = async (data: {
   }
 };
 
+/**
+ * Retrieves the authenticated user's bookings.
+ * @returns A promise resolving to the user's booking data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUserBookings = async () => {
   try {
     const cookieStore = await cookies();
@@ -539,6 +723,11 @@ export const getUserBookings = async () => {
   }
 };
 
+/**
+ * Retrieves the authenticated user's donations.
+ * @returns A promise resolving to the user's donation data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUserDonations = async () => {
   try {
     const cookieStore = await cookies();
@@ -555,6 +744,11 @@ export const getUserDonations = async () => {
   }
 };
 
+/**
+ * Retrieves the authenticated user's opportunity applications.
+ * @returns A promise resolving to the user's application data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getUserApplications = async () => {
   try {
     const cookieStore = await cookies();
@@ -571,7 +765,13 @@ export const getUserApplications = async () => {
   }
 };
 
-// Budget APIs
+/**
+ * Creates a new budget for a park.
+ * @param data - The budget creation data.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to the created budget data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const createBudget = async (data: CreateBudgetForm, parkId: string) => {
   try {
     const cookieStore = await cookies();
@@ -588,6 +788,13 @@ export const createBudget = async (data: CreateBudgetForm, parkId: string) => {
   }
 };
 
+/**
+ * Updates an existing budget.
+ * @param id - The ID of the budget to update.
+ * @param data - The budget update data.
+ * @returns A promise resolving to the updated budget data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const updateBudget = async (id: string, data: UpdateBudgetForm) => {
   try {
     const cookieStore = await cookies();
@@ -604,6 +811,12 @@ export const updateBudget = async (id: string, data: UpdateBudgetForm) => {
   }
 };
 
+/**
+ * Retrieves a budget by its ID.
+ * @param id - The ID of the budget.
+ * @returns A promise resolving to the budget data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getBudgetById = async (id: string) => {
   try {
     const cookieStore = await cookies();
@@ -620,6 +833,12 @@ export const getBudgetById = async (id: string) => {
   }
 };
 
+/**
+ * Lists budgets for a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of budget data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const listBudgetsByPark = async (parkId: string) => {
   try {
     const cookieStore = await cookies();
@@ -630,13 +849,20 @@ export const listBudgetsByPark = async (parkId: string) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;
   }
-}
+};
 
-// Budget categories
+/**
+ * Creates a new budget category for a budget.
+ * @param data - The budget category creation data.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to the created budget category data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const createBudgetCategory = async (data: CreateBudgetCategoryForm, budgetId: string) => {
   try {
     const cookieStore = await cookies();
@@ -653,12 +879,20 @@ export const createBudgetCategory = async (data: CreateBudgetCategoryForm, budge
   }
 };
 
+/**
+ * Updates an existing budget category.
+ * @param budgetId - The ID of the budget.
+ * @param categoryId - The ID of the budget category.
+ * @param data - The budget category update data.
+ * @returns A promise resolving to the updated budget category data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const updateBudgetCategory = async (budgetId: string, categoryId: string, data: UpdateBudgetCategoryForm) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.put(`/api/budgets/${budgetId}/categories/${categoryId}`, data, {
+    const response = await api.patch(`/api/budgets/${budgetId}/categories/${categoryId}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -669,6 +903,13 @@ export const updateBudgetCategory = async (budgetId: string, categoryId: string,
   }
 };
 
+/**
+ * Retrieves a budget category by its ID.
+ * @param budgetId - The ID of the budget.
+ * @param categoryId - The ID of the budget category.
+ * @returns A promise resolving to the budget category data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const getBudgetCategoryById = async (budgetId: string, categoryId: string) => {
   try {
     const cookieStore = await cookies();
@@ -685,6 +926,12 @@ export const getBudgetCategoryById = async (budgetId: string, categoryId: string
   }
 };
 
+/**
+ * Lists budget categories for a specific budget.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of budget category data.
+ * @throws Error if authentication fails or the request errors.
+ */
 export const listBudgetCategoriesByBudget = async (budgetId: string) => {
   try {
     const cookieStore = await cookies();
@@ -699,21 +946,23 @@ export const listBudgetCategoriesByBudget = async (budgetId: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-// EXPENSES =================================
+// EXPENSES ********************************************************************************************************************
 
 /**
- * List all expenses for a given budget
- * @param budgetId 
- * @returns 
+ * Lists expenses for a specific budget.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of expense data.
+ * @throws Error if authentication fails or the request errors.
+ * @remarks The endpoint URL may be incorrect; it currently fetches categories instead of expenses.
  */
 export const listBudgetExpenses = async (budgetId: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.get(`/api/budgets/${budgetId}/categories`, {
+    const response = await api.get(`/api/budgets/${budgetId}/expenses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -722,15 +971,16 @@ export const listBudgetExpenses = async (budgetId: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 /**
- * Create Expense for Budget Category
- * @param data 
- * @param budgetId 
- * @returns 
+ * Creates a new expense for a budget category.
+ * @param data - The expense creation data.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to the created expense data.
+ * @throws Error if authentication fails or the request errors.
  */
-export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, budgetId: string) => {
+export const createExpensesForBudgetCategory = async (data: CreateExpenseForm, budgetId: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
@@ -744,19 +994,22 @@ export const createExpensesForBudgetCategory = async (data: CreateBudgetForm, bu
   } catch (error) {
     throw error;
   }
-}
+};
 
 /**
- * Get expenses by budget category
- * @param categoryId 
- * @returns 
+ * Retrieves expenses for a specific budget category.
+ * @param budgetId - The ID of the budget.
+ * @param categoryId - The ID of the budget category.
+ * @returns A promise resolving to an array of expense data.
+ * @throws Error if authentication fails or the request errors.
+ * @remarks The endpoint uses POST, which is unusual for retrieval; consider changing to GET.
  */
 export const getExpensesByBudgetCategory = async (categoryId: string) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.post(`/api/budgets/categories/${categoryId}/expenses`, {
+    const response = await api.get(`/api/budgets/categories/${categoryId}/expenses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -765,15 +1018,97 @@ export const getExpensesByBudgetCategory = async (categoryId: string) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
-// Get all expenses for a given Park Id and budget Category
+/**
+ * Get expense by Id.
+ * @param id - The ID of the expense. 
+ * @returns A promise resolving to the expense data.
+ */
+export const getExpensesById = async (id: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/expenses/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-// Get expense by Id
+/**
+ * Get submitted Expenses.
+ * @param budgetId - The ID of the budget the expense belongs to. 
+ * @returns A promise resolving to the expense data.
+ */
+export const getMySubmittedExpenses = async (budgetId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/expenses/my-submissions`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-// Update expense
+/**
+ * Updates expense.
+ * @param expenseId - The ID of the expense.
+ * @param data - The expense update data.
+ * @returns A promise resolving to the updated expense data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const updateExpense = async (expenseId: string, data: UpdateExpenseForm) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/expenses/${expenseId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-// Delete expense
+/**
+ * Deletes expense.
+ * @param expenseId - The ID of the expense.
+ * @returns A promise resolving to the response message.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const deleteExpense = async (expenseId: string) => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.delete(`/api/expenses/${expenseId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+// WITHDRAW REQUESTS ********************************************************************************************************************
 
 
 

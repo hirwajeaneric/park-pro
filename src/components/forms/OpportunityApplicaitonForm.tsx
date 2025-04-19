@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,7 +12,6 @@ import { useMutation } from "@tanstack/react-query";
 import { applyForOpportunity } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Opportunity } from "@/types";
 import Link from "next/link";
 import { FileUpload } from "@/components/ui/file-upload";
 
@@ -23,14 +23,14 @@ const ApplicationFormSchema = z.object({
   resumeUrl: z.string().url("Please upload a valid resume"),
 });
 
-export default function ApplicationForm({ opportunity }: { opportunity: Opportunity }) {
-  const { userProfile, accessToken } = useAuth();
+export default function ApplicationForm({ opportunity }: { opportunity: any }) {
+  const { user } = useAuth();
   const form = useForm<z.infer<typeof ApplicationFormSchema>>({
     resolver: zodResolver(ApplicationFormSchema),
     defaultValues: {
-      firstName: userProfile?.firstName || "",
-      lastName: userProfile?.lastName || "",
-      email: userProfile?.email || "",
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+      email: user?.email || "",
       applicationLetter: "",
       resumeUrl: "",
     },
@@ -44,7 +44,7 @@ export default function ApplicationForm({ opportunity }: { opportunity: Opportun
         lastName: data.lastName,
         email: data.email,
         applicationLetterUrl: data.resumeUrl,
-      }, accessToken as string),
+      }),
     onSuccess: () => {
       toast.success("Application submitted successfully!");
       form.reset();

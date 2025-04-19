@@ -21,7 +21,9 @@ import { BudgetCategory, UpdateBudgetCategoryForm as UpdateBudgetCategoryFormTyp
 
 const UpdateBudgetCategoryFormSchema = z.object({
   name: z.string().min(3, "The name must atleast be 3 character long."),
-  allocatedAmount: z.number()
+  allocatedAmount: z.coerce
+    .number({ invalid_type_error: 'Total amount must be a number' })
+    .positive({ message: 'Total amount must be positive' })
 });
 
 export default function UpdateBudgetCategoryForm({ category }: { category: BudgetCategory }) {
@@ -41,7 +43,7 @@ export default function UpdateBudgetCategoryForm({ category }: { category: Budge
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budget-categories'] });
       toast.success('Budget category Updated!');
-      router.push(`/finance/budgets/${category.budgetId}`);
+      router.push(`/finance/budget/${category.budgetId}`);
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update budget category');
@@ -67,7 +69,7 @@ export default function UpdateBudgetCategoryForm({ category }: { category: Budge
                 <FormControl>
                   <Input
                     type='text'
-                    placeholder="Enter the fiscal year"
+                    placeholder="Enter the category name"
                     {...field}
                     aria-required="true"
                   />

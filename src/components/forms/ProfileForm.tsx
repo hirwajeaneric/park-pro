@@ -66,7 +66,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
   });
 
   const mutation = useMutation({
-    mutationFn: updateProfile,
+    mutationFn: (data: UpdateProfileForm) => updateProfile(profile.id, data),
     onSuccess: (data: UserProfile) => {
       localStorage.setItem("user-profile", JSON.stringify(data));
       queryClient.invalidateQueries({ queryKey: ['profile'] });
@@ -100,6 +100,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     deleteCookie();
     localStorage.removeItem('access-token');
     localStorage.removeItem('user-profile');
+    localStorage.removeItem('park-data');
     router.push(`/auth/${username}`);
   }
 

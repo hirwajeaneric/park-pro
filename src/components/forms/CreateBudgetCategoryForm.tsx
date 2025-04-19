@@ -21,7 +21,9 @@ import { CreateBudgetCategoryForm as CreateBudgetCategoryFormTypes } from '@/typ
 
 const CreateBudgetCategoryFormSchema = z.object({
   name: z.string().min(3, "The name must atleast be 3 character long."),
-  allocatedAmount: z.number()
+  allocatedAmount: z.coerce
+    .number({ invalid_type_error: 'Total amount must be a number' })
+    .positive({ message: 'Total amount must be positive' })
 });
 
 export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: string }) {
@@ -41,7 +43,7 @@ export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: strin
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budget-categories'] });
       toast.success('Budget category Created successfully');
-      router.push(`/finance/budgets/${budgetId}`);
+      router.push(`/finance/budget/${budgetId}`);
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to create budget category');
@@ -67,7 +69,7 @@ export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: strin
                 <FormControl>
                   <Input
                     type='text'
-                    placeholder="Enter the fiscal year"
+                    placeholder="Enter the category name"
                     {...field}
                     aria-required="true"
                   />
