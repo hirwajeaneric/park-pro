@@ -19,6 +19,13 @@ import {
   UpdateBudgetCategoryForm,
   CreateExpenseForm,
   UpdateExpenseForm,
+  WithdrawRequest,
+  CreateWithdrawRequestForm,
+  UpdateWithdrawRequest,
+  RejectWithdrawRequest,
+  UpdateWithdrawRequestAuditStatus,
+  UpdateExpenseAuditStatus,
+  Expense,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -1108,8 +1115,262 @@ export const deleteExpense = async (expenseId: string) => {
 };
 
 
-// WITHDRAW REQUESTS ********************************************************************************************************************
+/**
+ * Updates the audit status of an expense.
+ * @param expenseId - The ID of the expense.
+ * @param data - The audit status update data.
+ * @returns A promise resolving to the updated expense data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const updateExpenseAuditStatus = async (
+  expenseId: string,
+  data: UpdateExpenseAuditStatus
+): Promise<Expense> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/expenses/${expenseId}/audit-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
+
+// WITHDRAW REQUESTS ********************************************************************************************************************
+/**
+ * Lists withdraw requests for a specific budget.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const listBudgetWithdrawRequests = async (budgetId: string): Promise<WithdrawRequest[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/withdraw-requests`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Creates a new withdraw request for a budget.
+ * @param data - The withdraw request creation data.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to the created withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const createWithdrawRequestForBudget = async (data: CreateWithdrawRequestForm, budgetId: string): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/budgets/${budgetId}/withdraw-requests`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves withdraw requests for a specific budget category.
+ * @param budgetId - The ID of the budget.
+ * @param categoryId - The ID of the budget category.
+ * @returns A promise resolving to an array of withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getWithdrawRequestsByBudgetCategory = async (budgetId: string, categoryId: string): Promise<WithdrawRequest[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/categories/${categoryId}/withdraw-requests`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Gets a withdraw request by ID.
+ * @param id - The ID of the withdraw request.
+ * @returns A promise resolving to the withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getWithdrawRequestById = async (id: string): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/withdraw-requests/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Gets withdraw requests submitted by the authenticated user.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getMySubmittedWithdrawRequests = async (budgetId: string): Promise<WithdrawRequest[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/withdraw-requests/my-submissions`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates a withdraw request.
+ * @param withdrawRequestId - The ID of the withdraw request.
+ * @param data - The withdraw request update data.
+ * @returns A promise resolving to the updated withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const updateWithdrawRequest = async (withdrawRequestId: string, data: UpdateWithdrawRequest): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Deletes a withdraw request.
+ * @param withdrawRequestId - The ID of the withdraw request.
+ * @returns A promise resolving to the response message.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const deleteWithdrawRequest = async (withdrawRequestId: string): Promise<string> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.delete(`/api/withdraw-requests/${withdrawRequestId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Approves a withdraw request.
+ * @param withdrawRequestId - The ID of the withdraw request.
+ * @param data - The approval data (empty for now, as approverId is set by backend).
+ * @returns A promise resolving to the approved withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const approveWithdrawRequest = async (withdrawRequestId: string): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/approve`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Rejects a withdraw request.
+ * @param withdrawRequestId - The ID of the withdraw request.
+ * @param data - The rejection data, including the rejection reason.
+ * @returns A promise resolving to the rejected withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const rejectWithdrawRequest = async (withdrawRequestId: string, data: RejectWithdrawRequest): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/reject`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates the audit status of a withdraw request.
+ * @param withdrawRequestId - The ID of the withdraw request.
+ * @param data - The audit status update data.
+ * @returns A promise resolving to the updated withdraw request data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const updateWithdrawRequestAuditStatus = async (
+  withdrawRequestId: string,
+  data: UpdateWithdrawRequestAuditStatus
+): Promise<WithdrawRequest> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/audit-status`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 export default api;

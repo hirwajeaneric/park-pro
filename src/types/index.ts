@@ -186,3 +186,56 @@ export type CreateExpenseForm = {
   parkId: string;
   receiptUrl: string;
 }
+
+export type UpdateWithdrawRequest = {
+  amount: number; // Updated amount (optional)
+  reason: string; // Updated reason (optional)
+  description: string; // Updated description (optional)
+  receiptUrl: string; // Updated receipt URL (optional)
+};
+
+export type WithdrawRequest = {
+  id: string; // UUID of the withdraw request
+  amount: number; // Amount of the request (decimal, e.g., 1000.50)
+  reason: string; // Reason for the request (required)
+  description?: string; // Optional detailed description
+  requesterId: string; // UUID of the user who created the request
+  approverId?: string; // UUID of the user who approved the request, if approved
+  budgetCategoryId: string; // UUID of the associated budget category
+  budgetCategoryName: string; // Name of the associated budget category
+  budgetId: string; // UUID of the associated budget
+  receiptUrl?: string; // Optional URL to the receipt
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'; // Current status of the request
+  auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // Audit status of the request
+  approvedAt?: string; // ISO timestamp of approval, if approved (e.g., "2025-04-19T12:00:00Z")
+  rejectionReason?: string; // Reason for rejection, if rejected
+  parkId: string; // UUID of the associated park
+  currency: string; // Currency code (e.g., "XAF")
+  createdAt: string; // ISO timestamp of creation
+  updatedAt: string; // ISO timestamp of last update
+};
+
+export type CreateWithdrawRequestForm = {
+  amount: number; // Amount of the request (required, e.g., 1000.50)
+  reason: string; // Reason for the request (required)
+  description?: string; // Optional detailed description
+  budgetCategoryId: string; // UUID of the selected budget category
+  budgetId: string; // UUID of the selected budget
+  parkId: string; // UUID of the associated park
+  receiptUrl?: string; // Optional URL to the receipt (e.g., uploaded file)
+};
+
+// No fields needed in the body, as approverId and approvedAt are set by the backend
+// export type ApproveWithdrawRequest = {};
+
+export type RejectWithdrawRequest = {
+  rejectionReason: string; // Reason for rejecting the request (required)
+};
+
+export type UpdateWithdrawRequestAuditStatus = {
+  auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // New audit status (required)
+};
+
+export type UpdateExpenseAuditStatus = {
+  auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // New audit status (required)
+};
