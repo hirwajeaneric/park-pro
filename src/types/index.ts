@@ -239,3 +239,28 @@ export type UpdateWithdrawRequestAuditStatus = {
 export type UpdateExpenseAuditStatus = {
   auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // New audit status (required)
 };
+
+export type CreateOpportunityForm = {
+  title: string; // Title of the opportunity (required, max 100 characters)
+  description: string; // Description of the opportunity (required)
+  details?: string; // Optional detailed information
+  type: 'JOB' | 'VOLUNTEER' | 'PARTNERSHIP'; // Type of opportunity (required)
+  status: 'OPEN' | 'CLOSED'; // Status of opportunity (required)
+  visibility: 'PUBLIC' | 'PRIVATE'; // Visibility of opportunity (required)
+  parkId: string; // UUID of the associated park (required)
+};
+
+export type Opportunity = {
+  id: string; // UUID of the opportunity
+  title: string; // Title of the opportunity
+  description: string; // Description of the opportunity
+  details?: string; // Detailed information, if provided
+  type: 'JOB' | 'VOLUNTEER' | 'PARTNERSHIP'; // Type of opportunity
+  status: 'OPEN' | 'CLOSED'; // Status of opportunity
+  visibility: 'PUBLIC' | 'PRIVATE'; // Visibility of opportunity
+  createdById: string; // UUID of the user who created the opportunity
+  parkId: string; // UUID of the associated park
+  parkName: string; // Name of the associated park
+  createdAt: string; // ISO timestamp of creation (e.g., "2025-04-19T12:00:00Z")
+  updatedAt: string; // ISO timestamp of last update
+};

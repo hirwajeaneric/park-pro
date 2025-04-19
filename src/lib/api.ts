@@ -26,6 +26,8 @@ import {
   UpdateWithdrawRequestAuditStatus,
   UpdateExpenseAuditStatus,
   Expense,
+  CreateOpportunityForm,
+  Opportunity,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -1366,6 +1368,140 @@ export const updateWithdrawRequestAuditStatus = async (
         Authorization: `Bearer ${token}`,
       },
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+// OPPORTUNITIES ********************************************************************************************************************
+
+/**
+ * Creates a new opportunity.
+ * @param data - The opportunity creation data.
+ * @returns A promise resolving to the created opportunity data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const createOpportunity = async (data: CreateOpportunityForm): Promise<Opportunity> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post('/api/opportunities', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates an existing opportunity.
+ * @param opportunityId - The ID of the opportunity.
+ * @param data - The opportunity update data.
+ * @returns A promise resolving to the updated opportunity data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const updateOpportunity = async (opportunityId: string, data: CreateOpportunityForm): Promise<Opportunity> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/opportunities/${opportunityId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all opportunities.
+ * @returns A promise resolving to an array of opportunity data.
+ * @throws Error if the request errors.
+ * @remarks Authentication is optional; public opportunities are accessible without a token.
+ */
+export const getAllOpportunities = async (): Promise<Opportunity[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    const headers: { Authorization?: string } = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await api.get('/api/opportunities', { headers });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves an opportunity by ID.
+ * @param opportunityId - The ID of the opportunity.
+ * @returns A promise resolving to the opportunity data.
+ * @throws Error if the request errors.
+ * @remarks Authentication is optional; public opportunities are accessible without a token.
+ */
+export const getOpportunityById = async (opportunityId: string): Promise<Opportunity> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    const headers: { Authorization?: string } = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await api.get(`/api/opportunities/${opportunityId}`, { headers });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves opportunities created by the authenticated user.
+ * @returns A promise resolving to an array of opportunity data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getMyOpportunities = async (): Promise<Opportunity[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get('/api/opportunities/my', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves opportunities for a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of opportunity data.
+ * @throws Error if the request errors.
+ * @remarks Authentication is optional; public opportunities are accessible without a token.
+ */
+export const getOpportunitiesByParkId = async (parkId: string): Promise<Opportunity[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    const headers: { Authorization?: string } = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    const response = await api.get(`/api/park/${parkId}/opportunities`, { headers });
     return response.data;
   } catch (error) {
     throw error;
