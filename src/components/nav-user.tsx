@@ -114,7 +114,7 @@ export function NavUser({ user, userRole }: NavUserProps) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <BadgeCheck className="mr-2 h-4 w-4" />
+                <BadgeCheck onClick={() => router.push(`/${username}/profile`)} className="mr-2 h-4 w-4" />
                 Account
               </DropdownMenuItem>
             </DropdownMenuGroup>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import UpdateWithdrawRequestForm from '@/components/forms/UpdateWithdrawRequestDetailsForm';
+import ManageWithdrawRequestForm from '@/components/forms/ManageWithdrawRequestForm';
 import { getWithdrawRequestById } from '@/lib/api';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 import { WithdrawRequest } from '@/types';
@@ -56,7 +56,7 @@ export default async function page({ params }: Props) {
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <h1 className="text-2xl font-bold">Withdraw Request Details</h1>
-        <UpdateWithdrawRequestForm request={request} />
+        <ManageWithdrawRequestForm request={request} />
       </div>
     </ProtectedRoute>
   );

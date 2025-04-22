@@ -93,11 +93,11 @@ const data: {
       items: [
         {
           title: 'Withdraw Requests',
-          url: '/finance/withdraws',
+          url: '/finance/withdraw-request',
         },
         {
           title: 'Expenses',
-          url: '/finance/expenses',
+          url: '/finance/expense',
         },
       ],
     },

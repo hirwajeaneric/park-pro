@@ -660,6 +660,7 @@ export const makeDonation = async (
  */
 export const getParkOpportunities = async (parkId: string) => {
   try {
+    console.log("Park id: "+parkId)
     const response = await api.get(`/api/park/${parkId}/opportunities`);
     return response.data;
   } catch (error) {
@@ -1309,12 +1310,12 @@ export const deleteWithdrawRequest = async (withdrawRequestId: string): Promise<
  * @returns A promise resolving to the approved withdraw request data.
  * @throws Error if authentication fails or the request errors.
  */
-export const approveWithdrawRequest = async (withdrawRequestId: string): Promise<WithdrawRequest> => {
+export const approveWithdrawRequest = async (withdrawRequestId: string): Promise<WithdrawRequest> => { 
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/approve`, {
+    const response = await api.get(`/api/budgets/withdraw-requests/${withdrawRequestId}/approve`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1337,7 +1338,7 @@ export const rejectWithdrawRequest = async (withdrawRequestId: string, data: Rej
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/reject`, data, {
+    const response = await api.post(`/api/budgets/withdraw-requests/${withdrawRequestId}/reject`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

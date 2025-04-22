@@ -45,7 +45,7 @@ export default function ManageWithdrawRequestForm({ request }: { request: Withdr
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['withdrawRequests'] });
       toast.success('Withdraw request approved successfully');
-      router.push('/manager/withdraw-request');
+      router.push('/finance/withdraw-request');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to approve withdraw request');
@@ -58,7 +58,7 @@ export default function ManageWithdrawRequestForm({ request }: { request: Withdr
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['withdrawRequests'] });
       toast.success('Withdraw request rejected successfully');
-      router.push('/manager/withdraw-request');
+      router.push('/finance/withdraw-request');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to reject withdraw request');
@@ -123,7 +123,7 @@ export default function ManageWithdrawRequestForm({ request }: { request: Withdr
             <Button
               variant="outline"
               type="button"
-              onClick={() => router.push('/manager/withdraw-request')}
+              onClick={() => router.push('/finance/withdraw-request')}
             >
               Back
             </Button>

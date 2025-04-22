@@ -14,7 +14,7 @@ export default function CreateOpportunityPage() {
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <div className="flex w-full items-center justify-between">
           <h1 className="text-2xl font-bold">Create New Opportunity</h1>
-          <Link href={'/manager/opportunity'} className="underline">
+          <Link href={'/finance/opportunities'} className="underline">
             Go to List
           </Link>
         </div>

@@ -67,7 +67,7 @@ export default function UpdateOpportunityForm({ opportunity }: { opportunity: Op
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['opportunities'] });
       toast.success('Opportunity updated successfully');
-      router.push('/manager/opportunity');
+      router.push('/finance/opportunities');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update opportunity');

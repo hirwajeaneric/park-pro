@@ -14,8 +14,8 @@ const OPPORTUNITY_TYPES = [
   { value: 'ALL', label: 'All Opportunities' },
   { value: 'JOB', label: 'Jobs' },
   { value: 'VOLUNTEER', label: 'Volunteer' },
-  { value: 'INVESTMENT', label: 'Investments' },
-  { value: 'SERVICE', label: 'Services' },
+  { value: 'PARTNERSHIP', label: 'PARTNERSHIP' },
+  // { value: 'SERVICE', label: 'Services' },
 ];
 
 export default function OpportunitiesList() {

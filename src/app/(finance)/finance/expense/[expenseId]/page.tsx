@@ -1,62 +1,62 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import UpdateWithdrawRequestForm from '@/components/forms/UpdateWithdrawRequestDetailsForm';
-import { getWithdrawRequestById } from '@/lib/api';
+import UpdateExpenseDetailsForm from '@/components/forms/UpdateExpenseDetailsForm';
+import { getExpensesById } from '@/lib/api';
 import ProtectedRoute from '@/lib/ProtectedRoute';
-import { WithdrawRequest } from '@/types';
+import { Expense } from '@/types';
 import { Metadata } from 'next';
 
 export const dynamicParams = true;
 
 type Props = {
-  params: { requestId: string };
+  params: { expenseId: string };
   searchParams: { [key: string]: string | string[] | undefined };
-};
+}
 
 export async function generateMetadata(
-  { params }: { params: { requestId: string } }
+  { params }: { params: { expenseId: string } }
 ): Promise<Metadata> {
-  const { requestId } = await params;
+  const { expenseId } = await params;
   try {
-    const request: WithdrawRequest = await getWithdrawRequestById(requestId);
+    const expense: Expense = await getExpensesById(expenseId);
     return {
-      title: `Withdraw Request - ${request.reason}`,
-      description: `Withdraw request details for ${request.reason}`,
+      title: `Expense - ${expense.description}`,
+      description: `Expense details for ${expense.description}`,
     };
   } catch (error) {
     return {
-      title: 'Withdraw Request Not Found',
-      description: 'Selected withdraw request not available',
+      title: 'Expense Not Found',
+      description: 'Selected Expense not available',
     };
   }
 }
 
 export default async function page({ params }: Props) {
-  const { requestId } = await params;
-  let request: WithdrawRequest;
+  const { expenseId } = await params;
+  let expense: Expense;
   try {
-    request = await getWithdrawRequestById(requestId);
+    expense = await getExpensesById(expenseId);
   } catch (error) {
     return (
       <ProtectedRoute>
         <div className="w-full bg-white">
           <div className="container mx-auto px-4 sm:px-8 md:px-16 lg:px-18 py-6">
             <h1 className="font-bold text-3xl text-destructive">
-              Withdraw Request Not Found
+              Expense Not Found
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Unable to load withdraw request. Please try again.
+              Unable to load expense. Please try again.
             </p>
           </div>
         </div>
       </ProtectedRoute>
-    );
+    )
   }
 
   return (
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <h1 className="text-2xl font-bold">Withdraw Request Details</h1>
-        <UpdateWithdrawRequestForm request={request} />
+        <h1 className="text-2xl font-bold">Expense Details</h1>
+        <UpdateExpenseDetailsForm expense={expense} />
       </div>
     </ProtectedRoute>
   );

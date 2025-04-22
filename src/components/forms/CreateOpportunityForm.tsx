@@ -66,7 +66,7 @@ export default function CreateOpportunityForm() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['opportunities'] });
       toast.success('Opportunity created successfully');
-      router.push('/manager/opportunity');
+      router.push('/finance/opportunities');
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to create opportunity');

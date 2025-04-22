@@ -78,7 +78,7 @@ export default function OpportunityDisplay() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push(`/manager/opportunity/${row.original.id}`)}
+          onClick={() => router.push(`/finance/opportunities/${row.original.id}`)}
         >
           <Eye className="h-4 w-4" />
         </Button>
