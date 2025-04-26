@@ -41,36 +41,26 @@ const data: {
   navMain: [
     {
       title: 'Overview',
-      url: '/manager',
-      icon: Home
+      url: '/government',
+      icon: Home,
     },
     {
-      title: 'Expenses',
-      url: '/manager/expense',
+      title: 'Budgets',
+      url: '/government/budgets',
       icon: PieChart,
-      items: [
-        {
-          title: 'View expenses',
-          url: '/manager/expense',
-        },
-        {
-          title: 'Create expense',
-          url: '/manager/expense/new',
-        },
-      ],
     },
     {
-      title: 'Withdraw Request',
-      url: '/manager/withdraw-request',
+      title: 'Requests',
+      url: '/government/requests/extra-funds',
       icon: Map,
       items: [
         {
-          title: 'List Requests',
-          url: '/manager/withdraw-request',
+          title: 'Extra Funds',
+          url: '/government/requests/extra-funds',
         },
         {
-          title: 'Send Request',
-          url: '/manager/withdraw-request/new',
+          title: 'Emergency Funds',
+          url: '/government/requests/emergency-funds',
         },
       ],
     },
@@ -78,13 +68,13 @@ const data: {
   secondaryMenu: [
     {
       name: 'Profile',
-      url: '/manager/profile',
+      url: '/government/profile',
       icon: UserIcon,
     },
   ],
 };
 
-export function ManagerAppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function GovernmentAppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
   const navUser = user
     ? {
@@ -116,7 +106,7 @@ export function ManagerAppSidebar({ ...props }: React.ComponentProps<typeof Side
         }))} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navUser} userRole={user?.role} />
+        <NavUser user={navUser} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

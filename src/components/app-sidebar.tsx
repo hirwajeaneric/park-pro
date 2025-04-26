@@ -81,8 +81,8 @@ const data: {
           url: '/finance/opportunities?type=job',
         },
         {
-          title: 'Service Providers',
-          url: '/finance/opportunities?type=partnership',
+          title: 'Applications',
+          url: '/finance/applications',
         },
       ],
     },
