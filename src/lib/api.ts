@@ -28,6 +28,10 @@ import {
   Expense,
   CreateOpportunityForm,
   Opportunity,
+  BudgetByFiscalYearResponse,
+  BudgetResponse,
+  IncomeStreamResponse,
+  IncomeStreamRequest,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -660,7 +664,7 @@ export const makeDonation = async (
  */
 export const getParkOpportunities = async (parkId: string) => {
   try {
-    console.log("Park id: "+parkId)
+    console.log("Park id: " + parkId)
     const response = await api.get(`/api/park/${parkId}/opportunities`);
     return response.data;
   } catch (error) {
@@ -775,6 +779,8 @@ export const getUserApplications = async () => {
   }
 };
 
+// BUDGET MANAGEMENT
+
 /**
  * Creates a new budget for a park.
  * @param data - The budget creation data.
@@ -810,7 +816,7 @@ export const updateBudget = async (id: string, data: UpdateBudgetForm) => {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.put(`/api/budgets/${id}`, data, {
+    const response = await api.patch(`/api/budgets/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -820,6 +826,51 @@ export const updateBudget = async (id: string, data: UpdateBudgetForm) => {
     throw error;
   }
 };
+
+/**
+ * Approves a budget by its ID.
+ * @param budgetId - The ID of the budget to approve.
+ * @returns A promise resolving to the updated budget data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const approveBudget = async (budgetId: string): Promise<BudgetResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/budgets/${budgetId}/approve`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Rejects a budget by its ID.
+ * @param budgetId - The ID of the budget to reject.
+ * @returns A promise resolving to the updated budget data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const rejectBudget = async (budgetId: string): Promise<BudgetResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/budgets/${budgetId}/reject`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 /**
  * Retrieves a budget by its ID.
@@ -926,6 +977,28 @@ export const getBudgetCategoryById = async (budgetId: string, categoryId: string
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
     const response = await api.get(`/api/budgets/${budgetId}/categories/${categoryId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves budgets for all parks for a specific fiscal year.
+ * @param fiscalYear - The fiscal year (e.g., 2024, 2025).
+ * @returns A promise resolving to an array of budget data with park details.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getBudgetsByFiscalYear = async (fiscalYear: number): Promise<BudgetByFiscalYearResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/by-fiscal-year/${fiscalYear}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1146,6 +1219,7 @@ export const updateExpenseAuditStatus = async (
 
 
 // WITHDRAW REQUESTS ********************************************************************************************************************
+
 /**
  * Lists withdraw requests for a specific budget.
  * @param budgetId - The ID of the budget.
@@ -1310,7 +1384,7 @@ export const deleteWithdrawRequest = async (withdrawRequestId: string): Promise<
  * @returns A promise resolving to the approved withdraw request data.
  * @throws Error if authentication fails or the request errors.
  */
-export const approveWithdrawRequest = async (withdrawRequestId: string): Promise<WithdrawRequest> => { 
+export const approveWithdrawRequest = async (withdrawRequestId: string): Promise<WithdrawRequest> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
@@ -1508,6 +1582,120 @@ export const getOpportunitiesByParkId = async (parkId: string): Promise<Opportun
     throw error;
   }
 };
+
+// INCOME STREAMS ********************************************************************************************************************
+
+/**
+ * Creates an income stream for a budget.
+ * @param budgetId - The ID of the budget.
+ * @param request - The income stream details.
+ * @returns A promise resolving to the created income stream data.
+ * @throws Error if authentication fails, validation fails, or the request errors.
+ */
+export const createIncomeStream = async (budgetId: string, request: IncomeStreamRequest): Promise<IncomeStreamResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/budgets/${budgetId}/income-streams`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates an income stream.
+ * @param incomeStreamId - The ID of the income stream.
+ * @param request - The updated income stream details.
+ * @returns A promise resolving to the updated income stream data.
+ * @throws Error if authentication fails, validation fails, or the request errors.
+ */
+export const updateIncomeStream = async (incomeStreamId: string, request: IncomeStreamRequest): Promise<IncomeStreamResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/income-streams/${incomeStreamId}`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Deletes an income stream.
+ * @param incomeStreamId - The ID of the income stream.
+ * @returns A promise resolving when the income stream is deleted.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const deleteIncomeStream = async (incomeStreamId: string): Promise<void> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    await api.delete(`/api/income-streams/${incomeStreamId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves an income stream by its ID.
+ * @param incomeStreamId - The ID of the income stream.
+ * @returns A promise resolving to the income stream data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getIncomeStream = async (incomeStreamId: string): Promise<IncomeStreamResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/income-streams/${incomeStreamId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all income streams for a budget.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of income stream data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getIncomeStreamsByBudget = async (budgetId: string): Promise<IncomeStreamResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/income-streams`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 export default api;

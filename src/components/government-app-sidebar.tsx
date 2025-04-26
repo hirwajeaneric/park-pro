@@ -3,6 +3,7 @@
 import type * as React from 'react';
 import {
   Home,
+  House,
   LucideIcon,
   Map,
   PieChart,
@@ -48,6 +49,11 @@ const data: {
       title: 'Budgets',
       url: '/government/budgets',
       icon: PieChart,
+    },
+    {
+      title: 'Parks',
+      url: '/government/parks',
+      icon: House,
     },
     {
       title: 'Requests',

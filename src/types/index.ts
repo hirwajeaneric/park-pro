@@ -124,6 +124,20 @@ export type Budget = {
   updatedAt: string;
 }
 
+export type BudgetResponse = {
+  id: string;
+  parkId: string;
+  fiscalYear: number;
+  totalAmount: number;
+  balance: number;
+  status: 'DRAFT' | 'APPROVED' | 'REJECTED';
+  createdBy: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CreateBudgetForm = {
   fiscalYear: number;
   totalAmount: number;
@@ -263,4 +277,38 @@ export type Opportunity = {
   parkName: string; // Name of the associated park
   createdAt: string; // ISO timestamp of creation (e.g., "2025-04-19T12:00:00Z")
   updatedAt: string; // ISO timestamp of last update
+};
+
+export type BudgetByFiscalYearResponse = {
+  budgetId?: string; // UUID of the budget, null if no budget exists
+  parkId: string; // UUID of the park
+  parkName: string; // Name of the park
+  fiscalYear: number; // Fiscal year of the budget
+  totalAmount?: number; // Total budget amount, null if no budget
+  balance?: number; // Remaining balance, null if no budget
+  status?: 'DRAFT' | 'APPROVED' | 'REJECTED'; // Budget status, null if no budget
+  createdBy?: string; // UUID of creator, null if no budget
+  approvedBy?: string; // UUID of approver, null if no budget
+  approvedAt?: string; // ISO timestamp, null if no budget
+  createdAt?: string; // ISO timestamp, null if no budget
+  updatedAt?: string; // ISO timestamp, null if no budget
+};
+
+export type IncomeStreamResponse = {
+  id: string;
+  budgetId: string;
+  parkId: string;
+  fiscalYear: number;
+  name: string;
+  percentage: number;
+  totalContribution: number;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type IncomeStreamRequest = {
+  name: string;
+  percentage: number;
+  totalContribution: number;
 };

@@ -20,8 +20,15 @@ import { toast } from 'sonner';
 import { Budget, UpdateBudgetForm as UpdateBudgetFormTypes } from '@/types';
 
 const BudgetUpdateFormSchema = z.object({
-  fiscalYear: z.number(),
-  totalAmount: z.number(),
+  fiscalYear: z.coerce
+    .number({ invalid_type_error: 'Fiscal year must be a number' })
+    .int({ message: 'Fiscal year must be an integer' })
+    .min(2000, { message: 'Fiscal year must be 2000 or later' })
+    .max(2100, { message: 'Fiscal year must be 2100 or earlier' }),
+  totalAmount: z.coerce
+    .number({ invalid_type_error: 'Total amount must be a number' })
+    .positive({ message: 'Total amount must be positive' })
+    .max(1_000_000_000, { message: 'Total amount cannot exceed 1 billion' }),
   status: z.enum(['APPROVED', 'REJECTED', 'DRAFT'])
 });
 
