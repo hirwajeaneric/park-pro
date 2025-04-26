@@ -32,6 +32,8 @@ import {
   BudgetResponse,
   IncomeStreamResponse,
   IncomeStreamRequest,
+  OpportunityApplicationResponse,
+  OpportunityApplicationRequest,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -667,7 +669,6 @@ export const makeDonation = async (
  */
 export const getParkOpportunities = async (parkId: string) => {
   try {
-    console.log("Park id: " + parkId)
     const response = await api.get(`/api/park/${parkId}/opportunities`);
     return response.data;
   } catch (error) {
@@ -913,7 +914,6 @@ export const listBudgetsByPark = async (parkId: string) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     throw error;
@@ -1699,6 +1699,166 @@ export const getIncomeStreamsByBudget = async (budgetId: string): Promise<Income
   }
 };
 
+/**
+ * Creates an opportunity application.
+ * @param request - The application details.
+ * @returns A promise resolving to the created application data.
+ * @throws Error if authentication fails, validation fails, or the request errors.
+ */
+export const createOpportunityApplication = async (request: OpportunityApplicationRequest): Promise<OpportunityApplicationResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post('/api/opportunity-applications', request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates the status of an opportunity application.
+ * @param applicationId - The ID of the application.
+ * @param status - The new status ('SUBMITTED', 'REVIEWED', 'ACCEPTED', 'REJECTED').
+ * @returns A promise resolving to the updated application data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const updateOpportunityApplicationStatus = async (
+  applicationId: string,
+  status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED'
+): Promise<OpportunityApplicationResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(
+      `/api/opportunity-applications/${applicationId}/status`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        params: { status },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all applications for a given opportunity.
+ * @param opportunityId - The ID of the opportunity.
+ * @returns A promise resolving to an array of application data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getApplicationsByOpportunity = async (opportunityId: string): Promise<OpportunityApplicationResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/opportunity-applications/opportunity/${opportunityId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves an opportunity application by its ID.
+ * @param applicationId - The ID of the application.
+ * @returns A promise resolving to the application data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getOpportunityApplicationById = async (applicationId: string): Promise<OpportunityApplicationResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/opportunity-applications/${applicationId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all applications submitted by the authenticated user.
+ * @returns A promise resolving to an array of application data.
+ * @throws Error if authentication fails or the request errors.
+ */
+export const getMyOpportunityApplications = async (): Promise<OpportunityApplicationResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get('/api/opportunity-applications/my', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all opportunity applications in the system.
+ * @returns A promise resolving to an array of application data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getAllOpportunityApplications = async (): Promise<OpportunityApplicationResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get('/api/opportunity-applications', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all opportunity applications for a given park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of application data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getApplicationsByPark = async (parkId: string): Promise<OpportunityApplicationResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/opportunity-applications/park/${parkId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 export default api;

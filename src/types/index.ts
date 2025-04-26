@@ -312,3 +312,23 @@ export type IncomeStreamRequest = {
   percentage: number;
   totalContribution: number;
 };
+
+export type OpportunityApplicationRequest = {
+  opportunityId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  applicationLetterUrl: string;
+};
+
+export type OpportunityApplicationResponse = {
+  id: string;
+  opportunityId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  applicationLetterUrl: string;
+  status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED';
+  createdAt: string;
+  updatedAt: string;
+};
