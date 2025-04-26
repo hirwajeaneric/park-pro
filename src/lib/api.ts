@@ -306,12 +306,12 @@ export const getUsersByRole = async (role: string) => {
  * @returns A promise resolving to an array of user data.
  * @throws Error if authentication fails or the request errors.
  */
-export const getUsersByPark = async (parkId: string) => {
+export const getUsersByPark = async (parkId: string) => { 
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.get(`/api/users?parkId=${parkId}`, {
+    const response = await api.get(`/api/parks/${parkId}/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -417,6 +417,9 @@ export const deleteUser = async (id: string) => {
     throw error;
   }
 };
+
+
+// PARK ***************************************************************************************************************************************
 
 /**
  * Retrieves a paginated list of parks.

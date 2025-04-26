@@ -31,9 +31,9 @@ export default async function page({ params }: Props) {
       username = "Finance Manager";
       break;
     case "manager":
-      username = "Park Manager";
+      username = "Park Staff";
       break;
-    case "gov":
+    case "government":
       username = "Government Officer";
       break;
     default:
