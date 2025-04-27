@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/BookingForm.tsx
-// src/components/BookingForm.tsx
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,7 +48,7 @@ export default function BookingForm({ activityId, price }: { activityId: string;
 
   const bookMutation = useMutation({
     mutationFn: ({ activityId, visitDate, paymentMethodId }: { activityId: string; visitDate: string; paymentMethodId: string }) =>
-      bookTour({ activityId, visitDate, paymentMethodId, token: accessToken! }),
+      bookTour({ activityId, visitDate, paymentMethodId }),
     onSuccess: () => {
       setIsPaymentDialogOpen(false);
       setIsSuccessDialogOpen(true);

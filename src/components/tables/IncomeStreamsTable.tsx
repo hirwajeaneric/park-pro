@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,7 +40,7 @@ const IncomeStreamFormSchema = z.object({
 });
 
 export default function IncomeStreamsTable({ budget }: { budget: Budget }) {
-//   const router = useRouter();
+  //   const router = useRouter();
   const queryClient = useQueryClient();
   const [editingIncomeStreamId, setEditingIncomeStreamId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
@@ -49,9 +49,9 @@ export default function IncomeStreamsTable({ budget }: { budget: Budget }) {
   const { data: incomeStreams = [], isLoading: isIncomeStreamsLoading } = useQuery({
     queryKey: ['incomeStreams', budget.id],
     queryFn: () => getIncomeStreamsByBudget(budget.id),
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to load income streams');
-    },
+    // onError: (error: Error) => {
+    //   toast.error(error.message || 'Failed to load income streams');
+    // },
   });
 
   // Income stream form
@@ -180,7 +180,10 @@ export default function IncomeStreamsTable({ budget }: { budget: Budget }) {
     {
       accessorKey: 'totalContribution',
       header: 'Total Contribution ($)',
-      cell: ({ row }) => `$${row.getValue('totalContribution').toFixed(2)}`,
+      cell: ({ row }) => {
+        const value = row.getValue('totalContribution') as number;
+        return `$${value.toFixed(2)}`;
+      },
     },
     {
       id: 'actions',

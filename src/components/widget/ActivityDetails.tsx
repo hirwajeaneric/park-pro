@@ -73,7 +73,7 @@ export default function ActivityDetails({ activity }: { activity: ActivityRespon
         <div className="space-y-6">
             <div className="flex w-full items-center justify-between">
                 <h2 className="text-xl font-semibold">Activity Details</h2>
-                <Button variant="outline" onClick={() => router.push('/activities')}>
+                <Button variant="outline" onClick={() => router.push('/finance/activities')}>
                     Back to Activities
                 </Button>
             </div>

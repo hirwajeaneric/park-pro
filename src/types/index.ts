@@ -360,3 +360,44 @@ export type ActivityResponse = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type CreateDonationRequest = {
+  parkId: string;
+  amount: number;
+  motiveForDonation?: string;
+};
+
+export type DonationResponse = {
+  id: string;
+  donorId: string;
+  parkId: string;
+  amount: number;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  paymentReference?: string;
+  currency: string;
+  motiveForDonation?: string;
+  fiscalYear: number;
+  confirmedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export interface CreateBookingRequest {
+  activityId: string;
+  visitDate: string; // ISO date string, e.g., "2025-05-01"
+}
+
+export interface BookingResponse {
+  id: string;
+  visitorId: string;
+  activityId: string;
+  amount: number;
+  parkId: string;
+  visitDate: string;
+  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  paymentReference: string;
+  currency: string;
+  confirmedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
