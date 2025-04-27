@@ -1690,6 +1690,7 @@ export const getIncomeStream = async (incomeStreamId: string): Promise<IncomeStr
  * @throws Error if authentication fails or the request errors.
  */
 export const getIncomeStreamsByBudget = async (budgetId: string): Promise<IncomeStreamResponse[]> => {
+  console.log(budgetId);
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;

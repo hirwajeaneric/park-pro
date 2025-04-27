@@ -9,7 +9,6 @@ import { DataTable } from '@/components/ui/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
-import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { getBudgetsByFiscalYear } from '@/lib/api';
 import { BudgetByFiscalYearResponse } from '@/types';
@@ -25,9 +24,9 @@ export default function BudgetDisplay() {
   const { data: budgets = [], isLoading: isBudgetsLoading } = useQuery({
     queryKey: ['budgets', selectedFiscalYear],
     queryFn: () => getBudgetsByFiscalYear(Number(selectedFiscalYear)),
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to load budgets');
-    },
+    // onError: (error: Error) => {
+    //   toast.error(error.message || 'Failed to load budgets');
+    // },
   });
 
   const columns: ColumnDef<BudgetByFiscalYearResponse>[] = [
@@ -44,7 +43,7 @@ export default function BudgetDisplay() {
       header: 'Total Amount',
       cell: ({ row }) => {
         const amount = row.getValue('totalAmount');
-        return amount !== null && amount !== undefined ? `$${amount.toFixed(2)}` : 'No Budget';
+        return amount !== null && amount !== undefined ? `$${(amount as number).toFixed(2)}` : 'No Budget';
       },
     },
     {
@@ -52,7 +51,7 @@ export default function BudgetDisplay() {
       header: 'Balance',
       cell: ({ row }) => {
         const balance = row.getValue('balance');
-        return balance !== null && balance !== undefined ? `$${balance.toFixed(2)}` : 'No Budget';
+        return balance !== null && balance !== undefined ? `$${(balance as number).toFixed(2)}` : 'No Budget';
       },
     },
     {
@@ -62,7 +61,7 @@ export default function BudgetDisplay() {
         const status = row.getValue('status');
         return status ? (
           <Badge variant={status === 'APPROVED' ? 'success' : status === 'DRAFT' ? 'default' : 'destructive'}>
-            {status}
+            {String(status)}
           </Badge>
         ) : (
           'No Budget'
