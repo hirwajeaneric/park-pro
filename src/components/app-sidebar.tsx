@@ -9,6 +9,7 @@ import {
   Map,
   PieChart,
   User as UserIcon,
+  Wallet,
 } from 'lucide-react';
 import { NavMain } from './nav-main';
 import { SecondaryMenu } from './secondary-menu';
@@ -45,14 +46,23 @@ const data: {
       title: 'Overview',
       url: '/finance',
       icon: Home,
+    },
+    {
+      title: 'Income Streams',
+      url: '/finance/bookings',
+      icon: Wallet,
       items: [
         {
-          title: 'Dashboard',
-          url: '/finance',
+          title: 'Bookings',
+          url: '/finance/bookings',
         },
         {
-          title: 'Revenue Streams',
-          url: '/finance/revenue',
+          title: 'Donations',
+          url: '/finance/donations',
+        },
+        {
+          title: 'Activities',
+          url: '/finance/activities',
         },
       ],
     },

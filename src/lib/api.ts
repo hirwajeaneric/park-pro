@@ -34,6 +34,9 @@ import {
   IncomeStreamRequest,
   OpportunityApplicationResponse,
   OpportunityApplicationRequest,
+  CreateActivityRequest,
+  ActivityResponse,
+  UpdateActivityRequest,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -1854,6 +1857,106 @@ export const getApplicationsByPark = async (parkId: string): Promise<Opportunity
         Authorization: `Bearer ${token}`,
       },
     });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
+/**
+ * Creates an activity for a park.
+ * @param parkId - The ID of the park.
+ * @param request - The activity details.
+ * @returns A promise resolving to the created activity data.
+ * @throws Error if authentication fails, validation fails, or the request errors.
+ */
+export const createActivity = async (parkId: string, request: CreateActivityRequest): Promise<ActivityResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    console.log(parkId);
+    console.log(request);
+    const response = await api.post(`/api/parks/${parkId}/activities`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Updates an existing activity.
+ * @param activityId - The ID of the activity.
+ * @param request - The updated activity details.
+ * @returns A promise resolving to the updated activity data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const updateActivity = async (activityId: string, request: UpdateActivityRequest): Promise<ActivityResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/activities/${activityId}`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Deletes an activity.
+ * @param activityId - The ID of the activity.
+ * @returns A promise resolving when the activity is deleted.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const deleteActivity = async (activityId: string): Promise<void> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    await api.delete(`/api/activities/${activityId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all activities for a given park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of activity data.
+ * @throws Error if the park is not found or the request errors.
+ */
+export const getActivitiesByPark = async (parkId: string): Promise<ActivityResponse[]> => {
+  try {
+    const response = await api.get(`/api/parks/${parkId}/activities`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Retrieves an activity by its ID.
+ * @param activityId - The ID of the activity.
+ * @returns A promise resolving to the activity data.
+ * @throws Error if the activity is not found or the request errors.
+ */
+export const getActivityById = async (activityId: string): Promise<ActivityResponse> => {
+  try {
+    const response = await api.get(`/api/activities/${activityId}`);
     return response.data;
   } catch (error) {
     throw error;

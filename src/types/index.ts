@@ -332,3 +332,31 @@ export type OpportunityApplicationResponse = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type CreateActivityRequest = {
+  name: string;
+  price: number;
+  description: string;
+  picture: string;
+  capacityPerDay: number;
+};
+
+export type UpdateActivityRequest = {
+  name?: string;
+  price?: number;
+  description?: string;
+  picture?: string;
+  capacityPerDay?: number;
+};
+
+export type ActivityResponse = {
+  id: string;
+  name: string;
+  parkId: string;
+  price: number;
+  description?: string;
+  picture?: string;
+  capacityPerDay?: number;
+  createdAt: string;
+  updatedAt: string;
+};
