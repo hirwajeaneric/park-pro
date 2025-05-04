@@ -40,6 +40,8 @@ import {
   DonationResponse,
   CreateDonationRequest,
   BookingResponse,
+  CreateFundingRequestDto,
+  FundingRequestResponse,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -1706,6 +1708,9 @@ export const getIncomeStreamsByBudget = async (budgetId: string): Promise<Income
   }
 };
 
+
+// OPPORTUNITIES AND OPPORTUNITY APPLICAITON ****************************************************************************************************
+
 /**
  * Creates an opportunity application.
  * @param request - The application details.
@@ -1868,6 +1873,9 @@ export const getApplicationsByPark = async (parkId: string): Promise<Opportunity
 };
 
 
+// PARK ACTIVITIES ********************************************************************************************************************
+
+
 /**
  * Creates an activity for a park.
  * @param parkId - The ID of the park.
@@ -2025,6 +2033,9 @@ export const cancelDonation = async (donationId: string): Promise<DonationRespon
   }
 };
 
+
+// DONATIONS ********************************************************************************************************************
+
 /**
  * Retrieves all donations made by the authenticated user.
  * @returns A promise resolving to an array of donation data.
@@ -2095,17 +2106,25 @@ export const getDonationById = async (donationId: string): Promise<DonationRespo
   }
 };
 
-// /**
-//  * Creates a new booking with confirmed status.
-//  * @param request - The booking request data.
-//  * @param paymentMethodId - The Stripe payment method ID (e.g., pm_xxx).
-//  * @param token - The JWT token for authentication.
-//  * @returns A promise resolving to the created booking data.
-//  * @throws Error if the request fails.
-//  */
-// export const createBooking = async (request: CreateBookingRequest, paymentMethodId: string, token: string): Promise<BookingResponse> => {
+
+// BOOKINGS ********************************************************************************************************************
+
+/**
+ * Creates a new booking with confirmed status.
+ * @param request - The booking request data.
+ * @param paymentMethodId - The Stripe payment method ID (e.g., pm_xxx).
+ * @returns A promise resolving to the created booking data.
+ * @throws Error if authentication fails, the user lacks permission, payment fails, or the request errors.
+ */
+// export const createBooking = async (
+//   request: CreateBookingRequest,
+//   paymentMethodId: string
+// ): Promise<BookingResponse> => {
 //   try {
-//     const response = await axios.post('/api/bookings', request, {
+//     const cookieStore = await cookies();
+//     const token = cookieStore.get('access-token')?.value;
+//     if (!token) throw new Error('Authentication required');
+//     const response = await api.post('/api/bookings', request, {
 //       headers: {
 //         Authorization: `Bearer ${token}`,
 //         'Content-Type': 'application/json',
@@ -2117,31 +2136,28 @@ export const getDonationById = async (donationId: string): Promise<DonationRespo
 //     if (axios.isAxiosError(error)) {
 //       if (error.response?.status === 400) {
 //         throw new Error(error.response.data.message || 'Invalid booking request');
-//       }
-//       if (error.response?.status === 403) {
-//         throw new Error('Unauthorized: Only VISITOR role can create bookings');
-//       }
-//       if (error.response?.status === 404) {
+//       } else if (error.response?.status === 403) {
+//         throw new Error('You are not authorized to create bookings');
+//       } else if (error.response?.status === 404) {
 //         throw new Error('Activity or user not found');
 //       }
 //     }
-//     throw new Error('Failed to create booking');
+//     throw error;
 //   }
 // };
 
 /**
  * Cancels an existing booking.
  * @param bookingId - The ID of the booking to cancel.
- * @param token - The JWT token for authentication.
  * @returns A promise resolving to the cancelled booking data.
- * @throws Error if the request fails.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
  */
 export const cancelBooking = async (bookingId: string): Promise<BookingResponse> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('access-token')?.value;
-  if (!token) throw new Error('Authentication required');
   try {
-    const response = await axios.post(`/api/bookings/${bookingId}/cancel`, {}, {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/bookings/${bookingId}/cancel`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -2152,97 +2168,87 @@ export const cancelBooking = async (bookingId: string): Promise<BookingResponse>
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 400) {
         throw new Error(error.response.data.message || 'Invalid cancellation request');
-      }
-      if (error.response?.status === 403) {
-        throw new Error('Unauthorized: Only authorized users can cancel this booking');
-      }
-      if (error.response?.status === 404) {
+      } else if (error.response?.status === 403) {
+        throw new Error('You are not authorized to cancel this booking');
+      } else if (error.response?.status === 404) {
         throw new Error('Booking not found');
       }
     }
-    throw new Error('Failed to cancel booking');
+    throw error;
   }
 };
 
 /**
  * Retrieves the authenticated user's bookings.
- * @param token - The JWT token for authentication.
  * @returns A promise resolving to an array of the user's bookings.
- * @throws Error if the request fails.
+ * @throws Error if authentication fails or the request errors.
  */
 export const getMyBookings = async (): Promise<BookingResponse[]> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('access-token')?.value;
-  if (!token) throw new Error('Authentication required');
   try {
-    const response = await axios.get('/api/bookings/my', {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get('/api/bookings/my', {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
     });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 403) {
-        throw new Error('Unauthorized: Only VISITOR role can view bookings');
-      }
-      if (error.response?.status === 404) {
+        throw new Error('You are not authorized to view bookings');
+      } else if (error.response?.status === 404) {
         throw new Error('User not found');
       }
     }
-    throw new Error('Failed to retrieve bookings');
+    throw error;
   }
 };
 
 /**
  * Retrieves bookings for a specific park.
  * @param parkId - The ID of the park.
- * @param token - The JWT token for authentication.
  * @returns A promise resolving to an array of bookings for the park.
- * @throws Error if the request fails.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
  */
 export const getBookingsByPark = async (parkId: string): Promise<BookingResponse[]> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('access-token')?.value;
-  if (!token) throw new Error('Authentication required');
   try {
-    const response = await axios.get(`/api/parks/${parkId}/bookings`, {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${parkId}/bookings`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
     });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 403) {
-        throw new Error('Unauthorized: Only PARK_MANAGER or ADMIN can view park bookings');
-      }
-      if (error.response?.status === 404) {
+        throw new Error('You are not authorized to view park bookings');
+      } else if (error.response?.status === 404) {
         throw new Error('Park not found');
       }
     }
-    throw new Error('Failed to retrieve park bookings');
+    throw error;
   }
 };
 
 /**
  * Retrieves a booking by its ID.
  * @param bookingId - The ID of the booking.
- * @param token - The JWT token for authentication.
  * @returns A promise resolving to the booking data.
- * @throws Error if the request fails.
+ * @throws Error if authentication fails, the booking is not found, or the request errors.
  */
 export const getBookingById = async (bookingId: string): Promise<BookingResponse> => {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('access-token')?.value;
-  if (!token) throw new Error('Authentication required');
   try {
-    const response = await axios.get(`/api/bookings/${bookingId}`, {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/bookings/${bookingId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
       },
     });
     return response.data;
@@ -2250,13 +2256,281 @@ export const getBookingById = async (bookingId: string): Promise<BookingResponse
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 404) {
         throw new Error('Booking not found');
-      }
-      if (error.response?.status === 403) {
-        throw new Error('Unauthorized: Authentication required');
+      } else if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view this booking');
       }
     }
-    throw new Error('Failed to retrieve booking');
+    throw error;
   }
 };
+
+
+// FUNDING REQUESTS ********************************************************************************************************************
+
+/**
+ * Creates a funding request for a park.
+ * @param parkId - The ID of the park.
+ * @param request - The funding request details.
+ * @returns A promise resolving to the created funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const createFundingRequest = async (
+  parkId: string,
+  request: CreateFundingRequestDto
+): Promise<FundingRequestResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/parks/${parkId}/funding-requests`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to create funding requests');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid funding request data');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park or budget not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Approves a funding request with a specified amount.
+ * @param fundingRequestId - The ID of the funding request.
+ * @param approvedAmount - The approved funding amount.
+ * @returns A promise resolving to the updated funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const approveFundingRequest = async (
+  fundingRequestId: string,
+  approvedAmount: number
+): Promise<FundingRequestResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(
+      `/api/funding-requests/${fundingRequestId}/approve`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { approvedAmount },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to approve funding requests');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid approval request');
+      } else if (error.response?.status === 404) {
+        throw new Error('Funding request not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Rejects a funding request with a reason.
+ * @param fundingRequestId - The ID of the funding request.
+ * @param rejectionReason - The reason for rejection.
+ * @returns A promise resolving to the updated funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const rejectFundingRequest = async (
+  fundingRequestId: string,
+  rejectionReason: string
+): Promise<FundingRequestResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(
+      `/api/funding-requests/${fundingRequestId}/reject`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { rejectionReason },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to reject funding requests');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid rejection request');
+      } else if (error.response?.status === 404) {
+        throw new Error('Funding request not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves a funding request by its ID.
+ * @param fundingRequestId - The ID of the funding request.
+ * @returns A promise resolving to the funding request data.
+ * @throws Error if authentication fails, the funding request is not found, or the request errors.
+ */
+export const getFundingRequestById = async (
+  fundingRequestId: string
+): Promise<FundingRequestResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/funding-requests/${fundingRequestId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Error('Funding request not found');
+      } else if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view this funding request');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Updates a funding request.
+ * @param fundingRequestId - The ID of the funding request.
+ * @param request - The updated funding request details.
+ * @returns A promise resolving to the updated funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const updateFundingRequest = async (
+  fundingRequestId: string,
+  request: CreateFundingRequestDto
+): Promise<FundingRequestResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/funding-requests/${fundingRequestId}`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to update funding requests');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid funding request data');
+      } else if (error.response?.status === 404) {
+        throw new Error('Funding request not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Deletes a funding request.
+ * @param fundingRequestId - The ID of the funding request.
+ * @returns A promise that resolves when the funding request is deleted.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const deleteFundingRequest = async (fundingRequestId: string): Promise<void> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    await api.delete(`/api/funding-requests/${fundingRequestId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to delete funding requests');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid deletion request');
+      } else if (error.response?.status === 404) {
+        throw new Error('Funding request not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves funding requests for a specific park, optionally filtered by fiscal year.
+ * @param parkId - The ID of the park.
+ * @param fiscalYear - Optional fiscal year to filter funding requests.
+ * @returns A promise resolving to an array of funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getFundingRequestsByPark = async (
+  parkId: string,
+  fiscalYear?: number
+): Promise<FundingRequestResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${parkId}/funding-requests`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: fiscalYear ? { fiscalYear } : undefined,
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view funding requests for this park');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves all funding requests, optionally filtered by fiscal year.
+ * @param fiscalYear - Optional fiscal year to filter funding requests.
+ * @returns A promise resolving to an array of funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getAllFundingRequests = async (
+  fiscalYear?: number
+): Promise<FundingRequestResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/funding-requests`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: fiscalYear ? { fiscalYear } : undefined,
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view all funding requests');
+      }
+    }
+    throw error;
+  }
+};
+
 
 export default api;

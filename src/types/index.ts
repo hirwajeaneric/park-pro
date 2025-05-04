@@ -401,3 +401,28 @@ export interface BookingResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FundingRequestResponse {
+  id: string;
+  parkId: string;
+  budgetId: string;
+  requestedAmount: number;
+  approvedAmount: number | null;
+  requestType: 'EXTRA_FUNDS' | 'EMERGENCY_RELIEF';
+  reason: string;
+  requesterId: string;
+  approverId: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionReason: string | null;
+  approvedAt: string | null;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFundingRequestDto {
+  requestedAmount: number;
+  requestType: 'EXTRA_FUNDS' | 'EMERGENCY_RELIEF';
+  reason: string;
+  budgetId: string;
+}
