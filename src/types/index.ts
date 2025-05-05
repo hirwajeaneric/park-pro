@@ -405,6 +405,7 @@ export interface BookingResponse {
 export interface FundingRequestResponse {
   id: string;
   parkId: string;
+  parkName: string;
   budgetId: string;
   requestedAmount: number;
   approvedAmount: number | null;
@@ -412,7 +413,7 @@ export interface FundingRequestResponse {
   reason: string;
   requesterId: string;
   approverId: string | null;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: string;
   rejectionReason: string | null;
   approvedAt: string | null;
   currency: string;

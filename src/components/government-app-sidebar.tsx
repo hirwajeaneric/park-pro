@@ -5,7 +5,7 @@ import {
   Home,
   House,
   LucideIcon,
-  Map,
+  MailIcon,
   PieChart,
   User as UserIcon,
 } from 'lucide-react';
@@ -56,19 +56,9 @@ const data: {
       icon: House,
     },
     {
-      title: 'Requests',
-      url: '/government/requests/extra-funds',
-      icon: Map,
-      items: [
-        {
-          title: 'Extra Funds',
-          url: '/government/requests/extra-funds',
-        },
-        {
-          title: 'Emergency Funds',
-          url: '/government/requests/emergency-funds',
-        },
-      ],
+      title: 'Funding Requests',
+      url: '/government/funding-requests',
+      icon: MailIcon,
     },
   ],
   secondaryMenu: [

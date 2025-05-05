@@ -112,32 +112,17 @@ const data: {
       ],
     },
     {
-      title: 'Requests for Extra-funds',
-      url: '/finance/extra-funds',
+      title: 'Funding Requests',
+      url: '/finance/funding-requests',
       icon: MailIcon,
       items: [
         {
           title: 'All requests',
-          url: '/finance/extra-funds',
+          url: '/finance/funding-requests',
         },
         {
           title: 'New Request',
-          url: '/finance/extra-funds/new',
-        },
-      ],
-    },
-    {
-      title: 'Requests for Emergency',
-      url: '/finance/emergency-relief',
-      icon: MailIcon,
-      items: [
-        {
-          title: 'All requests',
-          url: '/finance/emergency-relief',
-        },
-        {
-          title: 'New Request',
-          url: '/finance/emergency-relief/new',
+          url: '/finance/funding-requests/new',
         },
       ],
     },

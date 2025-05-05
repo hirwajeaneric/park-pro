@@ -1975,6 +1975,9 @@ export const getActivityById = async (activityId: string): Promise<ActivityRespo
   }
 };
 
+
+// DONATIONS ********************************************************************************************************************
+
 /**
  * Creates a donation.
  * @param request - The donation details.
@@ -2033,8 +2036,6 @@ export const cancelDonation = async (donationId: string): Promise<DonationRespon
   }
 };
 
-
-// DONATIONS ********************************************************************************************************************
 
 /**
  * Retrieves all donations made by the authenticated user.
@@ -2532,5 +2533,64 @@ export const getAllFundingRequests = async (
   }
 };
 
+
+/**
+ * Retrieves funding requests for a specific budget.
+ * @param budgetId - The ID of the budget.
+ * @returns A promise resolving to an array of funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getFundingRequestsByBudget = async (
+  budgetId: string
+): Promise<FundingRequestResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/funding-requests`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view funding requests for this budget');
+      } else if (error.response?.status === 404) {
+        throw new Error('Budget not found');
+      }
+    }
+    throw error;
+  }
+};
+
+
+/**
+ * Retrieves funding requests for a specific fiscal year.
+ * @param fiscalYear - The fiscal year to filter funding requests.
+ * @returns A promise resolving to an array of funding request data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getFundingRequestsByFiscalYear = async (
+  fiscalYear: number
+): Promise<FundingRequestResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/funding-requests/fiscal-year/${fiscalYear}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view funding requests for this fiscal year');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid fiscal year');
+      }
+    }
+    throw error;
+  }
+};
 
 export default api;

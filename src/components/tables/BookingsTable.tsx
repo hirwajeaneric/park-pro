@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,12 +25,11 @@ type Booking = {
 };
 
 export default function BookingsPage() {
-    const { accessToken } = useAuth();
     const router = useRouter();
 
     const { data: bookings, isLoading } = useQuery({
         queryKey: ["userBookings"],
-        queryFn: () => getUserBookings(accessToken as string),
+        queryFn: () => getUserBookings(),
     });
 
     const columns: ColumnDef<Booking>[] = [
