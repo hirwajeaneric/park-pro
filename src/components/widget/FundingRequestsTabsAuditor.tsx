@@ -8,28 +8,8 @@ import { listBudgetsByPark } from '@/lib/api';
 import { Budget } from '@/types';
 import FundingRequestsTable from '@/components/tables/FundingRequestsTable';
 
-export default function FundingRequestsTabs() {
-  const [parkId, setParkId] = useState<string | null>(null);
-  const [parkDataError, setParkDataError] = useState<string | null>(null);
+export default function FundingRequestsTabsAuditor({ parkId }: { parkId: string }) {
   const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const parkData = localStorage.getItem('park-data');
-    if (parkData) {
-      try {
-        const parsed = JSON.parse(parkData);
-        if (parsed.id) {
-          setParkId(parsed.id);
-        } else {
-          setParkDataError('Park ID not found in park-data');
-        }
-      } catch (error) {
-        setParkDataError('Failed to parse park-data');
-      }
-    } else {
-      setParkDataError('No park data found. Please log in again.');
-    }
-  }, []);
 
   const { data: budgets = [], isLoading: budgetsLoading } = useQuery({
     queryKey: ['budgets', parkId],
@@ -46,10 +26,6 @@ export default function FundingRequestsTabs() {
       setSelectedBudgetId(sortedBudgets[0].id);
     }
   }, [sortedBudgets, selectedBudgetId]);
-
-  if (parkDataError) {
-    return <p className="text-red-500">{parkDataError}</p>;
-  }
 
   if (!parkId || budgetsLoading) {
     return <p>Loading...</p>;

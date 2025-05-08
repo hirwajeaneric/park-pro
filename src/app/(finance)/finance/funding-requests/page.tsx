@@ -1,6 +1,5 @@
 import FundingRequestsTabs from '@/components/widget/FundingRequestsTabs';
 import ProtectedRoute from '@/lib/ProtectedRoute';
-import { Budget } from '@/types';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -10,15 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function FundingRequestsPage() {
-  let budgets: Budget[] = [];
-  try {
-    // Note: parkId must be fetched client-side from localStorage, so we pass budgets to client component
-    // Alternatively, if server-side parkId is available, fetch budgets here
-    budgets = []; // Placeholder; actual fetching happens client-side
-  } catch (error) {
-    console.error('Failed to fetch budgets:', error);
-  }
-
   return (
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -28,7 +18,7 @@ export default async function FundingRequestsPage() {
             New Request
           </Link>
         </div>
-        <FundingRequestsTabs initialBudgets={budgets} />
+        <FundingRequestsTabs />
       </div>
     </ProtectedRoute>
   );

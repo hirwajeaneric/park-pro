@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
-
+import { usePathname } from "next/navigation"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   SidebarGroup,
@@ -29,6 +29,8 @@ export function NavMain({
     }[]
   }[]
 }) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
@@ -43,19 +45,38 @@ export function NavMain({
                   {item.items ? <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" /> : <></>}
                 </SidebarMenuButton>
               </CollapsibleTrigger>
-              {item.items && <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <Link href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>}
+              {item.items && (
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    {item.items.map((subItem) => {
+                      // Extract park ID from subItem.url (e.g., "/auditor/park/858f2767-1737-423e-8741-ff146e8c3b37" -> "858f2767-1737-423e-8741-ff146e8c3b37")
+                      const subItemParkId = subItem.url.split("/park/")[1]
+                      // Extract park ID from current pathname
+                      const currentParkId = pathname.split("/park/")[1]
+                      // Check if the subItem's park ID matches the current URL's park ID
+                      const isActiveSubItem = subItemParkId && currentParkId && subItemParkId === currentParkId
+
+                      return (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton asChild>
+                            <Link href={subItem.url}>
+                              <span
+                                className={
+                                  isActiveSubItem
+                                    ? "text-blue-600 bg-blue-100 rounded-md px-2 py-1"
+                                    : "text-foreground"
+                                }
+                              >
+                                {subItem.title}
+                              </span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      )
+                    })}
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              )}
             </SidebarMenuItem>
           </Collapsible>
         ))}

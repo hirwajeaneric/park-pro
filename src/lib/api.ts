@@ -438,7 +438,7 @@ export const deleteUser = async (id: string) => {
  * @returns A promise resolving to the paginated park data.
  * @throws Error if authentication fails or the request errors.
  */
-export const getParks = async (page: number = 0, size: number = 10) => {
+export const getParks = async (page: number = 0, size: number = 20) => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
