@@ -89,7 +89,7 @@ export default function WithdrawRequestDisplayAuditor({ parkId }: Props) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => router.push(`/finance/withdraw-request/${row.original.id}`)}
+          onClick={() => router.push(`/auditor/withdraw-requests/${row.original.id}`)}
         >
           <Eye className="h-4 w-4" />
         </Button>

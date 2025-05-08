@@ -25,9 +25,6 @@ export default function BudgetDisplayAuditor() {
   const { data: budgets = [], isLoading: isBudgetsLoading } = useQuery({
     queryKey: ['budgets', selectedFiscalYear],
     queryFn: () => getBudgetsByFiscalYear(Number(selectedFiscalYear)),
-    // onError: (error: Error) => {
-    //   toast.error(error.message || 'Failed to load budgets');
-    // },
   });
 
   const columns: ColumnDef<BudgetByFiscalYearResponse>[] = [

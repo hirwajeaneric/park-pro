@@ -1,52 +1,18 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { ColumnDef } from '@tanstack/react-table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { getUsersByPark } from '@/lib/api';
-import { Park, User } from '@/types';
-import { Badge } from '../ui/badge';
+import { Park } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import ExpenseDisplayAuditor from './ExpenseDisplayAuditor';
 import WithdrawRequestDisplayAuditor from './WithdrawRequestDisplayAuditor';
 import FundingRequestsTabsAuditor from './FundingRequestsTabsAuditor';
+import AuditorParkUsers from './AuditorParkUsers';
+import ListBudgetsTableAuditor from '../tables/ListBudgetsTableAuditor';
 
 export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
-  // Fetch users
-  const { data: users = [], isLoading: isUsersLoading } = useQuery<User[]>({
-    queryKey: ['users', park.id],
-    queryFn: () => getUsersByPark(park.id),
-  });
-
-  // DataTable columns for users
-  const columns: ColumnDef<User>[] = [
-    {
-      accessorKey: 'firstName',
-      header: 'First Name',
-    },
-    {
-      accessorKey: 'lastName',
-      header: 'Last Name',
-    },
-    {
-      accessorKey: 'email',
-      header: 'Email',
-    },
-    {
-      accessorKey: 'role',
-      header: 'Role',
-      cell: ({ row }) => (
-        <Badge variant={row.getValue('role') === 'ADMIN' ? 'success' : 'default'}>
-          {row.getValue('role')}
-        </Badge>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="flex w-full items-center justify-between">
@@ -65,12 +31,14 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
         </CardContent>
       </Card>
       <Tabs defaultValue="account" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="users" defaultChecked>Users</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
+          <TabsTrigger value="budgets">Budgets</TabsTrigger>
           <TabsTrigger value="withdraw-requests">Withdraw Requests</TabsTrigger>
           <TabsTrigger value="funds-requests">Request for Funds</TabsTrigger>
         </TabsList>
+        
         {/* Users  */}
         <TabsContent value="users">
           <Card>
@@ -81,15 +49,26 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <DataTable
-                columns={columns}
-                data={users}
-                isLoading={isUsersLoading}
-                searchKey="firstName"
-              />
+              <AuditorParkUsers parkId={park.id} />
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Budgets  */}
+        <TabsContent value="budgets">
+          <Card>
+            <CardHeader>
+              <CardTitle>Budgets</CardTitle>
+              <CardDescription>
+                All park budgets
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <ListBudgetsTableAuditor parkId={park.id} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Expenses  */}
         <TabsContent value="expenses">
           <Card>

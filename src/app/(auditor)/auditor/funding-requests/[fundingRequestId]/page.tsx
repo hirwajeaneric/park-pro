@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import GovernmentFundingRequestDetails from '@/components/widget/GovernmentFundingRequestDetails';
+import AuditorFundingRequestDetails from '@/components/widget/AuditorFundingRequestDetails';
 import { getFundingRequestById } from '@/lib/api';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 import { FundingRequestResponse } from '@/types';
@@ -48,7 +48,7 @@ export default async function GovernmentFundingRequestPage({ params }: Props) {
   return (
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <GovernmentFundingRequestDetails request={request} />
+        <AuditorFundingRequestDetails request={request} />
       </div>
     </ProtectedRoute>
   );

@@ -114,6 +114,7 @@ export type UpdateParkForm = {
 export type Budget = {
   id: string;
   parkId: string;
+  parkName: string;
   fiscalYear: number;
   totalAmount: number;
   balance: number;
@@ -127,6 +128,7 @@ export type Budget = {
 export type BudgetResponse = {
   id: string;
   parkId: string;
+  parkName: string;
   fiscalYear: number;
   totalAmount: number;
   balance: number;
@@ -184,6 +186,7 @@ export type Expense = {
   budgetCategoryId: string;
   budgetCategoryName: string;
   parkId: string;
+  parkName: string;
   createdBy: string;
   auditStatus: string;
   receiptUrl: string;
@@ -224,6 +227,7 @@ export type WithdrawRequest = {
   approvedAt?: string; // ISO timestamp of approval, if approved (e.g., "2025-04-19T12:00:00Z")
   rejectionReason?: string; // Reason for rejection, if rejected
   parkId: string; // UUID of the associated park
+  parkName: string; // Park name
   currency: string; // Currency code (e.g., "XAF")
   createdAt: string; // ISO timestamp of creation
   updatedAt: string; // ISO timestamp of last update

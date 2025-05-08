@@ -76,7 +76,7 @@ export default function ExpenseDisplayAuditor({ parkId }: Props) {
                 <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => router.push(`/finance/expense/${row.original.id}`)}
+                    onClick={() => router.push(`/auditor/expenses/${row.original.id}`)}
                 >
                     <Eye className="h-4 w-4" />
                 </Button>
