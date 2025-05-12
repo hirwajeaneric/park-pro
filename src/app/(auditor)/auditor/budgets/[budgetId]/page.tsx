@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import GovernmentBudgetDetails from "@/components/widget/GovernmentBudgetDetails";
+import AuditorBudgetDetails from "@/components/widget/AuditorBudgetDetails";
 import { getBudgetById } from "@/lib/api";
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import { Budget } from "@/types";
@@ -56,7 +56,7 @@ export default async function BudgetPage({ params }: Props) {
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <h1 className="text-2xl font-bold">Budget for {budget.fiscalYear}</h1>
-        <GovernmentBudgetDetails budget={budget} />
+        <AuditorBudgetDetails budget={budget} />
       </div>
     </ProtectedRoute>
   );

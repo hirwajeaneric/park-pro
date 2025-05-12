@@ -84,9 +84,9 @@ export default function ManageWithdrawRequestForm({ request }: { request: Withdr
         <p><strong>Park ID:</strong> {request.parkId}</p>
         {request.receiptUrl && (
           <p>
-            <strong>View Receipt:</strong>{' '}
+            <strong>View Invoice:</strong>{' '}
             <Link href={request.receiptUrl} className="underline text-blue-500" target="_blank">
-              Receipt
+              Proforma Invoice
             </Link>
           </p>
         )}

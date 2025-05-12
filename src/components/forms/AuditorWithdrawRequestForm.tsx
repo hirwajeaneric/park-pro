@@ -49,7 +49,7 @@ export default function AuditorWithdrawRequestForm({ request }: { request: Withd
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['withdrawRequests'] });
       toast.success('Audit status updated successfully');
-      router.push('/finance/withdraw-request');
+      router.refresh();
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update audit status');
@@ -75,9 +75,9 @@ export default function AuditorWithdrawRequestForm({ request }: { request: Withd
         <p><strong>Park ID:</strong> {request.parkId}</p>
         {request.receiptUrl && (
           <p>
-            <strong>View Receipt:</strong>{' '}
+            <strong>View Invoice:</strong>{' '}
             <Link href={request.receiptUrl} className="underline text-blue-500" target="_blank">
-              Receipt
+              Proforma Invoice
             </Link>
           </p>
         )}

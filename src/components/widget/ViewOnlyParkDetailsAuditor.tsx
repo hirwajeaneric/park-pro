@@ -30,9 +30,9 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
           <p><strong>Created At:</strong> {format(new Date(park.createdAt), 'MMM dd, yyyy')}</p>
         </CardContent>
       </Card>
-      <Tabs defaultValue="account" className="w-full">
+      <Tabs defaultValue="users" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="users" defaultChecked>Users</TabsTrigger>
+          <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
           <TabsTrigger value="withdraw-requests">Withdraw Requests</TabsTrigger>

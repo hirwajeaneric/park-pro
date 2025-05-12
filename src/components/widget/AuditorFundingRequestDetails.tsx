@@ -1,24 +1,15 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
 import { FundingRequestResponse } from '@/types';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
 
 export default function AuditorFundingRequestDetails({ request }: { request: FundingRequestResponse }) {
-    const router = useRouter();
-
-
-
     return (
         <div className="space-y-6">
             <div className="flex w-full items-center justify-between">
                 <h1 className="text-2xl font-semibold">Funding Request Details</h1>
-                <Button variant="outline" onClick={() => router.push('/government/funding-requests')}>
-                    Back to Funding Requests
-                </Button>
             </div>
             <Card>
                 <CardHeader>
