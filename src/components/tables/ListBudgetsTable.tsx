@@ -41,18 +41,33 @@ export default function ListBudgetsTable() {
             accessorKey: 'totalAmount',
             header: 'Total Amount',
         },
-        {
-            accessorKey: 'balance',
-            header: 'Balance',
-        },
+        // {
+        //     accessorKey: 'balance',
+        //     header: 'Balance',
+        // },
         {
             accessorKey: 'status',
             header: 'Status',
-            cell: ({ row }) => (
-                <Badge variant={row.getValue('APPROVED') ? 'default' : 'success'}>
-                    {row.getValue('status')}
-                </Badge>
-            ),
+            cell: ({ row }) => {
+                let variant: "default" | "success" | "destructive" = "default";
+                switch (row.getValue("status")) {
+                    case "APPROVED":
+                        variant = "success";
+                        break;
+                    case "REJECTED":
+                        variant = "destructive";
+                        break;
+                    case "PENDING":
+                        variant = "default";
+                        break;
+                }
+                const status = row.getValue("status") as string;
+                return (
+                    <Badge variant={variant}>
+                        {status.toUpperCase()}
+                    </Badge>
+                );
+            },
         },
         {
             accessorKey: 'createdAt',

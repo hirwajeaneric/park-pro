@@ -1,4 +1,3 @@
-// components/DonationsTable.tsx
 'use client';
 
 import { useState } from 'react';
@@ -9,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { getDonationsByPark } from '@/lib/api';
+import { getDonationsByParkAndFiscalYear } from '@/lib/api';
 import { DonationResponse } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '../ui/badge';
 
 export default function DonationsTable() {
   const [selectedFiscalYear, setSelectedFiscalYear] = useState<number>(new Date().getFullYear());
@@ -19,16 +19,12 @@ export default function DonationsTable() {
 
   const { data: donations = [], isLoading } = useQuery({
     queryKey: ['donations', JSON.parse(localStorage.getItem('park-data') as string).id, selectedFiscalYear],
-    queryFn: () => getDonationsByPark(JSON.parse(localStorage.getItem('park-data') as string).id, selectedFiscalYear),
+    queryFn: () => getDonationsByParkAndFiscalYear(JSON.parse(localStorage.getItem('park-data') as string).id, selectedFiscalYear),
   });
 
   const years = Array.from({ length: 31 }, (_, i) => 2000 + i);
 
   const columns: ColumnDef<DonationResponse>[] = [
-    {
-      accessorKey: 'id',
-      header: 'ID',
-    },
     {
       accessorKey: 'amount',
       header: 'Amount',
@@ -38,8 +34,26 @@ export default function DonationsTable() {
       },
     },
     {
+      accessorKey: 'donorName',
+      header: 'Donor',
+    },
+    {
       accessorKey: 'status',
       header: 'Status',
+      cell: ({ row }) => {
+        const status = row.getValue('status') as "CONFIRMED" | "PENDING" | "CANCELLED";
+        return (<Badge
+          variant={
+            status === "CONFIRMED"
+              ? "success"
+              : status === "PENDING"
+                ? "default"
+                : "destructive"
+          }
+        >
+          {status}
+        </Badge>);
+      }
     },
     {
       accessorKey: 'motiveForDonation',

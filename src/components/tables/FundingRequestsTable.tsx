@@ -66,7 +66,7 @@ export default function FundingRequestsTable({ budgetId }: { budgetId: string })
             id: 'actions',
             cell: ({ row }) => (
                 <Button variant="ghost" size="sm" asChild>
-                    <Link href={`/auditor/funding-requests/${row.original.id}`}>
+                    <Link href={`/finance/funding-requests/${row.original.id}`}>
                         <Eye className="h-4 w-4" />
                     </Link>
                 </Button>

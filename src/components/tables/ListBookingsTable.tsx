@@ -19,7 +19,6 @@ export default function ListBookingsTable() {
         queryFn: () => getBookingsByPark(JSON.parse(localStorage.getItem('park-data') as string).id),
     });
 
-
     const columns: ColumnDef<BookingResponse>[] = [
         {
             accessorKey: "id",
@@ -70,7 +69,7 @@ export default function ListBookingsTable() {
                 const status = row.getValue("status") as string;
                 return (
                     <Badge variant={variant}>
-                        {status.toLowerCase()}
+                        {status.toUpperCase()}
                     </Badge>
                 );
             },

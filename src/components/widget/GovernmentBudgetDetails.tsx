@@ -123,7 +123,7 @@ export default function GovernmentBudgetDetails({ budget }: { budget: Budget }) 
           <p><strong>Fiscal Year:</strong> {budget.fiscalYear}</p>
           <p><strong>Total Amount:</strong> XAF {budget.totalAmount.toFixed(2)}</p>
           <p><strong>Balance:</strong> XAF {budget.balance.toFixed(2)}</p>
-          <p><strong>Status:</strong> <Badge variant={badgeVariant}>{budget.status.toLowerCase()}</Badge></p>
+          <p><strong>Status:</strong> <Badge variant={badgeVariant}>{budget.status.toUpperCase()}</Badge></p>
           <p><strong>Approver:</strong> {budget.approvedBy || 'N/A'}</p>
         </CardContent>
       </Card>
@@ -153,7 +153,7 @@ export default function GovernmentBudgetDetails({ budget }: { budget: Budget }) 
           />
         </CardContent>
       </Card>
-      <Card>
+      {categories.length != 0 && <Card>
         <CardHeader>
           <CardTitle>Budget Approval</CardTitle>
         </CardHeader>
@@ -188,7 +188,7 @@ export default function GovernmentBudgetDetails({ budget }: { budget: Budget }) 
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
     </div>
   );
 }

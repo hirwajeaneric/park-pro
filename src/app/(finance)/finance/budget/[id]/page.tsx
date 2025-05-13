@@ -85,7 +85,7 @@ export default async function BudgetPage({ params }: Props) {
           </CardHeader>
           <CardContent>
             <p><strong>Balance:</strong> ${budget.balance.toFixed(2)}</p>
-            <p><strong>Status:</strong> <Badge variant={budgetCategoryBadgeVariant}>{budget.status.toLowerCase()}</Badge></p>
+            <p><strong>Status:</strong> <Badge variant={budgetCategoryBadgeVariant}>{budget.status.toUpperCase()}</Badge></p>
             <p><strong>Approver:</strong> {budget.approvedBy || 'N/A'}</p>
           </CardContent>
           <CardFooter>

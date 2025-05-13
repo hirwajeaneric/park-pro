@@ -325,17 +325,19 @@ export type OpportunityApplicationRequest = {
   applicationLetterUrl: string;
 };
 
-export type OpportunityApplicationResponse = {
+export interface OpportunityApplicationResponse {
   id: string;
   opportunityId: string;
   firstName: string;
   lastName: string;
   email: string;
   applicationLetterUrl: string;
-  status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED';
+  status: string;
+  approvalMessage: string | null;
+  rejectionReason: string | null;
   createdAt: string;
   updatedAt: string;
-};
+}
 
 export type CreateActivityRequest = {
   name: string;
@@ -371,9 +373,17 @@ export type CreateDonationRequest = {
   motiveForDonation?: string;
 };
 
+export interface OutstandingDonorResponse {
+  donorId: string;
+  donorName: string;
+  totalDonationAmount: number;
+  motiveForDonation: string | null;
+}
+
 export type DonationResponse = {
   id: string;
   donorId: string;
+  donorName: string;
   parkId: string;
   amount: number;
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';

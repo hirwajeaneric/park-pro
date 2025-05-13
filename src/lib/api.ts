@@ -42,6 +42,7 @@ import {
   BookingResponse,
   CreateFundingRequestDto,
   FundingRequestResponse,
+  OutstandingDonorResponse,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
@@ -1685,6 +1686,74 @@ export const getIncomeStream = async (incomeStreamId: string): Promise<IncomeStr
   }
 };
 
+
+/**
+ * Retrieves income streams for a specific budget and fiscal year.
+ * @param budgetId - The ID of the budget.
+ * @param fiscalYear - The fiscal year to filter income streams.
+ * @returns A promise resolving to an array of income stream data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getIncomeStreamsByBudgetAndFiscalYear = async (
+  budgetId: string,
+  fiscalYear: number
+): Promise<IncomeStreamResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/income-streams/fiscal-year/${fiscalYear}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view income streams for this budget');
+      } else if (error.response?.status === 404) {
+        throw new Error('Budget not found');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid fiscal year or budget fiscal year mismatch');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves income streams for a specific park and fiscal year.
+ * @param parkId - The ID of the park.
+ * @param fiscalYear - The fiscal year to filter income streams.
+ * @returns A promise resolving to an array of income stream data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getIncomeStreamsByParkAndFiscalYear = async (
+  parkId: string,
+  fiscalYear: number
+): Promise<IncomeStreamResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${parkId}/income-streams/fiscal-year/${fiscalYear}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view income streams for this park');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid fiscal year or park fiscal year mismatch');
+      }
+    }
+    throw error;
+  }
+};
+
+
 /**
  * Retrieves all income streams for a budget.
  * @param budgetId - The ID of the budget.
@@ -1736,31 +1805,33 @@ export const createOpportunityApplication = async (request: OpportunityApplicati
 /**
  * Updates the status of an opportunity application.
  * @param applicationId - The ID of the application.
- * @param status - The new status ('SUBMITTED', 'REVIEWED', 'ACCEPTED', 'REJECTED').
+ * @param status - The new status (SUBMITTED, REVIEWED, ACCEPTED, REJECTED).
+ * @param approvalMessage - Message explaining next steps for ACCEPTED status.
+ * @param rejectionReason - Reason for REJECTED status.
  * @returns A promise resolving to the updated application data.
- * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ * @throws Error if the request fails.
  */
 export const updateOpportunityApplicationStatus = async (
   applicationId: string,
-  status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED'
+  status: 'SUBMITTED' | 'REVIEWED' | 'ACCEPTED' | 'REJECTED',
+  approvalMessage?: string,
+  rejectionReason?: string
 ): Promise<OpportunityApplicationResponse> => {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('access-token')?.value;
-    if (!token) throw new Error('Authentication required');
-    const response = await api.patch(
-      `/api/opportunity-applications/${applicationId}/status`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: { status },
-      }
-    );
-    return response.data;
+      const token = (await cookies()).get('token')?.value;
+      if (!token) throw new Error('No authentication token found');
+
+      const response = await api.patch(
+          `/api/opportunity-applications/${applicationId}/status`,
+          { status, approvalMessage, rejectionReason },
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
   } catch (error) {
-    throw error;
+      if (axios.isAxiosError(error)) {
+          throw new Error(error.response?.data?.message || 'Failed to update application status');
+      }
+      throw error;
   }
 };
 
@@ -2059,28 +2130,79 @@ export const getMyDonations = async (): Promise<DonationResponse[]> => {
 };
 
 /**
- * Retrieves all donations for a given park, optionally filtered by fiscal year.
+ * Retrieves donations for a specific park.
  * @param parkId - The ID of the park.
- * @param fiscalYear - Optional fiscal year to filter donations.
  * @returns A promise resolving to an array of donation data.
  * @throws Error if authentication fails, the user lacks permission, or the request errors.
  */
-export const getDonationsByPark = async (parkId: string, fiscalYear?: number): Promise<DonationResponse[]> => {
+export const getDonationsByPark = async (parkId: string): Promise<DonationResponse[]> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
     const response = await api.get(`/api/parks/${parkId}/donations`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: fiscalYear ? { fiscalYear } : undefined,
+      headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status === 403) {
-        throw new Error('You are not authorized to view park donations');
+        throw new Error('You are not authorized to view donations for this park');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves up to 8 most outstanding donors by total donation amount for a specific park.
+ * @param parkId - The ID of the park.
+ * @returns A promise resolving to an array of top donor data.
+ * @throws Error if the park is not found or the request errors.
+ */
+export const getTopDonorsByPark = async (parkId: string): Promise<OutstandingDonorResponse[]> => {
+  try {
+    const response = await api.get(`/api/parks/${parkId}/top-donors`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      }
+    }
+    throw error;
+  }
+};
+
+/**
+ * Retrieves donations for a specific park and fiscal year.
+ * @param parkId - The ID of the park.
+ * @param fiscalYear - The fiscal year to filter donations.
+ * @returns A promise resolving to an array of donation data.
+ * @throws Error if authentication fails, the user lacks permission, or the request errors.
+ */
+export const getDonationsByParkAndFiscalYear = async (
+  parkId: string,
+  fiscalYear: number
+): Promise<DonationResponse[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/parks/${parkId}/donations/fiscal-year/${fiscalYear}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view donations for this park');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid fiscal year');
       }
     }
     throw error;
