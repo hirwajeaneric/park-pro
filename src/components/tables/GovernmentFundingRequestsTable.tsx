@@ -22,56 +22,60 @@ export default function GovernmentFundingRequestsTable() {
     queryFn: () => getFundingRequestsByFiscalYear(selectedFiscalYear),
   });
 
-  const years = Array.from({ length: 31 }, (_, i) => 2000 + i);
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear()-5 + i);
 
   const columns: ColumnDef<FundingRequestResponse>[] = [
     {
       accessorKey: 'parkName',
       header: 'Park Name',
     },
-    // {
-    //   accessorKey: 'budgetId',
-    //   header: 'Budget ID',
-    // },
     {
       accessorKey: 'requestedAmount',
       header: 'Requested Amount',
       cell: ({ row }) => {
         const amount = row.getValue('requestedAmount') as number;
         return `${amount.toFixed(2)}`
-    },
+      },
     },
     {
-        accessorKey: 'requestType',
-        header: 'Type',
-        cell: ({ row }) => {
-            const type = row.getValue('requestType');
-            if (type == 'EXTRA_FUNDS') {
-                return <Badge variant={'secondary'}>Extra Funds</Badge>
-            } else if (type === 'EMERGENCY_RELIEF') {
-                return <Badge variant={'warning'}>Emergency Relief</Badge>
-            }
+      accessorKey: 'approvedAmount',
+      header: 'Approved Amount',
+      cell: ({ row }) => {
+        const amount = row.getValue('approvedAmount') as number;
+        return `${amount.toFixed(2)}`
+      },
+    },
+    {
+      accessorKey: 'requestType',
+      header: 'Type',
+      cell: ({ row }) => {
+        const type = row.getValue('requestType');
+        if (type == 'EXTRA_FUNDS') {
+          return <Badge variant={'secondary'}>Extra Funds</Badge>
+        } else if (type === 'EMERGENCY_RELIEF') {
+          return <Badge variant={'warning'}>Emergency Relief</Badge>
         }
+      }
     },
     {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => {
-            const status = row.getValue('status');
-            if (status == 'PENDING') {
-                return <Badge variant={'default'}>Pending</Badge>
-            } else if (status === 'REJECTED') {
-                return <Badge variant={'destructive'}>Rejected</Badge>
-            } else if (status === 'APPROVED') {
-                return <Badge variant={'success'}>Approved</Badge>
-            }
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = row.getValue('status');
+        if (status == 'PENDING') {
+          return <Badge variant={'default'}>Pending</Badge>
+        } else if (status === 'REJECTED') {
+          return <Badge variant={'destructive'}>Rejected</Badge>
+        } else if (status === 'APPROVED') {
+          return <Badge variant={'success'}>Approved</Badge>
         }
+      }
     },
-    {
-      accessorKey: 'reason',
-      header: 'Reason',
-      cell: ({ row }) => row.getValue('reason') || 'N/A',
-    },
+    // {
+    //   accessorKey: 'reason',
+    //   header: 'Reason',
+    //   cell: ({ row }) => row.getValue('reason') || 'N/A',
+    // },
     {
       accessorKey: 'createdAt',
       header: 'Created At',

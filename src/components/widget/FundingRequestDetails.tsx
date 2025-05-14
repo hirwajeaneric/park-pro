@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -11,8 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { updateFundingRequest, deleteFundingRequest, listBudgetsByPark } from '@/lib/api';
-import { FundingRequestResponse, Budget } from '@/types';
+import { updateFundingRequest, deleteFundingRequest } from '@/lib/api';
+import { FundingRequestResponse } from '@/types';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { Badge } from '../ui/badge';
@@ -29,11 +29,6 @@ type UpdateFundingRequestFormData = z.infer<typeof UpdateFundingRequestSchema>;
 export default function FundingRequestDetails({ request }: { request: FundingRequestResponse }) {
     const queryClient = useQueryClient();
     const router = useRouter();
-
-    const { data: budgets = [] } = useQuery({
-        queryKey: ['budgets', request.parkId],
-        queryFn: () => listBudgetsByPark(request.parkId),
-    });
 
     const form = useForm<UpdateFundingRequestFormData>({
         resolver: zodResolver(UpdateFundingRequestSchema),
@@ -148,30 +143,6 @@ export default function FundingRequestDetails({ request }: { request: FundingReq
                                         <FormControl>
                                             <Textarea placeholder="Enter reason" {...field} />
                                         </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="budgetId"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Budget</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select budget" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {budgets.map((budget: Budget) => (
-                                                    <SelectItem key={budget.id} value={budget.id}>
-                                                        (FY {budget.fiscalYear})
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
