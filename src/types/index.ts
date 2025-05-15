@@ -116,22 +116,23 @@ export type Budget = {
   parkId: string;
   parkName: string;
   fiscalYear: number;
-  totalAmount: number;
-  balance: number;
-  status: "DRAFT" | "APPROVED" | "REJECTED";
+  totalAmount: string; // Changed to string for BigDecimal
+  balance: string; // Changed to string for BigDecimal
+  status: 'DRAFT' | 'APPROVED' | 'REJECTED';
   createdBy: string;
-  approvedBy: string;
+  approvedBy?: string; // Made optional
   createdAt: string;
   updatedAt: string;
-}
+};
 
 export type BudgetResponse = {
   id: string;
   parkId: string;
   parkName: string;
   fiscalYear: number;
-  totalAmount: number;
-  balance: number;
+  totalAmount: string; // Changed to string for BigDecimal
+  balance: string; // Changed to string for BigDecimal
+  unallocated?: string; // Added for BudgetByFiscalYearResponseDto
   status: 'DRAFT' | 'APPROVED' | 'REJECTED';
   createdBy: string;
   approvedBy?: string;
@@ -188,12 +189,12 @@ export type Expense = {
   parkId: string;
   parkName: string;
   createdBy: string;
-  auditStatus: string;
+  auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // Changed to enum
   receiptUrl: string;
   currency: string;
   createdAt: string;
-  updateAt: string;
-}
+  updatedAt: string; // Renamed
+};
 
 export type CreateExpenseForm = {
   budgetId: string;
@@ -284,18 +285,19 @@ export type Opportunity = {
 };
 
 export type BudgetByFiscalYearResponse = {
-  budgetId?: string; // UUID of the budget, null if no budget exists
-  parkId: string; // UUID of the park
-  parkName: string; // Name of the park
-  fiscalYear: number; // Fiscal year of the budget
-  totalAmount?: number; // Total budget amount, null if no budget
-  balance?: number; // Remaining balance, null if no budget
-  status?: 'DRAFT' | 'APPROVED' | 'REJECTED'; // Budget status, null if no budget
-  createdBy?: string; // UUID of creator, null if no budget
-  approvedBy?: string; // UUID of approver, null if no budget
-  approvedAt?: string; // ISO timestamp, null if no budget
-  createdAt?: string; // ISO timestamp, null if no budget
-  updatedAt?: string; // ISO timestamp, null if no budget
+  budgetId?: string; // Optional if no budget exists
+  parkId: string;
+  parkName: string;
+  fiscalYear: number;
+  totalAmount?: string; // Changed to string for BigDecimal
+  balance?: string; // Changed to string for BigDecimal
+  unallocated?: string; // Added for BigDecimal
+  status?: 'DRAFT' | 'APPROVED' | 'REJECTED';
+  createdBy?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type IncomeStreamResponse = {
@@ -421,13 +423,15 @@ export interface FundingRequestResponse {
   parkId: string;
   parkName: string;
   budgetId: string;
-  requestedAmount: number;
-  approvedAmount: number | null;
+  budgetCategoryId: string; // Added
+  budgetCategoryName: string; // Added
+  requestedAmount: string; // Changed to string for BigDecimal
+  approvedAmount: string | null; // Changed to string for BigDecimal
   requestType: 'EXTRA_FUNDS' | 'EMERGENCY_RELIEF';
   reason: string;
   requesterId: string;
   approverId: string | null;
-  status: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED'; // Changed to enum
   rejectionReason: string | null;
   approvedAt: string | null;
   currency: string;
@@ -436,8 +440,10 @@ export interface FundingRequestResponse {
 }
 
 export interface CreateFundingRequestDto {
-  requestedAmount: number;
+  parkId: string; // Added
+  requestedAmount: string; // Changed to string for BigDecimal
   requestType: 'EXTRA_FUNDS' | 'EMERGENCY_RELIEF';
   reason: string;
   budgetId: string;
+  budgetCategoryId: string; // Added
 }
