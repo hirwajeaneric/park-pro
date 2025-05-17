@@ -31,12 +31,14 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
         </CardContent>
       </Card>
       <Tabs defaultValue="users" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="expenses">Expenses</TabsTrigger>
           <TabsTrigger value="budgets">Budgets</TabsTrigger>
           <TabsTrigger value="withdraw-requests">Withdraw Requests</TabsTrigger>
           <TabsTrigger value="funds-requests">Request for Funds</TabsTrigger>
+          <TabsTrigger value="donations">Donations</TabsTrigger>
+          <TabsTrigger value="bookings">Bookings</TabsTrigger>
         </TabsList>
         
         {/* Users  */}
@@ -110,6 +112,36 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
             </CardHeader>
             <CardContent className="space-y-2">
               <FundingRequestsTabsAuditor parkId={park.id} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Donations  */}
+        <TabsContent value="donations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Donations</CardTitle>
+              <CardDescription>
+                Donations for this park.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {/* <FundingRequestsTabsAuditor parkId={park.id} /> */}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Bookings */}
+        <TabsContent value="bookings">
+          <Card>
+            <CardHeader>
+              <CardTitle>Bookings</CardTitle>
+              <CardDescription>
+                All bookings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {/* <FundingRequestsTabsAuditor parkId={park.id} /> */}
             </CardContent>
           </Card>
         </TabsContent>

@@ -35,6 +35,8 @@ export default function WithdrawRequestDisplayAuditor({ parkId }: Props) {
     enabled: !!selectedBudgetId,
   });
 
+  const approvedWithdrawRequests = withdrawRequests.filter(request => request.status === 'APPROVED');
+
   // Set default budget on load
   useEffect(() => {
     if (budgets.length > 0 && !selectedBudgetId) {
@@ -122,7 +124,7 @@ export default function WithdrawRequestDisplayAuditor({ parkId }: Props) {
             <TabsContent key={budget.id} value={budget.id}>
               <DataTable
                 columns={columns}
-                data={withdrawRequests}
+                data={approvedWithdrawRequests}
                 isLoading={isRequestsLoading}
                 searchKey="reason"
                 filters={[

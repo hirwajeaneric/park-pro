@@ -14,12 +14,14 @@ import { format } from 'date-fns';
 import { updateExpenseAuditStatus } from '@/lib/api';
 import { Expense } from '@/types';
 import Link from 'next/link';
+import { Input } from '../ui/input';
 
 // Form schema for updating audit status
 const UpdateAuditStatusFormSchema = z.object({
   auditStatus: z.enum(['PASSED', 'FAILED', 'UNJUSTIFIED'], {
     required_error: 'Audit status is required',
   }),
+  justification: z.string().optional()
 });
 
 // Form data type
@@ -34,6 +36,7 @@ export default function UpdateExpenseDetailsFormAuditor({ expense }: { expense: 
     resolver: zodResolver(UpdateAuditStatusFormSchema),
     defaultValues: {
       auditStatus: expense.auditStatus as 'PASSED' | 'FAILED' | 'UNJUSTIFIED' | undefined,
+      justification: ''
     },
   });
 
@@ -95,6 +98,28 @@ export default function UpdateExpenseDetailsFormAuditor({ expense }: { expense: 
                         <SelectItem value="UNJUSTIFIED">UNJUSTIFIED</SelectItem>
                       </SelectContent>
                     </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="justification"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Justification {form.watch('auditStatus') === 'PASSED' ? '(Optional)' : ''}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={
+                        ['FAILED', 'UNJUSTIFIED'].includes(form.watch('auditStatus'))
+                          ? 'Enter justification for audit status'
+                          : 'Justification not required for PASSED'
+                      }
+                      {...field}
+                      disabled={form.watch('auditStatus') === 'PASSED'}
+                      value={field.value ?? ''}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

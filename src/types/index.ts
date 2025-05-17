@@ -191,6 +191,7 @@ export type Expense = {
   createdBy: string;
   auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // Changed to enum
   receiptUrl: string;
+  justification: string | null;
   currency: string;
   createdAt: string;
   updatedAt: string; // Renamed
@@ -227,6 +228,7 @@ export type WithdrawRequest = {
   auditStatus: 'PASSED' | 'FAILED' | 'UNJUSTIFIED'; // Audit status of the request
   approvedAt?: string; // ISO timestamp of approval, if approved (e.g., "2025-04-19T12:00:00Z")
   rejectionReason?: string; // Reason for rejection, if rejected
+  justification: string | null;
   parkId: string; // UUID of the associated park
   parkName: string; // Park name
   currency: string; // Currency code (e.g., "XAF")
@@ -448,3 +450,4 @@ export interface CreateFundingRequestDto {
   budgetId: string;
   budgetCategoryId: string; // Added
 }
+
