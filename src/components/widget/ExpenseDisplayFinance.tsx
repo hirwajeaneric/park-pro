@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { listBudgetsByPark, listBudgetExpenses } from '@/lib/api';
+import { listBudgetsByPark, listExpensesByBudget } from '@/lib/api';
 import { Budget, Expense } from '@/types';
 
 export default function ExpenseDisplayFinance() {
@@ -39,7 +39,7 @@ export default function ExpenseDisplayFinance() {
     // Fetch expenses for the selected budget
     const { data: expenses = [], isLoading: isExpensesLoading } = useQuery({
         queryKey: ['expenses', selectedBudgetId],
-        queryFn: () => listBudgetExpenses(selectedBudgetId!),
+        queryFn: () => listExpensesByBudget(selectedBudgetId!),
         enabled: !!selectedBudgetId,
     });
 

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import Logo from "./Logo";
 import { useAuth } from "@/hooks/useAuth";
+import { deleteCookie } from "../nav-user";
 
 export default function Header() {
   const { 
     isAuthenticated, 
     isLoading, 
-    logout 
   } = useAuth();
 
   const handleProtectedLink = (e: React.MouseEvent, path: string) => {
@@ -19,6 +19,15 @@ export default function Header() {
       window.location.href = `/auth/signin?redirect=${encodeURIComponent(path)}`;
     }
   };
+
+
+  const customLogout = () => {
+    deleteCookie();
+    localStorage.removeItem('access-token');
+    localStorage.removeItem('user-profile');
+    localStorage.removeItem('park-data');
+    window.location.href = `/`;
+  }
 
   if (isLoading) {
     return null; // or a loading spinner
@@ -68,7 +77,7 @@ export default function Header() {
                 Profile
               </Link>
               <button
-                onClick={logout}
+                onClick={customLogout}
                 className="px-4 py-2 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-600/10 transition-colors"
               >
                 Logout

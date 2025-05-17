@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
-import { listBudgetsByPark, listBudgetExpenses } from '@/lib/api';
+import { listBudgetsByPark, listExpensesByBudget } from '@/lib/api';
 import { Budget, Expense } from '@/types';
 
 type Props = {
@@ -31,7 +31,7 @@ export default function ExpenseDisplayAuditor({ parkId }: Props) {
     // Fetch expenses for the selected budget
     const { data: expenses = [], isLoading: isExpensesLoading } = useQuery({
         queryKey: ['expenses', selectedBudgetId],
-        queryFn: () => listBudgetExpenses(selectedBudgetId!),
+        queryFn: () => listExpensesByBudget(selectedBudgetId!),
         enabled: !!selectedBudgetId,
     });
 

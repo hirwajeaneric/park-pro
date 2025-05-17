@@ -2,7 +2,6 @@
 
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import UserAccountLayout from "@/lib/UserAccountLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,34 +14,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { getUserDonations } from "@/lib/api";
+import { getMyDonations } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
-
-type Donation = {
-  id: string;
-  parkId: string;
-  amount: number;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED";
-  paymentReference: string;
-  currency: string;
-  motiveForDonation: string;
-  confirmedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+import { DonationResponse } from "@/types";
 
 export default function DonationsPage() {
-  const { accessToken } = useAuth();
-  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [selectedDonation, setSelectedDonation] = useState<DonationResponse | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: donations, isLoading } = useQuery({
     queryKey: ["userDonations"],
-    queryFn: () => getUserDonations(accessToken as string),
+    queryFn: () => getMyDonations(),
   });
 
-  const columns: ColumnDef<Donation>[] = [
+  const columns: ColumnDef<DonationResponse>[] = [
     {
       accessorKey: "createdAt",
       header: "Date",

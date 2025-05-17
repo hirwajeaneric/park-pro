@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getOpportunityDetails } from '@/lib/api';
+import { getOpportunityById } from '@/lib/api';
 import { PageBanner } from '@/components/widget/PageBanner';
 import OpportunityDetails from '@/components/widget/opportunities/OpportunityDetails';
 
@@ -10,7 +10,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = params;
-  const opportunity = await getOpportunityDetails(id);
+  const opportunity = await getOpportunityById(id);
   return {
     title: `${opportunity.title} - Wildlife Park Opportunity`,
     description: opportunity.description,
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function page({ params }: Props) {
   const { id } = await params;
-  const opportunity = await getOpportunityDetails(id);
+  const opportunity = await getOpportunityById(id);
 
   return (
     <>

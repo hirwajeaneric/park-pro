@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import UpdateExpenseDetailsForm from '@/components/forms/UpdateExpenseDetailsForm';
-import { getExpensesById } from '@/lib/api';
+import { getExpenseById } from '@/lib/api';
 import ProtectedRoute from '@/lib/ProtectedRoute';
 import { Expense } from '@/types';
 import { Metadata } from 'next';
@@ -17,7 +17,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { expenseId } = await params;
   try {
-    const expense: Expense = await getExpensesById(expenseId);
+    const expense: Expense = await getExpenseById(expenseId);
     return {
       title: `Expense - ${expense.description}`,
       description: `Expense details for ${expense.description}`,
@@ -34,7 +34,7 @@ export default async function page({ params }: Props) {
   const { expenseId } = await params;
   let expense: Expense;
   try {
-    expense = await getExpensesById(expenseId);
+    expense = await getExpenseById(expenseId);
   } catch (error) {
     return (
       <ProtectedRoute>

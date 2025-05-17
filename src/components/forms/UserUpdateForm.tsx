@@ -13,8 +13,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { assignUserToPark, updateUser } from '@/lib/api';
+import { updateUser, assignUserToPark } from '@/lib/api';
 import { toast } from 'sonner';
 import {
   Select,
@@ -27,12 +28,12 @@ import { UpdateUserForm, Park, User } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { getParks } from '@/lib/api';
 import { useRouter } from 'next/navigation';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 
 export const UserUpdateFormSchema = z.object({
-  firstName: z.string().min(1, { message: 'First name is required' }),
-  lastName: z.string().min(1, { message: 'Last name is required' }),
-  email: z.string().email({ message: 'Invalid email address' }),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  email: z.string().optional(),
   role: z.enum([
     'VISITOR',
     'ADMIN',
@@ -40,9 +41,13 @@ export const UserUpdateFormSchema = z.object({
     'PARK_MANAGER',
     'GOVERNMENT_OFFICER',
     'AUDITOR',
-  ]),
+  ]).optional(),
   parkId: z.string().nullable().optional(),
   isActive: z.boolean(),
+});
+
+export const ParkAssignmentSchema = z.object({
+  parkId: z.string().nullable(),
 });
 
 interface UserUpdateFormProps {
@@ -58,7 +63,8 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
     queryFn: () => getParks(0, 100).then((data) => data.content),
   });
 
-  const form = useForm<UpdateUserForm>({
+  // Form for updating isActive
+  const activeForm = useForm<UpdateUserForm>({
     resolver: zodResolver(UserUpdateFormSchema),
     defaultValues: {
       firstName: user.firstName,
@@ -70,6 +76,14 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
     },
   });
 
+  // Form for park assignment
+  const parkForm = useForm<{ parkId: string | null }>({
+    resolver: zodResolver(ParkAssignmentSchema),
+    defaultValues: {
+      parkId: user.parkId,
+    },
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data: UpdateUserForm) => updateUser(data, user.id),
     onSuccess: () => {
@@ -78,7 +92,7 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
       router.replace('/admin/users');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update user');
+      toast.error(error.message || 'Failed to update user account');
     },
   });
 
@@ -94,177 +108,225 @@ export default function UserUpdateForm({ user }: UserUpdateFormProps) {
     },
   });
 
-  const onSubmit = (data: UpdateUserForm) => {
+  const onActiveSubmit = (data: UpdateUserForm) => {
     updateMutation.mutate(data);
-    if (data.parkId !== user.parkId) {
-      // @ts-expect-error Suppress type error for parkId possibly being undefined
-      assignParkMutation.mutate(data.parkId);
-    }
+  };
+
+  const onParkSubmit = (data: { parkId: string | null }) => {
+    assignParkMutation.mutate(data.parkId);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  First Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter first name"
-                    {...field}
-                    aria-required="true"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">
-                  Last Name
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter last name"
-                    {...field}
-                    aria-required="true"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="Enter email"
-                    {...field}
-                    aria-required="true"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Role</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    aria-label="Select role"
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="VISITOR">Visitor</SelectItem>
-                      <SelectItem value="ADMIN">Admin</SelectItem>
-                      <SelectItem value="FINANCE_OFFICER">
-                        Finance Officer
-                      </SelectItem>
-                      <SelectItem value="PARK_MANAGER">Park Manager</SelectItem>
-                      <SelectItem value="GOVERNMENT_OFFICER">
-                        Government Officer
-                      </SelectItem>
-                      <SelectItem value="AUDITOR">Auditor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="parkId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium">Park</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === 'null' ? null : value)
-                    }
-                    value={field.value ?? 'null'}
-                    disabled={parksLoading}
-                    aria-label="Select park"
-                  >
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          parksLoading ? 'Loading parks...' : 'Select park'
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="null">No Park</SelectItem>
-                      {parks.map((park) => (
-                        <SelectItem key={park.id} value={park.id}>
-                          {park.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <FormItem className="flex items-center space-x-2 pt-8">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    aria-label="Toggle user active status"
-                  />
-                </FormControl>
-                <FormLabel className="text-sm font-medium">
-                  Active User
-                </FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <Button
-          type="submit"
-          disabled={updateMutation.isPending || assignParkMutation.isPending}
-          className="w-full sm:w-auto"
-        >
-          {updateMutation.isPending || assignParkMutation.isPending
-            ? 'Updating...'
-            : 'Update User'}
-        </Button>
-      </form>
-    </Form>
+    <div className="space-y-6 max-w-lg">
+      <Card>
+        <CardHeader>
+          <CardTitle>Update User Active Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...activeForm}>
+            <form onSubmit={activeForm.handleSubmit(onActiveSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={activeForm.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">First Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter first name"
+                          {...field}
+                          // disabled
+                          aria-readonly="true"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={activeForm.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Last Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter last name"
+                          {...field}
+                          // disabled
+                          aria-readonly="true"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={activeForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter email"
+                          {...field}
+                          // disabled
+                          aria-readonly="true"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={activeForm.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Role</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          // disabled
+                          aria-readonly="true"
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="VISITOR">Visitor</SelectItem>
+                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="FINANCE_OFFICER">Finance Officer</SelectItem>
+                            <SelectItem value="PARK_MANAGER">Park Staff</SelectItem>
+                            <SelectItem value="GOVERNMENT_OFFICER">Government Officer</SelectItem>
+                            <SelectItem value="AUDITOR">Auditor</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {/* <FormField
+                  control={activeForm.control}
+                  name="parkId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">Current Park</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={(value) => field.onChange(value === 'null' ? null : value)}
+                          value={field.value ?? 'null'}
+                          // disabled
+                          aria-readonly="true"
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={parksLoading ? 'Loading parks...' : 'Select park'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="null">No Park</SelectItem>
+                            {parks.map((park) => (
+                              <SelectItem key={park.id} value={park.id}>
+                                {park.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                /> */}
+                <FormField
+                  control={activeForm.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col space-y-2 pt-2">
+                      <FormLabel className="text-sm font-medium">Active Status</FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          aria-label="Toggle user active status"
+                          className="mt-1"
+                        />
+                      </FormControl>
+                      <p className="text-sm text-muted-foreground">
+                        {field.value ? 'User is active' : 'User is inactive'}
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={updateMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                {updateMutation.isPending ? 'Updating...' : 'Update Active Status'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Assign User to Park</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...parkForm}>
+            <form onSubmit={parkForm.handleSubmit(onParkSubmit)} className="space-y-4">
+              <FormField
+                control={parkForm.control}
+                name="parkId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Select Park</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => field.onChange(value === 'null' ? null : value)}
+                        value={field.value ?? 'null'}
+                        disabled={parksLoading || assignParkMutation.isPending}
+                        aria-label="Select park for assignment"
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={parksLoading ? 'Loading parks...' : 'Select park'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="null">No Park (Unassign)</SelectItem>
+                          {parks.map((park) => (
+                            <SelectItem key={park.id} value={park.id}>
+                              {park.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                disabled={parksLoading || assignParkMutation.isPending}
+                className="w-full sm:w-auto"
+              >
+                {assignParkMutation.isPending ? 'Assigning...' : 'Assign Park'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

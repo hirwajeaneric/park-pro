@@ -59,19 +59,19 @@ export default function ApplicationDetails({ application }: { application: Oppor
             <div className="flex w-full items-center justify-between">
                 <h2 className="text-xl font-semibold">Application Details</h2>
                 <Button variant="outline" asChild>
-                    <Link href="/finance/applications">Back to Applications</Link>
+                    <Link href="/accounts/applications">Back to Applications</Link>
                 </Button>
             </div>
             <Card>
                 <CardHeader>
                     <CardTitle>{application.firstName} {application.lastName}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className='space-y-2'>
                     <p><strong>Email:</strong> {application.email}</p>
-                    <p><strong>Opportunity ID:</strong> {application.opportunityId}</p>
-                    <p><strong>Application Letter:</strong>{' '}
+                    <p><strong>Opportunity:</strong> {application.opportunityName}</p>
+                    <p><strong>Attachment:</strong>{' '}
                         <a href={application.applicationLetterUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                            View Letter
+                            Cover Letter and CV/ Application Letter
                         </a>
                     </p>
                     <p>

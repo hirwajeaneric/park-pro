@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
-import { listBudgetsByPark, listBudgetWithdrawRequests } from '@/lib/api';
+import { listBudgetsByPark, listWithdrawRequestsByBudget } from '@/lib/api';
 import { Budget, WithdrawRequest } from '@/types';
 
 type Props = {
@@ -31,7 +31,7 @@ export default function WithdrawRequestDisplayAuditor({ parkId }: Props) {
   // Fetch withdraw requests for the selected budget
   const { data: withdrawRequests = [], isLoading: isRequestsLoading } = useQuery({
     queryKey: ['withdrawRequests', selectedBudgetId],
-    queryFn: () => listBudgetWithdrawRequests(selectedBudgetId!),
+    queryFn: () => listWithdrawRequestsByBudget(selectedBudgetId!),
     enabled: !!selectedBudgetId,
   });
 

@@ -96,9 +96,9 @@ export default function GovernmentOverview({ initialFiscalYear }: GovernmentOver
           <h2 className="text-sm text-gray-500">Budget for All Parks</h2>
           <div className="flex items-baseline space-x-2">
             <p className="text-3xl font-bold">{formatCurrency(totalBudgetCurrent)}</p>
-            <p className={`text-sm ${budgetChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+            {/* <p className={`text-sm ${budgetChange >= 0 ? "text-green-500" : "text-red-500"}`}>
               {budgetChange >= 0 ? "+" : ""}{budgetChange.toFixed(1)}%
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

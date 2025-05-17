@@ -7,7 +7,7 @@ import {
   LineChart,
   Line,
   BarChart,
-  Bar,
+  Bar, 
   PieChart,
   Pie,
   Cell,
@@ -17,7 +17,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { listBudgetsByPark, listBudgetExpenses, listBudgetCategoriesByBudget, getExpensesByBudgetCategory, getIncomeStreamsByBudget } from "@/lib/api";
+import { listBudgetsByPark, listExpensesByBudget, listBudgetCategoriesByBudget, getExpensesByBudgetCategory, getIncomeStreamsByBudget } from "@/lib/api";
 import { BudgetResponse, Expense, IncomeStreamResponse } from "@/types";
 
 // Colors for the charts
@@ -80,13 +80,13 @@ export default function FinanceOverview({ initialFiscalYear }: FinanceOverviewPr
   // Fetch expenses for the current and previous budgets
   const { data: currentExpenses = [], isLoading: currentExpensesLoading } = useQuery({
     queryKey: ["expenses", currentBudget?.id],
-    queryFn: () => listBudgetExpenses(currentBudget?.id),
+    queryFn: () => listExpensesByBudget(currentBudget?.id),
     enabled: !!currentBudget,
   });
 
   const { data: previousExpenses = [], isLoading: previousExpensesLoading } = useQuery({
     queryKey: ["expenses", previousBudget?.id],
-    queryFn: () => listBudgetExpenses(previousBudget?.id),
+    queryFn: () => listExpensesByBudget(previousBudget?.id),
     enabled: !!previousBudget,
   });
 

@@ -2,7 +2,6 @@
 
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import UserAccountLayout from "@/lib/UserAccountLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,35 +14,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { getUserBookings } from "@/lib/api";
+import { getMyBookings } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
+import { BookingResponse } from "@/types";
 
-type Booking = {
-  id: string;
-  activityId: string;
-  amount: number;
-  parkId: string;
-  visitDate: string;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED";
-  paymentReference: string;
-  currency: string;
-  confirmedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export default function BookingsPage() {
-  const { accessToken } = useAuth();
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<BookingResponse | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["userBookings"],
-    queryFn: () => getUserBookings(accessToken as string),
+    queryFn: () => getMyBookings(),
   });
 
-  const columns: ColumnDef<Booking>[] = [
+  const columns: ColumnDef<BookingResponse>[] = [
     {
       accessorKey: "visitDate",
       header: "Visit Date",

@@ -2,47 +2,36 @@
 
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import UserAccountLayout from "@/lib/UserAccountLayout";
-import { useAuth } from "@/hooks/useAuth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, FileText } from "lucide-react";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+// import { useState } from "react";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+// } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { getUserApplications } from "@/lib/api";
+import { getMyOpportunityApplications } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { DataTable } from "@/components/ui/data-table";
-
-type Application = {
-  id: string;
-  opportunityId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  applicationLetterUrl: string;
-  status: "SUBMITTED" | "REVIEWED" | "APPROVED" | "REJECTED";
-  createdAt: string;
-  updatedAt: string;
-};
+import { OpportunityApplicationResponse } from "@/types";
+import { useRouter } from "next/navigation";
 
 export default function ApplicationsPage() {
-  const { accessToken } = useAuth();
-  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const router = useRouter();
+  // const [selectedApplication, setSelectedApplication] = useState<OpportunityApplicationResponse | null>(null);
+  // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["userApplications"],
-    queryFn: () => getUserApplications(accessToken as string),
+    queryFn: () => getMyOpportunityApplications(),
   });
 
-  const columns: ColumnDef<Application>[] = [
+  const columns: ColumnDef<OpportunityApplicationResponse>[] = [
     {
       accessorKey: "createdAt",
       header: "Applied On",
@@ -52,18 +41,27 @@ export default function ApplicationsPage() {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as "APPROVED" | "REJECTED" | "REVIEWED";
+        let badgeColor: 'success' | 'destructive' | 'warning' | 'default' | 'secondary' | 'outline' | null | undefined = "default";
+        const status = row.getValue("status") as "APPROVED" | "REJECTED" | "REVIEWED" | "SUBMITTED";
+        switch (status) {
+          case "APPROVED":
+            badgeColor = 'success';
+            break;
+          case "REJECTED":
+            badgeColor = 'destructive';
+            break;
+          case "REVIEWED":
+            badgeColor = 'warning';
+            break;
+          case "SUBMITTED":
+            badgeColor = 'default';
+            break;
+          default: 
+            badgeColor = 'default'
+        }
         return (
           <Badge
-            variant={
-              status === "APPROVED"
-                ? "default"
-                : status === "REJECTED"
-                ? "destructive"
-                : status === "REVIEWED"
-                ? "secondary"
-                : "outline"
-            }
+            variant={badgeColor}
           >
             {status}
           </Badge>
@@ -71,14 +69,8 @@ export default function ApplicationsPage() {
       },
     },
     {
-      accessorKey: "firstName",
-      header: "Name",
-      cell: ({ row }) => `${row.original.firstName} ${row.original.lastName}`,
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-      cell: ({ row }) => row.getValue("email"),
+      accessorKey: "opportunityName",
+      header: "Opportunity",
     },
     {
       id: "actions",
@@ -87,9 +79,9 @@ export default function ApplicationsPage() {
           <Button
             variant="ghost"
             size="sm"
+            className="cursor-pointer"
             onClick={() => {
-              setSelectedApplication(row.original);
-              setIsDialogOpen(true);
+              router.push(`/account/applications/${row.original.id}`)
             }}
           >
             <Eye className="h-4 w-4" />
@@ -128,66 +120,72 @@ export default function ApplicationsPage() {
               ],
             },
           ]}
-        /> 
+        />
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent>
+        {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="w-full">
             <DialogHeader>
               <DialogTitle>Application Details</DialogTitle>
             </DialogHeader>
             {selectedApplication && (
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Application ID</p>
-                  <p>{selectedApplication.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Applicant Name</p>
-                  <p>
-                    {selectedApplication.firstName} {selectedApplication.lastName}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p>{selectedApplication.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge
-                    variant={
-                      selectedApplication.status === "APPROVED"
-                        ? "default"
-                        : selectedApplication.status === "REJECTED"
-                        ? "destructive"
-                        : selectedApplication.status === "REVIEWED"
-                        ? "secondary"
-                        : "default"
-                    }
-                  >
-                    {selectedApplication.status}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Applied On</p>
-                  <p>
-                    {format(new Date(selectedApplication.createdAt), "PPP p")}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Application Letter</p>
-                  <Button variant="link" asChild>
-                    <Link
-                      href={selectedApplication.applicationLetterUrl}
-                      target="_blank"
+              <div className="flex w-full gap-4">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Opportunity Applied For</p>
+                    <p>{selectedApplication.opportunityName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Status</p>
+                    <Badge
+                      variant={
+                        selectedApplication.status === "APPROVED"
+                          ? "default"
+                          : selectedApplication.status === "REJECTED"
+                            ? "destructive"
+                            : selectedApplication.status === "REVIEWED"
+                              ? "secondary"
+                              : "default"
+                      }
                     >
-                      View Application Letter
-                    </Link>
-                  </Button>
+                      {selectedApplication.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Attachment</p>
+                    <Button variant="link" asChild>
+                      <Link
+                        href={selectedApplication.applicationLetterUrl}
+                        target="_blank"
+                      >
+                        Cover Letter & Resume
+                      </Link>
+                    </Button>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Applied On</p>
+                    <p>
+                      {format(new Date(selectedApplication.createdAt), "PPP p")}
+                    </p>
+                  </div>
+
                 </div>
+                <div className="space-y-4">
+                  {selectedApplication.approvalMessage && <div>
+                    <p className="text-sm text-muted-foreground">Approval Message</p>
+                    <p>
+                      {selectedApplication.approvalMessage} {selectedApplication.approvalMessage}
+                    </p>
+                  </div>}
+                  {selectedApplication.rejectionReason && <div>
+                    <p className="text-sm text-muted-foreground">Response Message</p>
+                    <p>{selectedApplication.rejectionReason}</p>
+                  </div>}
+                </div>
+
               </div>
             )}
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </UserAccountLayout>
     </ProtectedRoute>
   );

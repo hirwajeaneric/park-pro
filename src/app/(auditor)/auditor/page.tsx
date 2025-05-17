@@ -5,8 +5,8 @@ import {
   getParks,
   getBudgetsByFiscalYear,
   getFundingRequestsByFiscalYear,
-  listBudgetExpenses,
-  listBudgetWithdrawRequests,
+  listExpensesByBudget,
+  listWithdrawRequestsByBudget,
 } from '@/lib/api';
 import { Park, BudgetByFiscalYearResponse, FundingRequestResponse, Expense, WithdrawRequest } from '@/types';
 
@@ -33,10 +33,10 @@ export default async function AuditorDashboardPage() {
     // Fetch expenses and withdraw requests for each budget
     const expensePromises = budgets
       .filter((b) => b.budgetId)
-      .map((b) => listBudgetExpenses(b.budgetId!));
+      .map((b) => listExpensesByBudget(b.budgetId!));
     const withdrawPromises = budgets
       .filter((b) => b.budgetId)
-      .map((b) => listBudgetWithdrawRequests(b.budgetId!));
+      .map((b) => listWithdrawRequestsByBudget(b.budgetId!));
 
     const expenseResults = await Promise.all(expensePromises);
     const withdrawResults = await Promise.all(withdrawPromises);

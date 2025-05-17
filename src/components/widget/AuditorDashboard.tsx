@@ -28,8 +28,8 @@ import {
     getParks,
     getBudgetsByFiscalYear,
     getFundingRequestsByFiscalYear,
-    listBudgetExpenses,
-    listBudgetWithdrawRequests,
+    listExpensesByBudget,
+    listWithdrawRequestsByBudget,
     getParkById,
 } from '@/lib/api';
 import { Park, BudgetByFiscalYearResponse, FundingRequestResponse, Expense, WithdrawRequest } from '@/types';
@@ -62,7 +62,7 @@ export default function AuditorDashboard({
         queryFn: () => getParks(0, 100),
         initialData: initialParks,
     });
-    const { content: parks = initialParks, ...others} = parkData;
+    const { content: parks = initialParks, ...others } = parkData;
 
     // Fetch budgets
     const { data: budgets = initialBudgets, isLoading: budgetsLoading } = useQuery({
@@ -84,7 +84,7 @@ export default function AuditorDashboard({
         queryFn: async () => {
             const expensePromises = budgets
                 .filter((b) => b.budgetId)
-                .map((b) => listBudgetExpenses(b.budgetId!));
+                .map((b) => listExpensesByBudget(b.budgetId!));
             return (await Promise.all(expensePromises)).flat();
         },
         initialData: initialExpenses,
@@ -96,7 +96,7 @@ export default function AuditorDashboard({
         queryFn: async () => {
             const withdrawPromises = budgets
                 .filter((b) => b.budgetId)
-                .map((b) => listBudgetWithdrawRequests(b.budgetId!));
+                .map((b) => listWithdrawRequestsByBudget(b.budgetId!));
             return (await Promise.all(withdrawPromises)).flat();
         },
         initialData: initialWithdrawRequests,

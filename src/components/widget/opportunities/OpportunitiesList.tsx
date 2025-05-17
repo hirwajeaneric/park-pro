@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from '@tanstack/react-query';
-import { getParkOpportunities } from '@/lib/api';
+import { getOpportunitiesByParkId } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ export default function OpportunitiesList() {
 
   const { data: opportunities, isLoading, error } = useQuery({
     queryKey: ['opportunities', parkId],
-    queryFn: () => getParkOpportunities(parkId),
+    queryFn: () => getOpportunitiesByParkId(parkId),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   });

@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/useAuth";
 import { useMutation } from "@tanstack/react-query";
-import { makeDonation } from "@/lib/api";
+import { createDonation } from "@/lib/api";
 import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
 import dynamic from "next/dynamic";
@@ -47,7 +46,6 @@ const donationOptions = [
 ];
 
 export default function DonationForm() {
-  const { accessToken } = useAuth();
   const [amount, setAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
   const [motive, setMotive] = useState("");
@@ -59,11 +57,10 @@ export default function DonationForm() {
       amount: string; 
       motive: string; 
       paymentMethodId: string 
-    }) => makeDonation({
+    }) => createDonation({
       parkId: process.env.NEXT_PUBLIC_PARK_ID!,
       amount,
       motiveForDonation: motive,
-      token: accessToken!
     }, paymentMethodId),
     onSuccess: () => {
       setIsPaymentDialogOpen(false);

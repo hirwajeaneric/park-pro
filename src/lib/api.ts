@@ -286,6 +286,8 @@ export const getUserById = async (id: string) => {
         Authorization: `Bearer ${token}`,
       },
     });
+    response.data.isActive = response.data.active;
+    delete response.data.active;
     return response.data;
   } catch (error) {
     throw error;
@@ -689,17 +691,17 @@ export const createBudgetCategory = async (
 
 export const updateBudgetCategory = async (
   budgetId: string,
-  categoryId: string, 
+  categoryId: string,
   data: UpdateBudgetCategoryForm
 ): Promise<UpdateBudgetCategoryForm> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.patch(
-      `/api/budgets/${budgetId}/categories/${categoryId}`, 
-      data, 
+      `/api/budgets/${budgetId}/categories/${categoryId}`,
+      data,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data;
@@ -717,7 +719,7 @@ export const getBudgetCategoryById = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(
       `/api/budgets/${budgetId}/categories/${categoryId}`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -735,7 +737,7 @@ export const listBudgetCategoriesByBudget = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(
       `/api/budgets/${budgetId}/categories`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -754,7 +756,7 @@ export const deleteBudgetCategory = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     await api.delete(
       `/api/budgets/${budgetId}/categories/${categoryId}`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -772,7 +774,7 @@ export const getExpensesForBudgetCategory = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(
       `/api/budgets/${budgetId}/categories/${categoryId}/expenses`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -789,16 +791,15 @@ export const getExpensesForBudgetCategory = async (
 
 export const createExpense = async (
   budgetId: string,
-  categoryId: string,
   data: CreateExpenseForm
 ): Promise<Expense> => {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.post(
-      `/api/budgets/${budgetId}/categories/${categoryId}/expenses`,
+      `/api/budgets/${budgetId}/expenses`,
       data,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -816,7 +817,7 @@ export const updateExpense = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.patch(
       `/api/expenses/${expenseId}`,
       data,
@@ -833,7 +834,7 @@ export const getExpenseById = async (expenseId: string): Promise<Expense> => {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(`/api/expenses/${expenseId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -848,8 +849,23 @@ export const listExpensesByBudget = async (budgetId: string): Promise<Expense[]>
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(`/api/budgets/${budgetId}/expenses`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getExpensesByBudgetCategory = async (categoryId: string): Promise<Expense[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+
+    const response = await api.get(`/api/budgets/categories/${categoryId}/expenses`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.data;
@@ -863,7 +879,7 @@ export const deleteExpense = async (expenseId: string): Promise<void> => {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     await api.delete(`/api/expenses/${expenseId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -871,6 +887,20 @@ export const deleteExpense = async (expenseId: string): Promise<void> => {
     throw error;
   }
 };
+
+export const getMySubmittedExpenses = async (budgetId: string): Promise<Expense[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/expenses/my-submissions`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export const updateExpenseAuditStatus = async (
   expenseId: string,
@@ -880,7 +910,7 @@ export const updateExpenseAuditStatus = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.patch(
       `/api/expenses/${expenseId}/audit-status`,
       data,
@@ -895,15 +925,14 @@ export const updateExpenseAuditStatus = async (
 // ==============================================
 // WITHDRAW REQUEST OPERATIONS
 // ==============================================
-export const createWithdrawRequest = async (
-  budgetId: string,
-  data: CreateWithdrawRequestForm
-): Promise<WithdrawRequest> => {
+export const createWithdrawRequest = async ( budgetId: string, data: CreateWithdrawRequestForm ): Promise<WithdrawRequest> => {
+  console.log("Hello");
+  console.log(data, budgetId);
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.post(
       `/api/budgets/${budgetId}/withdraw-requests`,
       data,
@@ -922,7 +951,7 @@ export const getWithdrawRequestById = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(`/api/withdraw-requests/${requestId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -939,7 +968,7 @@ export const listWithdrawRequestsByBudget = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(
       `/api/budgets/${budgetId}/withdraw-requests`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -958,7 +987,7 @@ export const updateWithdrawRequest = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.patch(
       `/api/withdraw-requests/${requestId}`,
       data,
@@ -977,10 +1006,9 @@ export const approveWithdrawRequest = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
-    const response = await api.post(
-      `/api/withdraw-requests/${requestId}/approve`,
-      {},
+
+    const response = await api.get(
+      `/api/budgets/withdraw-requests/${requestId}/approve`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data;
@@ -997,9 +1025,9 @@ export const rejectWithdrawRequest = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.post(
-      `/api/withdraw-requests/${requestId}/reject`,
+      `/api/budgets/withdraw-requests/${requestId}/reject`,
       data,
       { headers: { Authorization: `Bearer ${token}` } }
     );
@@ -1017,7 +1045,7 @@ export const updateWithdrawRequestAuditStatus = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    const response = await api.patch(`/api/withdraw-requests/${withdrawRequestId}/audit-status`, data, {
+    const response = await api.patch(`/api/budgets/withdraw-requests/${withdrawRequestId}/audit-status`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -1028,6 +1056,21 @@ export const updateWithdrawRequestAuditStatus = async (
   }
 };
 
+export const getMySubmittedWithdrawRequests = async (budgetId: string): Promise<WithdrawRequest[]> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/budgets/${budgetId}/withdraw-requests/my-submissions`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
 
 // ==============================================
 // INCOME STREAM OPERATIONS
@@ -1041,7 +1084,7 @@ export const createIncomeStream = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.post(
       `/api/budgets/${budgetId}/income-streams`,
       data,
@@ -1061,7 +1104,7 @@ export const updateIncomeStream = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.patch(
       `/api/income-streams/${incomeStreamId}`,
       data,
@@ -1080,7 +1123,7 @@ export const getIncomeStreamById = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(`/api/income-streams/${incomeStreamId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -1097,7 +1140,7 @@ export const listIncomeStreamsByBudget = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     const response = await api.get(
       `/api/budgets/${budgetId}/income-streams`,
       { headers: { Authorization: `Bearer ${token}` } }
@@ -1116,7 +1159,7 @@ export const deleteIncomeStream = async (
     const cookieStore = await cookies();
     const token = cookieStore.get('access-token')?.value;
     if (!token) throw new Error('Authentication required');
-    
+
     await api.delete(`/api/income-streams/${incomeStreamId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -1294,20 +1337,21 @@ export const updateOpportunityApplicationStatus = async (
   rejectionReason?: string
 ): Promise<OpportunityApplicationResponse> => {
   try {
-      const token = (await cookies()).get('token')?.value;
-      if (!token) throw new Error('No authentication token found');
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('No authentication token found');
 
-      const response = await api.patch(
-          `/api/opportunity-applications/${applicationId}/status`,
-          { status, approvalMessage, rejectionReason },
-          { headers: { Authorization: `Bearer ${token}` } }
-      );
-      return response.data;
+    const response = await api.patch(
+      `/api/opportunity-applications/${applicationId}/status`,
+      { status, approvalMessage, rejectionReason },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return response.data;
   } catch (error) {
-      if (axios.isAxiosError(error)) {
-          throw new Error(error.response?.data?.message || 'Failed to update application status');
-      }
-      throw error;
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || 'Failed to update application status');
+    }
+    throw error;
   }
 };
 

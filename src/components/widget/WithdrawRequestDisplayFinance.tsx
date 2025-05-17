@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { listBudgetsByPark, listBudgetWithdrawRequests } from '@/lib/api';
+import { listBudgetsByPark, listWithdrawRequestsByBudget } from '@/lib/api';
 import { Budget, WithdrawRequest } from '@/types';
 
 export default function WithdrawRequestDisplayFinance() {
@@ -39,7 +39,7 @@ export default function WithdrawRequestDisplayFinance() {
   // Fetch withdraw requests for the selected budget
   const { data: withdrawRequests = [], isLoading: isRequestsLoading } = useQuery({
     queryKey: ['withdrawRequests', selectedBudgetId],
-    queryFn: () => listBudgetWithdrawRequests(selectedBudgetId!),
+    queryFn: () => listWithdrawRequestsByBudget(selectedBudgetId!),
     enabled: !!selectedBudgetId,
   });
 

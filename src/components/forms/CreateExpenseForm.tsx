@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { listBudgetsByPark, listBudgetCategoriesByBudget, createExpensesForBudgetCategory } from '@/lib/api';
+import { listBudgetsByPark, listBudgetCategoriesByBudget, createExpense } from '@/lib/api';
 import { Budget, BudgetCategory, CreateExpenseForm as CreateExpenseFormTypes } from '@/types';
 import { FileUpload } from '../ui/file-upload';
 
@@ -75,7 +75,7 @@ export default function CreateExpenseForm() {
     // Create expense mutation
     const createMutation = useMutation({
         mutationFn: (data: CreateExpenseFormTypes) =>
-            createExpensesForBudgetCategory({ ...data, parkId: parkId! }, data.budgetId),
+            createExpense(data.budgetId, { ...data, parkId: parkId! }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             toast.success('Expense recorded successfully');

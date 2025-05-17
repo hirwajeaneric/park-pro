@@ -84,7 +84,7 @@ export default function ActivityDetails({ activity }: { activity: ActivityRespon
                 <CardContent>
                     <p><strong>Price:</strong> ${activity.price.toFixed(2)}</p>
                     <p><strong>Description:</strong> {activity.description || 'N/A'}</p>
-                    <p><strong>Picture:</strong> {activity.picture ? <a href={activity.picture} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Picture</a> : 'N/A'}</p>
+                    <p><strong>Picture:</strong> {activity.picture ? <a href={activity.picture} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Cover Picture</a> : 'N/A'}</p>
                     <p><strong>Capacity Per Day:</strong> {activity.capacityPerDay || 'Unlimited'}</p>
                     <p><strong>Created At:</strong> {format(new Date(activity.createdAt), 'MMM dd, yyyy')}</p>
                     <p><strong>Updated At:</strong> {format(new Date(activity.updatedAt), 'MMM dd, yyyy')}</p>
@@ -141,7 +141,7 @@ export default function ActivityDetails({ activity }: { activity: ActivityRespon
                                 name="picture"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Receipt</FormLabel>
+                                        <FormLabel>Cover Image</FormLabel>
                                         <FormControl>
                                             <FileUpload
                                                 endpoint="resumeUpload"

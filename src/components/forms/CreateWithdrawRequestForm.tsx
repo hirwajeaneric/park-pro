@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { listBudgetsByPark, listBudgetCategoriesByBudget, createWithdrawRequestForBudget } from '@/lib/api';
+import { listBudgetsByPark, listBudgetCategoriesByBudget, createWithdrawRequest } from '@/lib/api';
 import { Budget, BudgetCategory, CreateWithdrawRequestForm as CreateWithdrawRequestFormTypes } from '@/types';
 import { FileUpload } from '@/components/ui/file-upload';
 
@@ -33,6 +33,7 @@ const CreateWithdrawRequestFormSchema = z.object({
   reason: z.string().min(1, 'Reason is required'),
   description: z.string().optional(),
   receiptUrl: z.string().url('Please upload a valid file').optional(),
+  parkId: z.string()
 });
 
 export default function CreateWithdrawRequestForm() {
@@ -74,14 +75,15 @@ export default function CreateWithdrawRequestForm() {
       amount: 0,
       reason: '',
       description: '',
-      receiptUrl: ''
+      receiptUrl: '',
+      parkId: ''
     },
   });
 
   // Create withdraw request mutation
   const createMutation = useMutation({
     mutationFn: (data: CreateWithdrawRequestFormTypes) =>
-      createWithdrawRequestForBudget({ ...data, parkId: parkId! }, data.budgetId),
+      createWithdrawRequest(data.budgetId, { ...data, parkId: parkId! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['withdrawRequests'] });
       toast.success('Withdraw request created successfully');

@@ -7,9 +7,8 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
-import { applyForOpportunity } from "@/lib/api";
+import { createOpportunityApplication } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -19,8 +18,7 @@ const ApplicationFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  applicationLetter: z.string().min(10, "Application letter must be at least 10 characters"),
-  resumeUrl: z.string().url("Please upload a valid resume"),
+  applicationLetterUrl: z.string().min(10, "Application letter must be at least 10 characters"),
 });
 
 export default function ApplicationForm({ opportunity }: { opportunity: any }) {
@@ -31,19 +29,18 @@ export default function ApplicationForm({ opportunity }: { opportunity: any }) {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
       email: user?.email || "",
-      applicationLetter: "",
-      resumeUrl: "",
+      applicationLetterUrl: "",
     },
   });
 
   const applicationMutation = useMutation({
     mutationFn: (data: z.infer<typeof ApplicationFormSchema>) => 
-      applyForOpportunity({
+      createOpportunityApplication({
         opportunityId: opportunity.id,
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
-        applicationLetterUrl: data.resumeUrl,
+        applicationLetterUrl: data.applicationLetterUrl,
       }),
     onSuccess: () => {
       toast.success("Application submitted successfully!");
@@ -113,28 +110,10 @@ export default function ApplicationForm({ opportunity }: { opportunity: any }) {
 
             <FormField
               control={form.control}
-              name="applicationLetter"
+              name="applicationLetterUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Application Letter</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Explain why you're a good fit for this opportunity..."
-                      className="min-h-[150px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="resumeUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Resume/CV</FormLabel>
+                  <FormLabel>Cover Letter and CV</FormLabel>
                   <FormControl>
                     <FileUpload
                       endpoint="resumeUpload"

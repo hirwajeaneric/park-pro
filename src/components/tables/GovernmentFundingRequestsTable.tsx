@@ -42,7 +42,7 @@ export default function GovernmentFundingRequestsTable() {
       header: 'Approved Amount',
       cell: ({ row }) => {
         const amount = row.getValue('approvedAmount') as number;
-        return `${amount.toFixed(2)}`
+        return `${amount}`
       },
     },
     {

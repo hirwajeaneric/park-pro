@@ -330,6 +330,7 @@ export type OpportunityApplicationRequest = {
 export interface OpportunityApplicationResponse {
   id: string;
   opportunityId: string;
+  opportunityName: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -371,7 +372,7 @@ export type ActivityResponse = {
 
 export type CreateDonationRequest = {
   parkId: string;
-  amount: number;
+  amount: string;
   motiveForDonation?: string;
 };
 
@@ -441,7 +442,7 @@ export interface FundingRequestResponse {
 
 export interface CreateFundingRequestDto {
   parkId: string; // Added
-  requestedAmount: string; // Changed to string for BigDecimal
+  requestedAmount: number; 
   requestType: 'EXTRA_FUNDS' | 'EMERGENCY_RELIEF';
   reason: string;
   budgetId: string;

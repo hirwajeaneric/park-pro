@@ -121,8 +121,8 @@ export default function GovernmentBudgetDetails({ budget }: { budget: Budget }) 
         </CardHeader>
         <CardContent>
           <p><strong>Fiscal Year:</strong> {budget.fiscalYear}</p>
-          <p><strong>Total Amount:</strong> XAF {budget.totalAmount.toFixed(2)}</p>
-          <p><strong>Balance:</strong> XAF {budget.balance.toFixed(2)}</p>
+          <p><strong>Total Amount:</strong> XAF {Number(budget.totalAmount).toFixed(2)}</p>
+          {/* <p><strong>Balance:</strong> XAF {budget.balance.toFixed(2)}</p> */}
           <p><strong>Status:</strong> <Badge variant={badgeVariant}>{budget.status.toUpperCase()}</Badge></p>
           <p><strong>Approver:</strong> {budget.approvedBy || 'N/A'}</p>
         </CardContent>

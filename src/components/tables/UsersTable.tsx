@@ -50,13 +50,39 @@ export default function UsersTable({ users, isLoading }: UsersTableProps) {
     {
       accessorKey: 'role',
       header: 'Role',
-      cell: ({ row }) => <Badge>{row.getValue('role')}</Badge>,
+      cell: ({ row }) => {
+        if (row.getValue('role') === "ADMIN") {
+          return (
+            <Badge variant={'default'}>{row.getValue('role')}</Badge>
+          )
+        } else if (row.getValue('role') === "VISITOR") {
+          return (
+            <Badge variant={'success'}>{row.getValue('role')}</Badge>
+          )
+        } else if (row.getValue('role') === "PARK_MANAGER") {
+          return (
+            <Badge variant={'outline'}>PARK STAFF</Badge>
+          )
+        } else if (row.getValue('role') === "FINANCE_OFFICER") {
+          return (
+            <Badge variant={'warning'}>FINANCE OFFICER</Badge>
+          )
+        } else if (row.getValue('role') === "AUDITOR") {
+          return (
+            <Badge variant={'destructive'}>{row.getValue('role')}</Badge>
+          )
+        } else if (row.getValue('role') === "GOVERNMENT_OFFICER") {
+          return (
+            <Badge variant={'default'}>GOVERNMENT OFFICER</Badge>
+          )
+        } 
+      },
     },
     {
       accessorKey: 'active',
       header: 'Status',
       cell: ({ row }) => (
-        <Badge variant={row.getValue('active') ? 'default' : 'destructive'}>
+        <Badge variant={row.getValue('active') ? 'success' : 'destructive'}>
           {row.getValue('active') ? 'Active' : 'Inactive'}
         </Badge>
       ),
