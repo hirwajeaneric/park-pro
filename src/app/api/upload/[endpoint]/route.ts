@@ -18,12 +18,12 @@ export async function POST(
   try {
     // Upload to UploadThing
     const response = await utapi.uploadFiles(file);
-    if (!response.data?.url) {
+    if (!response.data?.ufsUrl) {
       throw new Error("Upload failed");
     }
 
     return NextResponse.json({ 
-      url: response.data.url,
+      url: response.data.ufsUrl,
       name: file.name,
       size: file.size
     });

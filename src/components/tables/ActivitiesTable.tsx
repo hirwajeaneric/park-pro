@@ -29,11 +29,11 @@ export default function ActivitiesTable() {
         return `$${price.toFixed(2)}`;
       },
     },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => row.getValue('description') || 'N/A',
-    },
+    // {
+    //   accessorKey: 'description',
+    //   header: 'Description',
+    //   cell: ({ row }) => row.getValue('description') || 'N/A',
+    // },
     {
       accessorKey: 'capacityPerDay',
       header: 'Capacity Per Day',
