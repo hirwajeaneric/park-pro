@@ -319,6 +319,7 @@ export type IncomeStreamRequest = {
   name: string;
   percentage: number;
   totalContribution: number;
+  parkId: string
 };
 
 export type OpportunityApplicationRequest = {
