@@ -11,6 +11,8 @@ import WithdrawRequestDisplayAuditor from './WithdrawRequestDisplayAuditor';
 import FundingRequestsTabsAuditor from './FundingRequestsTabsAuditor';
 import AuditorParkUsers from './AuditorParkUsers';
 import ListBudgetsTableAuditor from '../tables/ListBudgetsTableAuditor';
+import ListAuditorBookingsTable from '../tables/ListAuditorBookingsTable';
+import AuditorDonationsTable from '../tables/AuditorDonationsTable';
 
 export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
   return (
@@ -126,7 +128,7 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              {/* <FundingRequestsTabsAuditor parkId={park.id} /> */}
+              <AuditorDonationsTable parkId={park.id} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -141,7 +143,7 @@ export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              {/* <FundingRequestsTabsAuditor parkId={park.id} /> */}
+              <ListAuditorBookingsTable parkId={park.id} />
             </CardContent>
           </Card>
         </TabsContent>

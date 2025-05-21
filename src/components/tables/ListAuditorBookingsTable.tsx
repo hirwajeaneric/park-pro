@@ -1,25 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
 import { DataTable } from "@/components/ui/data-table";
 import { BookingResponse } from "@/types";
 import { format } from "date-fns";
 import { getBookingsByPark } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
-export default function ListFinanceBookingsTable() {
-    const router = useRouter();
-
+export default function ListAuditorBookingsTable({ parkId }: { parkId: string }) {
     const { data: bookings = [], isLoading } = useQuery({
-        queryKey: ['bookings', JSON.parse(localStorage.getItem('park-data') as string).id],
-        queryFn: () => getBookingsByPark(JSON.parse(localStorage.getItem('park-data') as string).id),
+        queryKey: ['bookings', parkId],
+        queryFn: () => getBookingsByPark(parkId),
     });
 
     const columns: ColumnDef<BookingResponse>[] = [
+        {
+            accessorKey: "id",
+            header: "Booking ID",
+            cell: ({ row }) => {
+                const id = row.getValue("id") as string;
+                return <span>{id.slice(0, 16)}...</span>;
+            },
+        },
         {
             accessorKey: "amount",
             header: "Amount",
@@ -57,21 +60,7 @@ export default function ListFinanceBookingsTable() {
                     </Badge>
                 );
             },
-        },
-        {
-            id: "actions",
-            cell: ({ row }) => (
-                <div className="flex space-x-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => router.push(`/finance/bookings/${row.original.id}`)}
-                    >
-                        <Eye className="h-4 w-4" />
-                    </Button>
-                </div>
-            ),
-        },
+        }
     ];
 
     return (
