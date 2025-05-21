@@ -6,13 +6,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, FileText } from "lucide-react";
-// import { useState } from "react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-// } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { getMyOpportunityApplications } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
@@ -23,8 +16,6 @@ import { useRouter } from "next/navigation";
 
 export default function ApplicationsPage() {
   const router = useRouter();
-  // const [selectedApplication, setSelectedApplication] = useState<OpportunityApplicationResponse | null>(null);
-  // const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["userApplications"],
@@ -42,9 +33,9 @@ export default function ApplicationsPage() {
       header: "Status",
       cell: ({ row }) => {
         let badgeColor: 'success' | 'destructive' | 'warning' | 'default' | 'secondary' | 'outline' | null | undefined = "default";
-        const status = row.getValue("status") as "APPROVED" | "REJECTED" | "REVIEWED" | "SUBMITTED";
+        const status = row.getValue("status") as "ACCEPTED" | "REJECTED" | "REVIEWED" | "SUBMITTED";
         switch (status) {
-          case "APPROVED":
+          case "ACCEPTED":
             badgeColor = 'success';
             break;
           case "REJECTED":
@@ -121,71 +112,6 @@ export default function ApplicationsPage() {
             },
           ]}
         />
-
-        {/* <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="w-full">
-            <DialogHeader>
-              <DialogTitle>Application Details</DialogTitle>
-            </DialogHeader>
-            {selectedApplication && (
-              <div className="flex w-full gap-4">
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Opportunity Applied For</p>
-                    <p>{selectedApplication.opportunityName}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge
-                      variant={
-                        selectedApplication.status === "APPROVED"
-                          ? "default"
-                          : selectedApplication.status === "REJECTED"
-                            ? "destructive"
-                            : selectedApplication.status === "REVIEWED"
-                              ? "secondary"
-                              : "default"
-                      }
-                    >
-                      {selectedApplication.status}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Attachment</p>
-                    <Button variant="link" asChild>
-                      <Link
-                        href={selectedApplication.applicationLetterUrl}
-                        target="_blank"
-                      >
-                        Cover Letter & Resume
-                      </Link>
-                    </Button>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Applied On</p>
-                    <p>
-                      {format(new Date(selectedApplication.createdAt), "PPP p")}
-                    </p>
-                  </div>
-
-                </div>
-                <div className="space-y-4">
-                  {selectedApplication.approvalMessage && <div>
-                    <p className="text-sm text-muted-foreground">Approval Message</p>
-                    <p>
-                      {selectedApplication.approvalMessage} {selectedApplication.approvalMessage}
-                    </p>
-                  </div>}
-                  {selectedApplication.rejectionReason && <div>
-                    <p className="text-sm text-muted-foreground">Response Message</p>
-                    <p>{selectedApplication.rejectionReason}</p>
-                  </div>}
-                </div>
-
-              </div>
-            )}
-          </DialogContent>
-        </Dialog> */}
       </UserAccountLayout>
     </ProtectedRoute>
   );

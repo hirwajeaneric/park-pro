@@ -48,9 +48,9 @@ export default function DonationsPage() {
           <Badge
             variant={
               status === "CONFIRMED"
-                ? "default"
+                ? "success"
                 : status === "PENDING"
-                ? "secondary"
+                ? "default"
                 : "destructive"
             }
           >

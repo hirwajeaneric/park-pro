@@ -3,7 +3,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Dynamically import CheckoutForm with SSR disabled
 const CheckoutForm = dynamic(() => import("./CheckoutForm"), { ssr: false });
@@ -29,11 +30,27 @@ const BookingFormSchema = z.object({
     .refine(date => new Date(date) >= new Date(), {
       message: "Date must be in the future"
     }),
+  numberOfTickets: z.number().min(1, "At least one ticket is required"),
+  bookingType: z.enum(["single", "group"]),
+  groupMembers: z.array(
+    z.object({
+      guestName: z.string().optional(),
+      guestEmail: z.string().email().optional(),
+    })
+  ).optional(),
+}).refine(data => {
+  if (data.bookingType === "group" && (!data.groupMembers || data.groupMembers.length !== data.numberOfTickets - 1)) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Number of group members must match number of tickets minus one",
+  path: ["groupMembers"],
 });
 
 type BookingFormValues = z.infer<typeof BookingFormSchema>;
 
-export default function BookingForm({ activityId, price }: { activityId: string; price: number }) {
+export default function BookingForm({ activityId, activityName, price }: { activityId: string; activityName: string; price: number }) {
   const { accessToken } = useAuth();
   const router = useRouter();
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
@@ -43,12 +60,20 @@ export default function BookingForm({ activityId, price }: { activityId: string;
     resolver: zodResolver(BookingFormSchema),
     defaultValues: {
       visitDate: "",
+      numberOfTickets: 1,
+      bookingType: "single",
+      groupMembers: [],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "groupMembers",
+  });
+
   const bookMutation = useMutation({
-    mutationFn: ({ activityId, visitDate, paymentMethodId }: { activityId: string; visitDate: string; paymentMethodId: string }) =>
-      bookTour({ activityId, visitDate, paymentMethodId }),
+    mutationFn: ({ activityId, visitDate, numberOfTickets, groupMembers, paymentMethodId }: { activityId: string; visitDate: string; numberOfTickets: number; groupMembers: any[]; paymentMethodId: string }) =>
+      bookTour({ activityId, visitDate, numberOfTickets, groupMembers, paymentMethodId }),
     onSuccess: () => {
       setIsPaymentDialogOpen(false);
       setIsSuccessDialogOpen(true);
@@ -61,8 +86,8 @@ export default function BookingForm({ activityId, price }: { activityId: string;
   });
 
   const handlePaymentSuccess = (paymentMethodId: string) => {
-    const { visitDate } = form.getValues();
-    bookMutation.mutate({ activityId, visitDate, paymentMethodId });
+    const { visitDate, numberOfTickets, groupMembers } = form.getValues();
+    bookMutation.mutate({ activityId, visitDate, numberOfTickets, groupMembers: groupMembers || [], paymentMethodId });
   };
 
   const onSubmit = (data: BookingFormValues) => {
@@ -73,10 +98,81 @@ export default function BookingForm({ activityId, price }: { activityId: string;
     setIsPaymentDialogOpen(true);
   };
 
+  const handleBookingTypeChange = (value: string) => {
+    form.setValue("bookingType", value as "single" | "group");
+    if (value === "single") {
+      form.setValue("numberOfTickets", 1);
+      form.setValue("groupMembers", []);
+      while (fields.length > 0) {
+        remove(0);
+      }
+    }
+  };
+
+  const handleNumberOfTicketsChange = (value: string) => {
+    const numTickets = parseInt(value);
+    form.setValue("numberOfTickets", numTickets);
+    const currentMembers = form.getValues("groupMembers") || [];
+    if (numTickets - 1 > currentMembers.length) {
+      for (let i = currentMembers.length; i < numTickets - 1; i++) {
+        append({ guestName: "", guestEmail: "" });
+      }
+    } else if (numTickets - 1 < currentMembers.length) {
+      for (let i = currentMembers.length - 1; i >= numTickets - 1; i--) {
+        remove(i);
+      }
+    }
+  };
+
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="bookingType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Booking Type</FormLabel>
+                <Select onValueChange={handleBookingTypeChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select booking type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="single">Single Booking</SelectItem>
+                    <SelectItem value="group">Group Booking</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {form.watch("bookingType") === "group" && (
+            <FormField
+              control={form.control}
+              name="numberOfTickets"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number of Tickets</FormLabel>
+                  <Select onValueChange={handleNumberOfTicketsChange} defaultValue={field.value.toString()}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select number of tickets" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                        <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           <FormField
             control={form.control}
             name="visitDate"
@@ -90,8 +186,39 @@ export default function BookingForm({ activityId, price }: { activityId: string;
               </FormItem>
             )}
           />
+          {form.watch("bookingType") === "group" && fields.map((field, index) => (
+            <div key={field.id} className="space-y-2 border p-4 rounded">
+              <h4 className="font-semibold">Group Member {index + 1}</h4>
+              <FormField
+                control={form.control}
+                name={`groupMembers.${index}.guestName`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Enter name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={`groupMembers.${index}.guestEmail`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="Enter email" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          ))}
           <Button type="submit" disabled={bookMutation.isPending} className="cursor-pointer">
-            {bookMutation.isPending ? "Booking..." : `Book Tour (${price} XAF)`}
+            {bookMutation.isPending ? "Booking..." : `Book Tour (${form.watch("numberOfTickets") * price} XAF)`}
           </Button>
         </form>
       </Form>
@@ -103,7 +230,7 @@ export default function BookingForm({ activityId, price }: { activityId: string;
             <DialogTitle>Complete Payment</DialogTitle>
           </DialogHeader>
           <Elements stripe={stripePromise}>
-            <CheckoutForm onPaymentSuccess={handlePaymentSuccess} amount={price} onClose={() => setIsPaymentDialogOpen(false)}/>
+            <CheckoutForm onPaymentSuccess={handlePaymentSuccess} amount={form.watch("numberOfTickets") * price} onClose={() => setIsPaymentDialogOpen(false)}/>
           </Elements>
         </DialogContent>
       </Dialog>
@@ -115,8 +242,7 @@ export default function BookingForm({ activityId, price }: { activityId: string;
             <DialogTitle>Booking Confirmed!</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
-            <p>Your booking with code <span className="font-semibold">{activityId}</span> has been confirmed.</p>
-            <p>Amount: <span className="font-semibold">{price}</span> XAF</p>
+            <p>Your booking for <span className="font-semibold">{activityName}</span> has been confirmed.</p>
             <p>We&apos;ve sent the details to your email.</p>
           </div>
           <Button

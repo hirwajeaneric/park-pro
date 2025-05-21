@@ -1580,10 +1580,14 @@ export const getDonationById = async (donationId: string): Promise<DonationRespo
 export const bookTour = async ({
   activityId,
   visitDate,
+  numberOfTickets,
+  groupMembers,
   paymentMethodId,
 }: {
   activityId: string;
   visitDate: string;
+  numberOfTickets: number;
+  groupMembers: { guestName?: string; guestEmail?: string }[];
   paymentMethodId: string;
 }) => {
   try {
@@ -1592,7 +1596,7 @@ export const bookTour = async ({
     if (!token) throw new Error('Authentication required');
     const response = await api.post(
       '/api/bookings',
-      { activityId, visitDate },
+      { activityId, visitDate, numberOfTickets, groupMembers },
       {
         headers: {
           Authorization: `Bearer ${token}`,

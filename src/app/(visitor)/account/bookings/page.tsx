@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,20 +14,31 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { getMyBookings } from "@/lib/api";
+import { getMyBookings, getParkActivityDetails } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable } from "@/components/ui/data-table";
 import { BookingResponse } from "@/types";
 
-
 export default function BookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState<BookingResponse | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activityName, setActivityName] = useState<string>("");
 
   const { data: bookings, isLoading } = useQuery({
     queryKey: ["userBookings"],
     queryFn: () => getMyBookings(),
   });
+
+  // Fetch activity name when a booking is selected
+  useEffect(() => {
+    if (selectedBooking?.activityId) {
+      getParkActivityDetails(selectedBooking.activityId)
+        .then((activity) => setActivityName(activity.name))
+        .catch(() => setActivityName("Unknown Activity"));
+    } else {
+      setActivityName("");
+    }
+  }, [selectedBooking]);
 
   const columns: ColumnDef<BookingResponse>[] = [
     {
@@ -49,9 +60,9 @@ export default function BookingsPage() {
           <Badge
             variant={
               status === "CONFIRMED"
-                ? "default"
+                ? "success"
                 : status === "PENDING"
-                ? "secondary"
+                ? "default"
                 : "destructive"
             }
           >
@@ -114,9 +125,13 @@ export default function BookingsPage() {
             </DialogHeader>
             {selectedBooking && (
               <div className="space-y-4">
-                <div>
+                {/* <div>
                   <p className="text-sm text-muted-foreground">Booking ID</p>
                   <p>{selectedBooking.id}</p>
+                </div> */}
+                <div>
+                  <p className="text-sm text-muted-foreground">Activity</p>
+                  <p>{activityName || "Loading..."}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Visit Date</p>
@@ -152,6 +167,23 @@ export default function BookingsPage() {
                     <p>
                       {format(new Date(selectedBooking.confirmedAt), "PPP p")}
                     </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-muted-foreground">Number of Tickets</p>
+                  <p>{selectedBooking.numberOfTickets}</p>
+                </div>
+                {selectedBooking.numberOfTickets > 1 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Group Members</p>
+                    <ul className="list-disc pl-5">
+                      {selectedBooking.groupMembers.map((member, index) => (
+                        <li key={index}>
+                          {member.guestName || `Guest ${index + 1}`}
+                          {member.guestEmail && ` (${member.guestEmail})`}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

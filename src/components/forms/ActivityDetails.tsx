@@ -62,7 +62,7 @@ export default function ActivityDetails({ activity }: { activity: ParkActivityCa
                                     <CardTitle>Book {activity.name}</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <BookingForm activityId={activity.id} price={activity.price} />
+                                    <BookingForm activityId={activity.id} activityName={activity.name} price={activity.price} />
                                 </CardContent>
                             </Card>
                         </TabsContent>

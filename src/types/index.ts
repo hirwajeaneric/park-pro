@@ -414,12 +414,18 @@ export interface BookingResponse {
   amount: number;
   parkId: string;
   visitDate: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
+  status: "CONFIRMED" | "PENDING" | "CANCELLED";
   paymentReference: string;
   currency: string;
   confirmedAt?: string;
   createdAt: string;
   updatedAt: string;
+  numberOfTickets: number;
+  groupMembers: {
+    userId?: string;
+    guestName?: string;
+    guestEmail?: string;
+  }[];
 }
 
 export interface FundingRequestResponse {

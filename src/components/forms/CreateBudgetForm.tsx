@@ -399,7 +399,7 @@ export default function MultiStepCreateBudgetForm() {
 
   return (
     <div className="mx-auto p-6 bg-white shadow-sm border rounded-lg w-full">
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">Create New Budget</h1>
+      {/* <h1 className="text-3xl font-extrabold text-gray-800 mb-8 text-center">Create New Budget</h1> */}
 
       {/* Step Indicator */}
       <div className="mb-8">
