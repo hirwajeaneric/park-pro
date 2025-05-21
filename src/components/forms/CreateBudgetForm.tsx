@@ -131,10 +131,10 @@ export default function MultiStepCreateBudgetForm() {
         })
       );
     } else {
-        // If totalBudgetAmount is 0 or less, reset totalContribution for all streams
-        setIncomeStreams(prevStreams =>
-            prevStreams.map(stream => ({ ...stream, totalContribution: 0 }))
-        );
+      // If totalBudgetAmount is 0 or less, reset totalContribution for all streams
+      setIncomeStreams(prevStreams =>
+        prevStreams.map(stream => ({ ...stream, totalContribution: 0 }))
+      );
     }
   }, [totalBudgetAmount]);
 
@@ -259,45 +259,45 @@ export default function MultiStepCreateBudgetForm() {
     const newPercentage = parseFloat(newPercentageString);
 
     if (isNaN(newPercentage) || newPercentage < 0 || newPercentage > 100) {
-        toast.error('Percentage must be a valid number between 0 and 100.');
-        return;
+      toast.error('Percentage must be a valid number between 0 and 100.');
+      return;
     }
 
     setIncomeStreams((prevStreams) => {
-        const currentStream = prevStreams.find(stream => stream.id === idToUpdate);
-        if (!currentStream) return prevStreams;
+      const currentStream = prevStreams.find(stream => stream.id === idToUpdate);
+      if (!currentStream) return prevStreams;
 
-        const oldPercentage = new Decimal(currentStream.percentage || 0);
-        const newPercentageDecimal = new Decimal(newPercentage);
+      const oldPercentage = new Decimal(currentStream.percentage || 0);
+      const newPercentageDecimal = new Decimal(newPercentage);
 
-        // Calculate total percentage excluding the current stream's old percentage
-        const totalExcludingCurrent = prevStreams.reduce((sum, stream) => {
-            if (stream.id === idToUpdate) return sum; // Exclude the current stream
-            return sum.add(new Decimal(stream.percentage || 0));
-        }, new Decimal(0));
+      // Calculate total percentage excluding the current stream's old percentage
+      const totalExcludingCurrent = prevStreams.reduce((sum, stream) => {
+        if (stream.id === idToUpdate) return sum; // Exclude the current stream
+        return sum.add(new Decimal(stream.percentage || 0));
+      }, new Decimal(0));
 
-        if (totalExcludingCurrent.add(newPercentageDecimal).toNumber() > 100) {
-            toast.error(
-                `New percentage would make total exceed 100%. Current total (excluding this stream): ${totalExcludingCurrent.toFixed(2)}%.`
-            );
-            return prevStreams;
-        }
-
-        const budgetDecimal = new Decimal(totalBudgetAmount);
-        const calculatedContribution = budgetDecimal
-            .mul(newPercentageDecimal)
-            .div(100)
-            .toNumber();
-
-        return prevStreams.map((stream) =>
-            stream.id === idToUpdate
-                ? {
-                    ...stream,
-                    percentage: newPercentage,
-                    totalContribution: calculatedContribution,
-                }
-                : stream
+      if (totalExcludingCurrent.add(newPercentageDecimal).toNumber() > 100) {
+        toast.error(
+          `New percentage would make total exceed 100%. Current total (excluding this stream): ${totalExcludingCurrent.toFixed(2)}%.`
         );
+        return prevStreams;
+      }
+
+      const budgetDecimal = new Decimal(totalBudgetAmount);
+      const calculatedContribution = budgetDecimal
+        .mul(newPercentageDecimal)
+        .div(100)
+        .toNumber();
+
+      return prevStreams.map((stream) =>
+        stream.id === idToUpdate
+          ? {
+            ...stream,
+            percentage: newPercentage,
+            totalContribution: calculatedContribution,
+          }
+          : stream
+      );
     });
   };
 
@@ -321,17 +321,17 @@ export default function MultiStepCreateBudgetForm() {
     const newAllocatedAmount = parseFloat(newAllocatedAmountString);
 
     if (isNaN(newAllocatedAmount) || newAllocatedAmount < 0) { // Allow 0, but not negative
-        toast.error('Allocated amount must be a valid positive number or zero.');
-        return;
+      toast.error('Allocated amount must be a valid positive number or zero.');
+      return;
     }
 
     setBudgetCategories((prevCategories) =>
       prevCategories.map((category) =>
         category.id === idToUpdate
           ? {
-              ...category,
-              allocatedAmount: newAllocatedAmount,
-            }
+            ...category,
+            allocatedAmount: newAllocatedAmount,
+          }
           : category
       )
     );
@@ -656,9 +656,9 @@ export default function MultiStepCreateBudgetForm() {
                           {new Decimal(category.allocatedAmount).toFixed(2)} XAF (
                           {totalBudgetAmount > 0
                             ? new Decimal(category.allocatedAmount)
-                                .div(new Decimal(totalBudgetAmount))
-                                .mul(100)
-                                .toFixed(2)
+                              .div(new Decimal(totalBudgetAmount))
+                              .mul(100)
+                              .toFixed(2)
                             : 'N/A'}%)
                         </p>
                       )}
@@ -748,9 +748,9 @@ export default function MultiStepCreateBudgetForm() {
                       {new Decimal(category.allocatedAmount).toFixed(2)} XAF (
                       {totalBudgetAmount > 0 && category.allocatedAmount >= 0
                         ? new Decimal(category.allocatedAmount)
-                            .div(new Decimal(totalBudgetAmount))
-                            .mul(100)
-                            .toFixed(2)
+                          .div(new Decimal(totalBudgetAmount))
+                          .mul(100)
+                          .toFixed(2)
                         : 'N/A'}
                       %)
                     </p>
@@ -768,16 +768,16 @@ export default function MultiStepCreateBudgetForm() {
               Back
             </button>
             <div>
-                <p className="text-center text-sm text-gray-700 mb-2 font-medium">
-                    By clicking "Submit Budget", this request will be finalized and cannot be reverted.
-                </p>
-                <button
+              <p className="text-center text-sm text-gray-700 mb-2 font-medium">
+                By clicking &quot;Submit Budget&quot;, this request will be finalized and cannot be reverted.
+              </p>
+              <button
                 onClick={handleFinalSubmit}
                 className="w-full bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out"
                 disabled={createBudgetMutation.isPending}
-                >
+              >
                 {createBudgetMutation.isPending ? 'Submitting...' : 'Submit Budget'}
-                </button>
+              </button>
             </div>
           </div>
         </div>
