@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import BookingDetailsCard from "@/components/widget/BookingDetailsCard";
-import { getBookingById } from "@/lib/api";
+import { getBookingById, getParkActivityDetails } from "@/lib/api";
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import { BookingResponse } from "@/types";
 import { Metadata } from "next";
-import { cookies } from "next/headers";
 
 export const dynamicParams = true;
 
@@ -33,8 +32,12 @@ export default async function BookingDetailsPage({ params }: Props) {
   const { bookingId } = await params;
 
   let booking: BookingResponse;
+  let activityName: string;
+
   try {
     booking = await getBookingById(bookingId);
+    const activity = await getParkActivityDetails(booking.activityId);
+    activityName = activity.name;
   } catch (error) {
     return (
       <ProtectedRoute>
@@ -54,7 +57,7 @@ export default async function BookingDetailsPage({ params }: Props) {
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <h1 className="text-2xl font-bold">Booking Details</h1>
-        <BookingDetailsCard booking={booking} />
+        <BookingDetailsCard booking={booking} activityName={activityName} />
       </div>
     </ProtectedRoute>
   );

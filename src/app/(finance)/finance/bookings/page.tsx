@@ -1,4 +1,4 @@
-import ListBookingsTable from "@/components/tables/ListBookingsTable";
+import ListFinanceBookingsTable from "@/components/tables/ListFinanceBookingsTable";
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import { Metadata } from "next";
 
@@ -14,7 +14,7 @@ export default async function BookingsPage() {
         <div className="flex w-full items-center justify-between">
           <h1 className="text-2xl font-bold">Bookings</h1>
         </div>
-        <ListBookingsTable />
+        <ListFinanceBookingsTable />
       </div>
     </ProtectedRoute>
   );
