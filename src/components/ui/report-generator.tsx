@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/ui/report-generator.tsx
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -56,7 +55,7 @@ export function ReportGenerator<T>({
   descriptionText,
   totalCalculator,
   fileName = 'report',
-  logoSrc = '/images/system-logo.png', // Default logo path
+  logoSrc = '/images/system-logo.png',
   systemName = 'ParkPro System',
   systemAddress = 'Kigali, Rwanda',
   systemContact = '+250 788 123 456 | info@parkpro.com',
@@ -153,7 +152,7 @@ export function ReportGenerator<T>({
         const imgWidth = 20; // Adjust as needed
         const imgHeight = (img.height * imgWidth) / img.width;
         doc.addImage(img, 'PNG', 15, 10, imgWidth, imgHeight);
-        
+
         doc.setFontSize(10);
         doc.text(systemName, 40, 15);
         doc.text(systemAddress, 40, 20);
@@ -168,7 +167,7 @@ export function ReportGenerator<T>({
           doc.setFont('helvetica', 'normal');
           doc.text(reportSubtitle, 105, 47, { align: 'center' });
         }
-        
+
         doc.setFontSize(10);
         doc.setFont('helvetica', 'italic');
         doc.text(getReportPeriodText(), 105, 54, { align: 'center' });
@@ -195,8 +194,8 @@ export function ReportGenerator<T>({
               return `${value.toFixed(2)}`; // Format as currency, assuming no symbol yet
             }
             if (col.type === 'badge' && col.badgeMap) {
-                // Return raw value, handle badge styling in autoTable hook if possible or simplify
-                return String(value).toUpperCase();
+              // Return raw value, handle badge styling in autoTable hook if possible or simplify
+              return String(value).toUpperCase();
             }
             return String(value || ''); // Ensure string
           })
@@ -276,7 +275,7 @@ export function ReportGenerator<T>({
       doc.setFont('helvetica', 'normal');
       doc.text(reportSubtitle, 105, 47, { align: 'center' });
     }
-    
+
     doc.setFontSize(10);
     doc.setFont('helvetica', 'italic');
     doc.text(getReportPeriodText(), 105, 54, { align: 'center' });
@@ -302,7 +301,7 @@ export function ReportGenerator<T>({
           return `${value.toFixed(2)}`;
         }
         if (col.type === 'badge' && col.badgeMap) {
-            return String(value).toUpperCase();
+          return String(value).toUpperCase();
         }
         return String(value || '');
       })
@@ -342,7 +341,6 @@ export function ReportGenerator<T>({
     getReportPeriodText,
   ]);
 
-
   const generateExcel = useCallback(() => {
     const ws_data: any[][] = [];
 
@@ -371,7 +369,7 @@ export function ReportGenerator<T>({
           return value.toFixed(2);
         }
         if (col.type === 'badge') {
-            return String(value).toUpperCase();
+          return String(value).toUpperCase();
         }
         return String(value || '');
       });
@@ -468,7 +466,7 @@ export function ReportGenerator<T>({
           </Button>
           <Button onClick={generateExcel} className="flex items-center">
             <FileSpreadsheet className="mr-2 h-4 w-4" /> Generate Excel
-          </Button>
+          </Button> 
         </div>
       </PopoverContent>
     </Popover>

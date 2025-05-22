@@ -1,4 +1,3 @@
-// components/tables/finance/donations-table.tsx
 'use client';
 
 import { useState } from 'react';
@@ -25,13 +24,13 @@ export default function DonationsTable() {
   const { data: donations = [], isLoading } = useQuery<DonationResponse[]>({
     queryKey: ['donations', parkId, selectedFiscalYear],
     queryFn: () => {
-        if (!parkId) return Promise.resolve([]); // Don't fetch if parkId is not available
-        return getDonationsByParkAndFiscalYear(parkId, selectedFiscalYear);
+      if (!parkId) return Promise.resolve([]); // Don't fetch if parkId is not available
+      return getDonationsByParkAndFiscalYear(parkId, selectedFiscalYear);
     },
     enabled: !!parkId, // Only enable query if parkId exists
   });
 
-  const years = Array.from({ length: 31 }, (_, i) => 2000 + i);
+  const years = Array.from({ length: 10 }, (_, i) => 2020 + i);
 
   const columns: ColumnDef<DonationResponse>[] = [
     {
@@ -134,24 +133,23 @@ export default function DonationsTable() {
             ))}
           </SelectContent>
         </Select>
-        {/* ReportGenerator placed here, beside the fiscal year filter */}
         <ReportGenerator
-            data={donations}
-            columnsConfig={donationReportColumns}
-            reportTitle="Park Donations Report"
-            reportSubtitle={`Donations for Park ID: ${parkId || 'N/A'}`}
-            descriptionText="This report details all donations received by the park, including donor information, amounts, and fiscal year."
-            totalCalculator={calculateTotalDonationsAmount}
-            fileName="park_donations_report"
-            enableFiltering={false} // Disable filtering inside ReportGenerator since we have fiscal year filter here
-            // onFilteredDataChange={handleFilteredDonationsChange} // Enable if you need to react to internal filtering
+          data={donations}
+          columnsConfig={donationReportColumns}
+          reportTitle="Park Donations Report"
+          reportSubtitle={`Donations for Park ID: ${parkId || 'N/A'}`}
+          descriptionText="This report details all donations received by the park, including donor information, amounts, and fiscal year."
+          totalCalculator={calculateTotalDonationsAmount}
+          fileName="park_donations_report"
+          enableFiltering={false} // Disable filtering inside ReportGenerator since we have fiscal year filter here
+          onFilteredDataChange={handleFilteredDonationsChange} // Enable if you need to react to internal filtering
         />
       </div>
       <DataTable
         columns={columns}
         data={donations}
         isLoading={isLoading}
-        searchKey="id" // Search key for DataTable's internal search
+        searchKey="amount"
       />
     </div>
   );
