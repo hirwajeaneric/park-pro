@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { listBudgetsByPark, listExpensesByBudget } from '@/lib/api';
 import { Budget, Expense } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function ExpenseDisplayFinance() {
     const router = useRouter();
@@ -92,6 +93,14 @@ export default function ExpenseDisplayFinance() {
         },
     ];
 
+    const reportColumns = [
+        { label: 'Amount', value: 'amount' },
+        { label: 'Description', value: 'description' },
+        { label: 'Category', value: 'budgetCategoryName' },
+        { label: 'Audit Status', value: 'auditStatus' },
+        { label: 'Created At', value: 'createdAt' },
+    ];
+
     return (
         <>
             {!parkId ? (
@@ -101,40 +110,55 @@ export default function ExpenseDisplayFinance() {
             ) : budgets.length === 0 ? (
                 <p>No budgets found for this park.</p>
             ) : (
-                <Tabs
-                    value={selectedBudgetId || ''}
-                    onValueChange={setSelectedBudgetId}
-                    className="space-y-4"
-                >
-                    <TabsList>
+                <div className="space-y-6">
+                    <ReportExport
+                        title="Expenses Report"
+                        subtitle={`Fiscal Year: ${budgets.find((budget: Budget) => budget.id === selectedBudgetId)?.fiscalYear || ''}`}
+                        description="Detailed report of all expenses for the selected fiscal year"
+                        columns={reportColumns}
+                        data={expenses.map(expense => ({
+                            ...expense,
+                            amount: `${expense.amount} ${expense.currency}`,
+                            createdAt: format(new Date(expense.createdAt), 'MMM dd, yyyy')
+                        }))}
+                        fileName={`expenses-report-${budgets.find((budget: Budget) => budget.id === selectedBudgetId)?.fiscalYear || ''}`}
+                    />
+                    
+                    <Tabs
+                        value={selectedBudgetId || ''}
+                        onValueChange={setSelectedBudgetId}
+                        className="space-y-4"
+                    >
+                        <TabsList>
+                            {budgets.map((budget: Budget) => (
+                                <TabsTrigger key={budget.id} value={budget.id}>
+                                    {budget.fiscalYear}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
                         {budgets.map((budget: Budget) => (
-                            <TabsTrigger key={budget.id} value={budget.id}>
-                                {budget.fiscalYear}
-                            </TabsTrigger>
+                            <TabsContent key={budget.id} value={budget.id}>
+                                <DataTable
+                                    columns={columns}
+                                    data={expenses}
+                                    isLoading={isExpensesLoading}
+                                    searchKey="description"
+                                    filters={[
+                                        {
+                                            column: 'auditStatus',
+                                            title: 'Audit Status',
+                                            options: [
+                                                { label: 'Passed', value: 'PASSED' },
+                                                { label: 'Failed', value: 'FAILED' },
+                                                { label: 'Unjustified', value: 'UNJUSTIFIED' },
+                                            ],
+                                        },
+                                    ]}
+                                />
+                            </TabsContent>
                         ))}
-                    </TabsList>
-                    {budgets.map((budget: Budget) => (
-                        <TabsContent key={budget.id} value={budget.id}>
-                            <DataTable
-                                columns={columns}
-                                data={expenses}
-                                isLoading={isExpensesLoading}
-                                searchKey="description"
-                                filters={[
-                                    {
-                                        column: 'auditStatus',
-                                        title: 'Audit Status',
-                                        options: [
-                                            { label: 'Passed', value: 'PASSED' },
-                                            { label: 'Failed', value: 'FAILED' },
-                                            { label: 'Unjustified', value: 'UNJUSTIFIED' },
-                                        ],
-                                    },
-                                ]}
-                            />
-                        </TabsContent>
-                    ))}
-                </Tabs>
+                    </Tabs>
+                </div>
             )}
         </>
     );

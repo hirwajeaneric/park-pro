@@ -10,7 +10,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   const opportunity = await getOpportunityById(id);
   return {
     title: `Apply for ${opportunity.title}`,

@@ -12,17 +12,22 @@ import { createOpportunityApplication } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Link from "next/link";
-import { FileUpload } from "@/components/ui/file-upload";
+import { useState } from "react";
+import { storage } from "@/configs/firebase";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { Loader2, Upload } from "lucide-react";
 
 const ApplicationFormSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  applicationLetterUrl: z.string().min(10, "Application letter must be at least 10 characters"),
+  applicationLetterUrl: z.string().min(1, "Application letter is required").url("Must be a valid URL"),
 });
 
 export default function ApplicationForm({ opportunity }: { opportunity: any }) {
   const { user } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+
   const form = useForm<z.infer<typeof ApplicationFormSchema>>({
     resolver: zodResolver(ApplicationFormSchema),
     defaultValues: {
@@ -32,6 +37,57 @@ export default function ApplicationForm({ opportunity }: { opportunity: any }) {
       applicationLetterUrl: "",
     },
   });
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const storageRef = ref(storage, `applications/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        null,
+        reject,
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (error) {
+            reject(error);
+          }
+        }
+      );
+    });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (PDF or DOC/DOCX)
+    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please upload a PDF or Word document');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size should be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileUrl = await uploadFile(file);
+      form.setValue('applicationLetterUrl', fileUrl, { shouldValidate: true });
+      toast.success("File uploaded successfully");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      toast.error("Failed to upload file");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const applicationMutation = useMutation({
     mutationFn: (data: z.infer<typeof ApplicationFormSchema>) => 
@@ -115,11 +171,49 @@ export default function ApplicationForm({ opportunity }: { opportunity: any }) {
                 <FormItem>
                   <FormLabel>Cover Letter and CV</FormLabel>
                   <FormControl>
-                    <FileUpload
-                      endpoint="resumeUpload"
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={handleFileUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                          id="application-file-upload"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploading}
+                          onClick={() => document.getElementById('application-file-upload')?.click()}
+                        >
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-4 w-4" />
+                              Upload Document
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      {field.value && (
+                        <div className="mt-2">
+                          <a 
+                            href={field.value} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            View uploaded document
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,0 +1,305 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { format } from 'date-fns';
+import { CalendarIcon, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { DateRange } from 'react-day-picker';
+
+interface Column {
+    label: string;
+    value: string;
+}
+
+interface ReportExportProps {
+    title: string;
+    subtitle?: string;
+    description?: string;
+    columns: Column[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any[];
+    fileName?: string;
+}
+
+export default function ReportExport({
+    title,
+    subtitle,
+    description,
+    columns,
+    data,
+    fileName = 'report'
+}: ReportExportProps) {
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: undefined,
+        to: undefined,
+    });
+    const [selectedMonth, setSelectedMonth] = useState<string>('all');
+    const [selectedYear, setSelectedYear] = useState<string>('all');
+
+    const getFilteredData = () => {
+        let filteredData = [...data];
+        
+        if (dateRange?.from && dateRange?.to) {
+            filteredData = filteredData.filter(item => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate >= dateRange.from! && itemDate <= dateRange.to!;
+            });
+        }
+        
+        if (selectedMonth && selectedMonth !== 'all') {
+            filteredData = filteredData.filter(item => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate.getMonth() === parseInt(selectedMonth);
+            });
+        }
+        
+        if (selectedYear && selectedYear !== 'all') {
+            filteredData = filteredData.filter(item => {
+                const itemDate = new Date(item.createdAt);
+                return itemDate.getFullYear() === parseInt(selectedYear);
+            });
+        }
+        
+        return filteredData;
+    };
+
+    const generateExcel = () => {
+        const filteredData = getFilteredData();
+        const worksheet = XLSX.utils.json_to_sheet(filteredData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Report');
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
+
+    const generatePDF = async () => {
+        try {
+            console.log('Starting PDF generation...');
+            const filteredData = getFilteredData();
+            console.log('Filtered data:', filteredData);
+
+            if (!filteredData || filteredData.length === 0) {
+                throw new Error('No data available to export');
+            }
+
+            const doc = new jsPDF();
+            console.log('PDF document created');
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 20;
+            let yPosition = 20;
+
+            // Load and add logo
+            try {
+                console.log('Attempting to load logo...');
+                // Try loading the logo from the public directory
+                const logoUrl = '/public/images/system-logo.png';
+                console.log('Logo URL:', logoUrl);
+                
+                const logoResponse = await fetch(logoUrl);
+                if (!logoResponse.ok) {
+                    throw new Error(`Failed to load logo: ${logoResponse.status} ${logoResponse.statusText}`);
+                }
+                
+                const logoBlob = await logoResponse.blob();
+                console.log('Logo blob loaded:', logoBlob.type, logoBlob.size);
+                
+                const logoBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        console.log('Logo converted to base64');
+                        resolve(reader.result);
+                    };
+                    reader.onerror = (error) => {
+                        console.error('Error converting logo to base64:', error);
+                        resolve(null);
+                    };
+                    reader.readAsDataURL(logoBlob);
+                });
+
+                if (logoBase64) {
+                    console.log('Adding logo to PDF...');
+                    doc.addImage(logoBase64 as string, 'PNG', margin, yPosition, 30, 30);
+                    console.log('Logo added to PDF');
+                } else {
+                    console.error('Failed to convert logo to base64');
+                }
+            } catch (error) {
+                console.error('Error loading logo:', error);
+                // Continue without the logo
+            }
+
+            // Add company info on the right
+            doc.setFontSize(10);
+            doc.text('ParkPro', pageWidth - margin - 60, yPosition);
+            yPosition += 5;
+            doc.text('123 Business Street', pageWidth - margin - 60, yPosition);
+            yPosition += 5;
+            doc.text('City, Country', pageWidth - margin - 60, yPosition);
+            yPosition += 5;
+            doc.text(`Generated on: ${format(new Date(), 'MMMM dd, yyyy')}`, pageWidth - margin - 60, yPosition);
+
+            // Move down for title and subtitle
+            yPosition += 20;
+
+            // Add title
+            doc.setFontSize(20);
+            doc.text(title, pageWidth / 2, yPosition, { align: 'center' });
+            yPosition += 10;
+
+            // Add subtitle if exists
+            if (subtitle) {
+                doc.setFontSize(16);
+                doc.text(subtitle, pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 10;
+            }
+
+            // Add description if exists
+            if (description) {
+                doc.setFontSize(12);
+                const splitDescription = doc.splitTextToSize(description, pageWidth - (margin * 2));
+                doc.text(splitDescription, margin, yPosition);
+                yPosition += splitDescription.length * 7;
+            }
+
+            // Add table
+            console.log('Preparing table data...');
+            const tableColumn = columns.map(col => col.label);
+            console.log('Table columns:', tableColumn);
+
+            const tableRows = filteredData.map(item => {
+                try {
+                    return columns.map(col => {
+                        const value = item[col.value];
+                        if (value === undefined || value === null) {
+                            return '';
+                        }
+                        if (value && typeof value === 'string' && value.match(/^\d{4}-\d{2}-\d{2}/)) {
+                            return format(new Date(value), 'MMM dd, yyyy');
+                        }
+                        if (typeof value === 'number') {
+                            return value.toLocaleString();
+                        }
+                        return String(value);
+                    });
+                } catch (error) {
+                    console.error('Error processing row:', error);
+                    return columns.map(() => '');
+                }
+            });
+            console.log('Table rows prepared:', tableRows);
+
+            autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: yPosition + 10,
+                margin: { left: margin },
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3,
+                },
+                headStyles: {
+                    fillColor: [41, 128, 185],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245],
+                },
+                columnStyles: {
+                    0: { cellWidth: 'auto' },
+                },
+            });
+            console.log('Table added to PDF');
+
+            doc.save(`${fileName}.pdf`);
+            console.log('PDF saved successfully');
+        } catch (error) {
+            console.error('Detailed error in PDF generation:', error);
+            alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="flex flex-wrap gap-4 items-center">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-[240px] justify-start text-left font-normal">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {dateRange?.from ? (
+                                dateRange?.to ? (
+                                    <>
+                                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                                        {format(dateRange.to, "LLL dd, y")}
+                                    </>
+                                ) : (
+                                    format(dateRange.from, "LLL dd, y")
+                                )
+                            ) : (
+                                <span>Pick a date range</span>
+                            )}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={dateRange?.from}
+                            selected={dateRange}
+                            onSelect={setDateRange}
+                            numberOfMonths={2}
+                        />
+                    </PopoverContent>
+                </Popover>
+
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select month" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All months</SelectItem>
+                        {Array.from({ length: 12 }, (_, i) => (
+                            <SelectItem key={i} value={i.toString()}>
+                                {format(new Date(2024, i), 'MMMM')}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All years</SelectItem>
+                        {Array.from({ length: 5 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return (
+                                <SelectItem key={year} value={year.toString()}>
+                                    {year}
+                                </SelectItem>
+                            );
+                        })}
+                    </SelectContent>
+                </Select>
+
+                <div className="flex gap-2">
+                    <Button onClick={generatePDF} variant="outline" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Export PDF
+                    </Button>
+                    <Button onClick={generateExcel} variant="outline" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Export Excel
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}

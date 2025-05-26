@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { listBudgetsByPark, listWithdrawRequestsByBudget } from '@/lib/api';
 import { Budget, WithdrawRequest } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function WithdrawRequestDisplayFinance() {
   const router = useRouter();
@@ -105,6 +106,15 @@ export default function WithdrawRequestDisplayFinance() {
     },
   ];
 
+  const reportColumns = [
+    { label: 'Amount', value: 'amount' },
+    { label: 'Reason', value: 'reason' },
+    { label: 'Category', value: 'budgetCategoryName' },
+    { label: 'Status', value: 'status' },
+    { label: 'Audit Status', value: 'auditStatus' },
+    { label: 'Created At', value: 'createdAt' },
+  ];
+
   return (
     <>
       {!parkId ? (
@@ -114,49 +124,64 @@ export default function WithdrawRequestDisplayFinance() {
       ) : budgets.length === 0 ? (
         <p>No budgets found for this park.</p>
       ) : (
-        <Tabs
-          value={selectedBudgetId || ''}
-          onValueChange={setSelectedBudgetId}
-          className="space-y-4"
-        >
-          <TabsList>
+        <div className="space-y-6">
+          <ReportExport
+            title="Withdraw Requests Report"
+            subtitle={`Fiscal Year: ${budgets.find((budget: Budget) => budget.id === selectedBudgetId)?.fiscalYear || ''}`}
+            description="Detailed report of all withdraw requests for the selected fiscal year"
+            columns={reportColumns}
+            data={withdrawRequests.map(request => ({
+              ...request,
+              amount: `${request.amount} ${request.currency}`,
+              createdAt: format(new Date(request.createdAt), 'MMM dd, yyyy')
+            }))}
+            fileName={`withdraw-requests-report-${budgets.find((budget: Budget) => budget.id === selectedBudgetId)?.fiscalYear || ''}`}
+          />
+          
+          <Tabs
+            value={selectedBudgetId || ''}
+            onValueChange={setSelectedBudgetId}
+            className="space-y-4"
+          >
+            <TabsList>
+              {budgets.map((budget: Budget) => (
+                <TabsTrigger key={budget.id} value={budget.id}>
+                  {budget.fiscalYear}
+                </TabsTrigger>
+              ))}
+            </TabsList>
             {budgets.map((budget: Budget) => (
-              <TabsTrigger key={budget.id} value={budget.id}>
-                {budget.fiscalYear}
-              </TabsTrigger>
+              <TabsContent key={budget.id} value={budget.id}>
+                <DataTable
+                  columns={columns}
+                  data={withdrawRequests}
+                  isLoading={isRequestsLoading}
+                  searchKey="reason"
+                  filters={[
+                    {
+                      column: 'status',
+                      title: 'Status',
+                      options: [
+                        { label: 'Pending', value: 'PENDING' },
+                        { label: 'Approved', value: 'APPROVED' },
+                        { label: 'Rejected', value: 'REJECTED' },
+                      ],
+                    },
+                    {
+                      column: 'auditStatus',
+                      title: 'Audit Status',
+                      options: [
+                        { label: 'Passed', value: 'PASSED' },
+                        { label: 'Failed', value: 'FAILED' },
+                        { label: 'Unjustified', value: 'UNJUSTIFIED' },
+                      ],
+                    },
+                  ]}
+                />
+              </TabsContent>
             ))}
-          </TabsList>
-          {budgets.map((budget: Budget) => (
-            <TabsContent key={budget.id} value={budget.id}>
-              <DataTable
-                columns={columns}
-                data={withdrawRequests}
-                isLoading={isRequestsLoading}
-                searchKey="reason"
-                filters={[
-                  {
-                    column: 'status',
-                    title: 'Status',
-                    options: [
-                      { label: 'Pending', value: 'PENDING' },
-                      { label: 'Approved', value: 'APPROVED' },
-                      { label: 'Rejected', value: 'REJECTED' },
-                    ],
-                  },
-                  {
-                    column: 'auditStatus',
-                    title: 'Audit Status',
-                    options: [
-                      { label: 'Passed', value: 'PASSED' },
-                      { label: 'Failed', value: 'FAILED' },
-                      { label: 'Unjustified', value: 'UNJUSTIFIED' },
-                    ],
-                  },
-                ]}
-              />
-            </TabsContent>
-          ))}
-        </Tabs>
+          </Tabs>
+        </div>
       )}
     </>
   );
