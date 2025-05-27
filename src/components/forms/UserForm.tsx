@@ -137,7 +137,7 @@ export default function UserForm() {
                     <SelectItem value="VISITOR">Visitor</SelectItem>
                     <SelectItem value="ADMIN">Admin</SelectItem>
                     <SelectItem value="FINANCE_OFFICER">Finance Officer</SelectItem>
-                    <SelectItem value="PARK_MANAGER">Park Manager</SelectItem>
+                    <SelectItem value="PARK_MANAGER">Park Staff</SelectItem>
                     <SelectItem value="GOVERNMENT_OFFICER">Government Officer</SelectItem>
                     <SelectItem value="AUDITOR">Auditor</SelectItem>
                   </SelectContent>

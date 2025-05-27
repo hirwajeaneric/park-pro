@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { listBudgetsByPark } from '@/lib/api';
 import { Budget } from '@/types';
 import FundingRequestsTable from '@/components/tables/FundingRequestsTable';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function FundingRequestsTabs() {
   const [parkId, setParkId] = useState<string | null>(null);
@@ -60,19 +61,35 @@ export default function FundingRequestsTabs() {
   }
 
   return (
-    <Tabs value={selectedBudgetId || sortedBudgets[0].id} onValueChange={setSelectedBudgetId} className="space-y-4">
-      <TabsList className="flex flex-wrap">
+    <div className="space-y-4">
+      <ReportExport
+        title="Funding Requests Report"
+        subtitle={`Fiscal Year ${sortedBudgets.find(b => b.id === selectedBudgetId)?.fiscalYear}`}
+        description="This report contains all funding requests for the selected fiscal year."
+        columns={[
+          { label: 'Request ID', value: 'id' },
+          { label: 'Title', value: 'title' },
+          { label: 'Amount', value: 'amount' },
+          { label: 'Status', value: 'status' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={[]} // This will be populated by the FundingRequestsTable component
+        fileName="funding-requests-report"
+      />
+      <Tabs value={selectedBudgetId || sortedBudgets[0].id} onValueChange={setSelectedBudgetId} className="space-y-4">
+        <TabsList className="flex flex-wrap">
+          {sortedBudgets.map((budget) => (
+            <TabsTrigger key={budget.id} value={budget.id} className="px-4 py-2">
+              FY {budget.fiscalYear}
+            </TabsTrigger>
+          ))}
+        </TabsList>
         {sortedBudgets.map((budget) => (
-          <TabsTrigger key={budget.id} value={budget.id} className="px-4 py-2">
-            FY {budget.fiscalYear}
-          </TabsTrigger>
+          <TabsContent key={budget.id} value={budget.id}>
+            <FundingRequestsTable budgetId={budget.id} />
+          </TabsContent>
         ))}
-      </TabsList>
-      {sortedBudgets.map((budget) => (
-        <TabsContent key={budget.id} value={budget.id}>
-          <FundingRequestsTable budgetId={budget.id} />
-        </TabsContent>
-      ))}
-    </Tabs>
+      </Tabs>
+    </div>
   );
 }

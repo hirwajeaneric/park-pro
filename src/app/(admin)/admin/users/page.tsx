@@ -7,6 +7,7 @@ import { getUsers } from '@/lib/api';
 import { User } from '@/types';
 import { cookies } from 'next/headers';
 import ProtectedRoute from '@/lib/ProtectedRoute';
+import ReportExport from '@/components/reports/ReportExport';
 
 export const metadata: Metadata = {
   title: 'Users - Admin Dashboard',
@@ -44,7 +45,21 @@ export default async function UsersPage() {
               Add User
             </a>
           </div>
-          <div className="mt-6">
+          <div className="mt-6 space-y-4">
+            <ReportExport
+              title="Users Report"
+              description="This report contains all users in the system."
+              columns={[
+                { label: 'First Name', value: 'firstName' },
+                { label: 'Last Name', value: 'lastName' },
+                { label: 'Email', value: 'email' },
+                { label: 'Role', value: 'role' },
+                { label: 'Status', value: 'status' },
+                { label: 'Created At', value: 'createdAt' },
+              ]}
+              data={users}
+              fileName="users-report"
+            />
             <UsersTable users={users} isLoading={false} />
           </div>
         </div>

@@ -12,7 +12,7 @@ import { getDonationsByParkAndFiscalYear } from '@/lib/api';
 import { DonationResponse } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '../ui/badge';
-import { ReportGenerator, ReportColumnConfig } from "@/components/ui/report-generator"; // Import ReportGenerator
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function DonationsTable() {
   const [selectedFiscalYear, setSelectedFiscalYear] = useState<number>(new Date().getFullYear());
@@ -85,37 +85,6 @@ export default function DonationsTable() {
     },
   ];
 
-  // Define columns for the report generator
-  const donationReportColumns: ReportColumnConfig<DonationResponse>[] = [
-    { key: 'id', title: 'Donation ID' },
-    { key: 'donorName', title: 'Donor Name' },
-    { key: 'amount', title: 'Amount', type: 'currency' },
-    { key: 'currency', title: 'Currency' },
-    { key: 'status', title: 'Status', type: 'badge', badgeMap: { 'CONFIRMED': 'success', 'CANCELLED': 'destructive', 'PENDING': 'default' } },
-    { key: 'paymentReference', title: 'Payment Ref' },
-    { key: 'motiveForDonation', title: 'Motive' },
-    { key: 'fiscalYear', title: 'Fiscal Year', type: 'number' },
-    { key: 'createdAt', title: 'Donated At', type: 'date' },
-  ];
-
-  // Total calculator for donations
-  const calculateTotalDonationsAmount = (filteredDonations: DonationResponse[]) => {
-    const total = filteredDonations.reduce((sum, donation) => sum + donation.amount, 0);
-    // Assuming currency is XAF for display, adjust if needed
-    return `${total.toFixed(2)} XAF`;
-  };
-
-  // Callback for when filtered data changes within ReportGenerator.
-  // This can be used to update other parts of the UI if needed,
-  // but for this specific table, we're relying on the ReportGenerator's internal filtering.
-  // If you want the DataTable to also filter, you'd need to lift the filteredData state up.
-  const handleFilteredDonationsChange = (filtered: DonationResponse[], startDate?: Date, endDate?: Date) => {
-    console.log('Filtered donations in ReportGenerator:', filtered.length, 'from', startDate, 'to', endDate);
-    // If you wanted the DataTable to reflect this filtering, you would set a state here:
-    // setDisplayedDonations(filtered);
-  };
-
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -133,18 +102,21 @@ export default function DonationsTable() {
             ))}
           </SelectContent>
         </Select>
-        <ReportGenerator
-          data={donations}
-          columnsConfig={donationReportColumns}
-          reportTitle="Park Donations Report"
-          reportSubtitle={`Donations for Park ID: ${parkId || 'N/A'}`}
-          descriptionText="This report details all donations received by the park, including donor information, amounts, and fiscal year."
-          totalCalculator={calculateTotalDonationsAmount}
-          fileName="park_donations_report"
-          enableFiltering={false} // Disable filtering inside ReportGenerator since we have fiscal year filter here
-          onFilteredDataChange={handleFilteredDonationsChange} // Enable if you need to react to internal filtering
-        />
       </div>
+      <ReportExport
+        title="Donations Report"
+        subtitle={`Fiscal Year ${selectedFiscalYear}`}
+        description="This report contains all donations for the selected fiscal year."
+        columns={[
+          { label: 'Amount', value: 'amount' },
+          { label: 'Donor Name', value: 'donorName' },
+          { label: 'Status', value: 'status' },
+          { label: 'Motive', value: 'motiveForDonation' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={donations}
+        fileName={`donations-report-fy${selectedFiscalYear}`}
+      />
       <DataTable
         columns={columns}
         data={donations}

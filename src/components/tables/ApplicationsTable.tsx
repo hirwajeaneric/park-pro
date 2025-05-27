@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { OpportunityApplicationResponse } from '@/types';
 import { getApplicationsByPark } from '@/lib/api';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function ApplicationsTable() {
 
@@ -68,6 +69,20 @@ export default function ApplicationsTable() {
 
     return (
         <div className="space-y-4">
+            <ReportExport
+                title="Applications Report"
+                description="This report contains all applications for opportunities."
+                columns={[
+                    { label: 'Applicant Name', value: 'firstName' },
+                    { label: 'Last Name', value: 'lastName' },
+                    { label: 'Opportunity ID', value: 'opportunityId' },
+                    { label: 'Email', value: 'email' },
+                    { label: 'Status', value: 'status' },
+                    { label: 'Created At', value: 'createdAt' },
+                ]}
+                data={applications}
+                fileName="applications-report"
+            />
             <DataTable
                 columns={columns}
                 data={applications}

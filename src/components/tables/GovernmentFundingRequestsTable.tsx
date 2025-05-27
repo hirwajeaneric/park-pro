@@ -13,6 +13,7 @@ import { getFundingRequestsByFiscalYear } from '@/lib/api';
 import { FundingRequestResponse } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '../ui/badge';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function GovernmentFundingRequestsTable() {
   const [selectedFiscalYear, setSelectedFiscalYear] = useState<number>(new Date().getFullYear());
@@ -111,6 +112,21 @@ export default function GovernmentFundingRequestsTable() {
           </SelectContent>
         </Select>
       </div>
+      <ReportExport
+        title="Funding Requests Report"
+        subtitle={`Fiscal Year ${selectedFiscalYear}`}
+        description="This report contains all funding requests for the selected fiscal year."
+        columns={[
+          { label: 'Park Name', value: 'parkName' },
+          { label: 'Requested Amount', value: 'requestedAmount' },
+          { label: 'Approved Amount', value: 'approvedAmount' },
+          { label: 'Request Type', value: 'requestType' },
+          { label: 'Status', value: 'status' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={requests}
+        fileName={`funding-requests-report-fy${selectedFiscalYear}`}
+      />
       <DataTable
         columns={columns}
         data={requests}

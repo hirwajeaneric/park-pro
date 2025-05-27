@@ -12,6 +12,7 @@ import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { getBudgetsByFiscalYear } from '@/lib/api';
 import { BudgetByFiscalYearResponse } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 // Define fiscal years (current year and previous 3 years)
 const currentYear = new Date().getFullYear();
@@ -111,23 +112,40 @@ export default function BudgetDisplayAuditor() {
           </TabsList>
           {fiscalYears.map((year) => (
             <TabsContent key={year} value={year.toString()}>
-              <DataTable
-                columns={columns}
-                data={budgets}
-                isLoading={isBudgetsLoading}
-                searchKey="parkName"
-                filters={[
-                  {
-                    column: 'status',
-                    title: 'Status',
-                    options: [
-                      { label: 'Draft', value: 'DRAFT' },
-                      { label: 'Approved', value: 'APPROVED' },
-                      { label: 'Rejected', value: 'REJECTED' },
-                    ],
-                  },
-                ]}
-              />
+              <div className="space-y-4">
+                <ReportExport
+                  title="Budgets Report"
+                  subtitle={`Fiscal Year ${year}`}
+                  description="This report contains all budgets for the selected fiscal year."
+                  columns={[
+                    { label: 'Park Name', value: 'parkName' },
+                    { label: 'Fiscal Year', value: 'fiscalYear' },
+                    { label: 'Total Amount', value: 'totalAmount' },
+                    { label: 'Balance', value: 'balance' },
+                    { label: 'Status', value: 'status' },
+                    { label: 'Created At', value: 'createdAt' },
+                  ]}
+                  data={budgets}
+                  fileName={`budgets-report-fy${year}`}
+                />
+                <DataTable
+                  columns={columns}
+                  data={budgets}
+                  isLoading={isBudgetsLoading}
+                  searchKey="parkName"
+                  filters={[
+                    {
+                      column: 'status',
+                      title: 'Status',
+                      options: [
+                        { label: 'Draft', value: 'DRAFT' },
+                        { label: 'Approved', value: 'APPROVED' },
+                        { label: 'Rejected', value: 'REJECTED' },
+                      ],
+                    },
+                  ]}
+                />
+              </div>
             </TabsContent>
           ))}
         </Tabs>

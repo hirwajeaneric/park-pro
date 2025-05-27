@@ -10,6 +10,7 @@ import { BookingResponse } from "@/types";
 import { format } from "date-fns";
 import { getBookingsByPark } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
+import ReportExport from "@/components/reports/ReportExport";
 
 export default function ListBookingsTable() {
     const router = useRouter();
@@ -91,22 +92,38 @@ export default function ListBookingsTable() {
     ];
 
     return (
-        <DataTable
-            columns={columns}
-            data={bookings}
-            isLoading={isLoading}
-            searchKey="id"
-            filters={[
-                {
-                    column: "status",
-                    title: "Status",
-                    options: [
-                        { label: "Pending", value: "PENDING" },
-                        { label: "Confirmed", value: "CONFIRMED" },
-                        { label: "Cancelled", value: "CANCELLED" },
-                    ],
-                },
-            ]}
-        />
+        <div className="space-y-4">
+            <ReportExport
+                title="Bookings Report"
+                description="This report contains all bookings for the park."
+                columns={[
+                    { label: 'Booking ID', value: 'id' },
+                    { label: 'Park ID', value: 'parkId' },
+                    { label: 'Amount', value: 'amount' },
+                    { label: 'Currency', value: 'currency' },
+                    { label: 'Visit Date', value: 'visitDate' },
+                    { label: 'Status', value: 'status' },
+                ]}
+                data={bookings}
+                fileName="bookings-report"
+            />
+            <DataTable
+                columns={columns}
+                data={bookings}
+                isLoading={isLoading}
+                searchKey="id"
+                filters={[
+                    {
+                        column: "status",
+                        title: "Status",
+                        options: [
+                            { label: "Pending", value: "PENDING" },
+                            { label: "Confirmed", value: "CONFIRMED" },
+                            { label: "Cancelled", value: "CANCELLED" },
+                        ],
+                    },
+                ]}
+            />
+        </div>
     );
 }

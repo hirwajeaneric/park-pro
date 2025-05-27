@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { getOpportunitiesByParkId } from '@/lib/api';
 import { Opportunity } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function OpportunityDisplay() {
   const router = useRouter();
@@ -95,39 +96,55 @@ export default function OpportunityDisplay() {
       ) : opportunities.length === 0 ? (
         <p>No opportunities found for this park.</p>
       ) : (
-        <DataTable
-          columns={columns}
-          data={opportunities}
-          isLoading={isOpportunitiesLoading}
-          searchKey="title"
-          filters={[
-            {
-              column: 'type',
-              title: 'Type',
-              options: [
-                { label: 'Job', value: 'JOB' },
-                { label: 'Volunteer', value: 'VOLUNTEER' },
-                { label: 'Partnership', value: 'PARTNERSHIP' },
-              ],
-            },
-            {
-              column: 'status',
-              title: 'Status',
-              options: [
-                { label: 'Open', value: 'OPEN' },
-                { label: 'Closed', value: 'CLOSED' },
-              ],
-            },
-            {
-              column: 'visibility',
-              title: 'Visibility',
-              options: [
-                { label: 'Public', value: 'PUBLIC' },
-                { label: 'Private', value: 'PRIVATE' },
-              ],
-            },
-          ]}
-        />
+        <div className="space-y-4">
+          <ReportExport
+            title="Opportunities Report"
+            description="This report contains all opportunities for the park."
+            columns={[
+              { label: 'Title', value: 'title' },
+              { label: 'Type', value: 'type' },
+              { label: 'Status', value: 'status' },
+              { label: 'Visibility', value: 'visibility' },
+              { label: 'Park Name', value: 'parkName' },
+              { label: 'Created At', value: 'createdAt' },
+            ]}
+            data={opportunities}
+            fileName="opportunities-report"
+          />
+          <DataTable
+            columns={columns}
+            data={opportunities}
+            isLoading={isOpportunitiesLoading}
+            searchKey="title"
+            filters={[
+              {
+                column: 'type',
+                title: 'Type',
+                options: [
+                  { label: 'Job', value: 'JOB' },
+                  { label: 'Volunteer', value: 'VOLUNTEER' },
+                  { label: 'Partnership', value: 'PARTNERSHIP' },
+                ],
+              },
+              {
+                column: 'status',
+                title: 'Status',
+                options: [
+                  { label: 'Open', value: 'OPEN' },
+                  { label: 'Closed', value: 'CLOSED' },
+                ],
+              },
+              {
+                column: 'visibility',
+                title: 'Visibility',
+                options: [
+                  { label: 'Public', value: 'PUBLIC' },
+                  { label: 'Private', value: 'PRIVATE' },
+                ],
+              },
+            ]}
+          />
+        </div>
       )}
     </>
   );

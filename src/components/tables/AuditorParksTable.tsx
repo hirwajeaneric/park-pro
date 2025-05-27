@@ -4,11 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
-
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { getParks } from '@/lib/api';
 import { Park } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 type PaginatedParks = {
   content: Park[];
@@ -54,6 +54,17 @@ export default function AuditorParksTable() {
 
   return (
     <div className="space-y-4">
+      <ReportExport
+        title="Parks Audit Report"
+        description="This report contains all parks for auditing purposes."
+        columns={[
+          { label: 'Name', value: 'name' },
+          { label: 'Location', value: 'location' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={parks}
+        fileName="parks-audit-report"
+      />
       <DataTable
         columns={columns}
         data={parks}

@@ -10,7 +10,7 @@ import { BookingResponse } from '@/types';
 import { format } from 'date-fns';
 import { getBookingsByPark } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-// import { ReportGenerator } from '../widget/ReportGenerator';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function ListFinanceBookingsTable() {
   const router = useRouter();
@@ -73,17 +73,18 @@ export default function ListFinanceBookingsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        {/* <ReportGenerator
-          data={bookings}
-          columns={columns}
-          reportTitle="Booking Report"
-          reportSubtitle="Summary of Park Bookings"
-          reportDescription="This report provides a detailed overview of all bookings for the selected period."
-          totalField="amount"
-          currency="USD"
-        /> */}
-      </div>
+      <ReportExport
+        title="Finance Bookings Report"
+        description="This report contains all financial bookings for the park."
+        columns={[
+          { label: 'Amount', value: 'amount' },
+          { label: 'Currency', value: 'currency' },
+          { label: 'Visit Date', value: 'visitDate' },
+          { label: 'Status', value: 'status' },
+        ]}
+        data={bookings}
+        fileName="finance-bookings-report"
+      />
       <DataTable
         columns={columns}
         data={bookings}

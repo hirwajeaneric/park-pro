@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { getActivitiesByPark } from '@/lib/api';
 import { ActivityResponse } from '@/types';
+import ReportExport from '@/components/reports/ReportExport';
 
 export default function ActivitiesTable() {
   const { data: activities = [], isLoading } = useQuery({
@@ -58,6 +59,18 @@ export default function ActivitiesTable() {
 
   return (
     <div className="space-y-4">
+      <ReportExport
+        title="Activities Report"
+        description="This report contains all activities available in the park."
+        columns={[
+          { label: 'Name', value: 'name' },
+          { label: 'Price', value: 'price' },
+          { label: 'Capacity Per Day', value: 'capacityPerDay' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={activities}
+        fileName="activities-report"
+      />
       <DataTable
         columns={columns}
         data={activities}
