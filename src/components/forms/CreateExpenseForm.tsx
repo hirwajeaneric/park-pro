@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState } from 'react';
@@ -20,7 +21,9 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { listBudgetsByPark, listBudgetCategoriesByBudget, createExpense } from '@/lib/api';
 import { Budget, BudgetCategory, CreateExpenseForm as CreateExpenseFormTypes } from '@/types';
-import { FileUpload } from '../ui/file-upload';
+import { storage } from '@/configs/firebase';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { Loader2, Upload } from 'lucide-react';
 
 const CreateExpenseFormSchema = z.object({
     budgetId: z.string().min(1, 'Budget is required'),
@@ -34,6 +37,7 @@ export default function CreateExpenseForm() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const [selectedBudgetId, setSelectedBudgetId] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     // Safely parse parkId from localStorage
     let parkId: string | null = null;
@@ -71,6 +75,48 @@ export default function CreateExpenseForm() {
             receiptUrl: '',
         },
     });
+
+    const uploadFile = async (file: File): Promise<string> => {
+        const storageRef = ref(storage, `expenses/${Date.now()}_${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        return new Promise((resolve, reject) => {
+            uploadTask.on(
+                "state_changed",
+                null,
+                reject,
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        resolve(downloadURL);
+                    } catch (error) {
+                        reject(error);
+                    }
+                }
+            );
+        });
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('File size should be less than 5MB');
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const fileUrl = await uploadFile(file);
+            form.setValue('receiptUrl', fileUrl, { shouldValidate: true });
+            toast.success("File uploaded successfully");
+        } catch (error) {
+            toast.error("Failed to upload file");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     // Create expense mutation
     const createMutation = useMutation({
@@ -195,11 +241,48 @@ export default function CreateExpenseForm() {
                                 <FormItem>
                                     <FormLabel>Receipt</FormLabel>
                                     <FormControl>
-                                        <FileUpload
-                                            endpoint="resumeUpload"
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        />
+                                        <div className="space-y-4">
+                                            <div className="flex items-center space-x-2">
+                                                <Input
+                                                    type="file"
+                                                    onChange={handleFileUpload}
+                                                    disabled={isUploading}
+                                                    className="hidden"
+                                                    id="expense-receipt-upload"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={isUploading}
+                                                    onClick={() => document.getElementById('expense-receipt-upload')?.click()}
+                                                >
+                                                    {isUploading ? (
+                                                        <>
+                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                            Uploading...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Upload className="mr-2 h-4 w-4" />
+                                                            Upload Receipt
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            {field.value && (
+                                                <div className="mt-2">
+                                                    <a 
+                                                        href={field.value} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        className="text-blue-500 hover:underline"
+                                                    >
+                                                        View Uploaded Receipt
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
