@@ -168,7 +168,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }))} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navUser} />
+        <NavUser user={navUser} userRole={'FINANCE_OFFICER'}/>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

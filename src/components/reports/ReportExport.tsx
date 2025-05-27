@@ -92,50 +92,25 @@ export default function ReportExport({
 
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 20;
-            let yPosition = 20;
+            let yPosition = 30;
 
-            // Load and add logo
-            try {
-                console.log('Attempting to load logo...');
-                // Try loading the logo from the public directory
-                const logoUrl = '/public/images/system-logo.png';
-                console.log('Logo URL:', logoUrl);
-                
-                const logoResponse = await fetch(logoUrl);
-                if (!logoResponse.ok) {
-                    throw new Error(`Failed to load logo: ${logoResponse.status} ${logoResponse.statusText}`);
-                }
-                
-                const logoBlob = await logoResponse.blob();
-                console.log('Logo blob loaded:', logoBlob.type, logoBlob.size);
-                
-                const logoBase64 = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        console.log('Logo converted to base64');
-                        resolve(reader.result);
-                    };
-                    reader.onerror = (error) => {
-                        console.error('Error converting logo to base64:', error);
-                        resolve(null);
-                    };
-                    reader.readAsDataURL(logoBlob);
-                });
-
-                if (logoBase64) {
-                    console.log('Adding logo to PDF...');
-                    doc.addImage(logoBase64 as string, 'PNG', margin, yPosition, 30, 30);
-                    console.log('Logo added to PDF');
-                } else {
-                    console.error('Failed to convert logo to base64');
-                }
-            } catch (error) {
-                console.error('Error loading logo:', error);
-                // Continue without the logo
-            }
+            // Add text-based logo
+            doc.setFontSize(32);
+            doc.setTextColor(0, 158, 96); // Green
+            doc.text('Park', margin, yPosition);
+            doc.setTextColor(252, 209, 22); // Yellow
+            // Calculate the width of "Park" to position "Pro" right after it
+            const parkWidth = doc.getTextWidth('Park');
+            doc.text('Pro', margin + parkWidth, yPosition);
+            
+            // Add a decorative line under the logo
+            doc.setDrawColor(58, 117, 196); // Blue
+            doc.setLineWidth(0.5);
+            doc.line(margin, yPosition + 2, margin + parkWidth + doc.getTextWidth('Pro'), yPosition + 2);
 
             // Add company info on the right
             doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0); // Reset to black
             doc.text('ParkPro', pageWidth - margin - 60, yPosition);
             yPosition += 5;
             doc.text('123 Business Street', pageWidth - margin - 60, yPosition);
@@ -145,7 +120,7 @@ export default function ReportExport({
             doc.text(`Generated on: ${format(new Date(), 'MMMM dd, yyyy')}`, pageWidth - margin - 60, yPosition);
 
             // Move down for title and subtitle
-            yPosition += 20;
+            yPosition += 30;
 
             // Add title
             doc.setFontSize(20);
@@ -204,7 +179,7 @@ export default function ReportExport({
                     cellPadding: 3,
                 },
                 headStyles: {
-                    fillColor: [41, 128, 185],
+                    fillColor: [58, 117, 196], // Blue
                     textColor: 255,
                     fontStyle: 'bold',
                 },
