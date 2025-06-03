@@ -463,3 +463,28 @@ export interface CreateFundingRequestDto {
   budgetCategoryId: string; // Added
 }
 
+export interface AuditResponse {
+  id: string
+  parkId: string
+  parkName: string
+  auditYear: number
+  percentagePassed: number
+  percentageFailed: number
+  percentageUnjustified: number
+  totalPercentage: number
+  auditProgress: string
+  createdBy: string
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface UpdateAuditProgressRequest {
+  auditProgress: string
+}
+
+export interface CreateAuditRequest {
+  parkId: string
+  auditYear: number
+}
+

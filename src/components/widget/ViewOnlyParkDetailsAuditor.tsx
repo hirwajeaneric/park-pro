@@ -1,244 +1,357 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
-import Link from 'next/link';
-import { Park } from '@/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import ListAuditorBookingsTable from '../tables/ListAuditorBookingsTable';
+import AuditorDonationsTable from '../tables/AuditorDonationsTable';
+import { Card as MuiCard, Typography, Box, LinearProgress, Chip } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import HelpIcon from '@mui/icons-material/Help';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import { AuditResponse, Park } from '@/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import AuditorParkUsers from './AuditorParkUsers';
+import ListBudgetsTableAuditor from '../tables/ListBudgetsTableAuditor';
 import ExpenseDisplayAuditor from './ExpenseDisplayAuditor';
 import WithdrawRequestDisplayAuditor from './WithdrawRequestDisplayAuditor';
 import FundingRequestsTabsAuditor from './FundingRequestsTabsAuditor';
-import AuditorParkUsers from './AuditorParkUsers';
-import ListBudgetsTableAuditor from '../tables/ListBudgetsTableAuditor';
-import ListAuditorBookingsTable from '../tables/ListAuditorBookingsTable';
-import AuditorDonationsTable from '../tables/AuditorDonationsTable';
-import ReportExport from '@/components/reports/ReportExport';
+import { Button } from '../ui/button';
+import { createAudit, updateAuditProgress } from '@/lib/api';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
-export default function ViewOnlyParkDetailsAuditor({ park }: { park: Park }) {
-  return (
-    <div className="space-y-6">
-      <div className="flex w-full items-center justify-between">
-        <h2 className="text-xl font-semibold">Park Details</h2>
-        <Button variant="outline" asChild>
-          <Link href="/auditor/park">Back to Parks</Link>
-        </Button>
+const AuditStatsCard = ({ title, value, icon, color }: {
+  title: string;
+  value: number | string;
+  icon: React.ReactNode;
+  color: string
+}) => (
+  <MuiCard sx={{
+    p: 2,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    bgcolor: `${color}15`,
+    border: `1px solid ${color}40`,
+    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: `0 4px 20px ${color}30`
+    }
+  }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+      <Box sx={{
+        mr: 1,
+        color: color,
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        {icon}
+      </Box>
+      <Typography variant="subtitle2" color="text.secondary">
+        {title}
+      </Typography>
+    </Box>
+    <Box sx={{ display: 'flex', alignItems: 'baseline', mt: 'auto' }}>
+      <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: color }}>
+        {typeof value === 'number' ? value.toFixed(1) : value}%
+      </Typography>
+    </Box>
+    <LinearProgress
+      variant="determinate"
+      value={typeof value === 'number' ? Math.min(value, 100) : 0}
+      sx={{
+        mt: 1,
+        height: 6,
+        borderRadius: 3,
+        bgcolor: `${color}20`,
+        '& .MuiLinearProgress-bar': {
+          bgcolor: color
+        }
+      }}
+    />
+  </MuiCard>
+);
+
+export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park, audit: AuditResponse }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const currentYear = new Date().getFullYear();
+
+  const closeAudit = async () => {
+    try {
+      setIsLoading(true);
+      if (!audit) return;
+
+      await updateAuditProgress(audit.id, {
+        auditProgress: 'COMPLETED'
+      });
+
+      toast.success('Audit closed successfully');
+      window.location.reload();
+    } catch (error) {
+      toast.error('Failed to close audit: ' + (error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const openAudit = async () => {
+    try {
+      setIsLoading(true);
+      if (!park) return;
+
+      await createAudit({
+        parkId: park.id,
+        auditYear: currentYear,
+      });
+
+      toast.success('Audit opened successfully');
+      window.location.reload();
+    } catch (error) {
+      toast.error('Failed to open audit: ' + (error as Error).message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const renderNoAuditState = () => (
+    <Box sx={{
+      mt: 3,
+      p: 4,
+      textAlign: 'center',
+      bgcolor: '#f8f9fa',
+      borderRadius: 2,
+      border: '1px dashed #dee2e6'
+    }}>
+      <Typography variant="h6" gutterBottom sx={{ color: '#495057' }}>
+        No Active Audit for {currentYear}
+      </Typography>
+      <Typography variant="body1" sx={{ mb: 3, color: '#6c757d' }}>
+        Start a new audit to evaluate expenses and withdraw requests for this park.
+        The audit will help track and verify financial transactions throughout the year.
+      </Typography>
+      <Button
+        variant="default"
+        onClick={openAudit}
+        disabled={isLoading}
+        className="bg-blue-500 hover:bg-blue-600 text-white"
+      >
+        {isLoading ? (
+          <>
+            <span className="mr-2">Processing...</span>
+            <span className="animate-spin">⌛</span>
+          </>
+        ) : (
+          <>
+            <span className="mr-2">Start {currentYear} Audit</span>
+            <span>📋</span>
+          </>
+        )}
+      </Button>
+    </Box>
+  );
+
+  const renderAuditStats = () => (
+    <Box sx={{ }}>
+      <Typography variant="h6">
+        Audit Statistics for {audit.auditYear}
+      </Typography>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Chip
+          label={`Status: ${audit.auditProgress === 'COMPLETED' ? 'COMPLETED' : audit.auditProgress === 'IN_PROGRESS' ? 'IN PROGRESS' : 'NOT STARTED'}`}
+          color={audit.auditProgress === 'COMPLETED' ? 'success' :
+            audit.auditProgress === 'IN_PROGRESS' ? 'warning' : 'default'}
+          sx={{ mt: 2 }}
+        />
+        <div className="flex gap-20">
+          <Button
+            variant="default"
+            onClick={openAudit}
+            disabled={isLoading || audit !== null}
+            className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
+          >
+            {isLoading ? 'Processing...' : 'Open New Audit'}
+          </Button>
+          <Button
+            variant="destructive"
+            className='cursor-pointer'
+            onClick={closeAudit}
+            disabled={isLoading || !audit || audit.auditProgress === 'COMPLETED'}
+          >
+            {isLoading ? 'Processing...' : 'Close Audit'}
+          </Button>
+        </div>
+      </Box>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <AuditStatsCard
+            title="Passed"
+            value={audit.percentagePassed}
+            icon={<CheckCircleIcon />}
+            color="#2e7d32"
+          />
+        </div>
+        <div>
+          <AuditStatsCard
+            title="Failed"
+            value={audit.percentageFailed}
+            icon={<ErrorIcon />}
+            color="#d32f2f"
+          />
+        </div>
+        <div>
+          <AuditStatsCard
+            title="Unjustified"
+            value={audit.percentageUnjustified}
+            icon={<HelpIcon />}
+            color="#ed6c02"
+          />
+        </div>
+        <div>
+          <AuditStatsCard
+            title="Total Score"
+            value={audit.totalPercentage}
+            icon={<AssessmentIcon />}
+            color="#1976d2"
+          />
+        </div>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>{park.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p><strong>Location:</strong> {park.location}</p>
-          <p><strong>Created At:</strong> {format(new Date(park.createdAt), 'MMM dd, yyyy')}</p>
-        </CardContent>
-      </Card>
-      <Tabs defaultValue="users" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="budgets">Budgets</TabsTrigger>
-          <TabsTrigger value="withdraw-requests">Withdraw Requests</TabsTrigger>
-          <TabsTrigger value="funds-requests">Request for Funds</TabsTrigger>
-          <TabsTrigger value="donations">Donations</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
-        </TabsList>
-        
-        {/* Users  */}
-        <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle>Users</CardTitle>
-              <CardDescription>
-                Users Associated to the Park
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Park Users Report"
-                description="List of all users associated with this park"
-                columns={[
-                  { label: 'First Name', value: 'firstName' },
-                  { label: 'Last Name', value: 'lastName' },
-                  { label: 'Email', value: 'email' },
-                  { label: 'Role', value: 'role' },
-                ]}
-                data={[]} // Data will be provided by AuditorParkUsers component
-                fileName="park-users-report"
-              /> */}
-              <AuditorParkUsers parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+    </Box>
+  );
 
-        {/* Budgets  */}
-        <TabsContent value="budgets">
-          <Card>
-            <CardHeader>
-              <CardTitle>Budgets</CardTitle>
-              <CardDescription>
-                All park budgets
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Park Budgets Report"
-                description="List of all budgets for this park"
-                columns={[
-                  { label: 'Fiscal Year', value: 'fiscalYear' },
-                  { label: 'Total Amount', value: 'totalAmount' },
-                  { label: 'Balance', value: 'balance' },
-                  { label: 'Status', value: 'status' },
-                  { label: 'Created At', value: 'createdAt' },
-                ]}
-                data={[]} // Data will be provided by ListBudgetsTableAuditor component
-                fileName="park-budgets-report"
-              /> */}
-              <ListBudgetsTableAuditor parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col gap-2">
+          <p><strong>Name:</strong> {park?.name}</p>
+          <p><strong>Location:</strong> {park?.location}</p>
+          <p><strong>Description:</strong> {park?.description}</p>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            {audit ? renderAuditStats() : renderNoAuditState()}
+          </div>
 
-        {/* Expenses  */}
-        <TabsContent value="expenses">
-          <Card>
-            <CardHeader>
-              <CardTitle>Expenses</CardTitle>
-              <CardDescription>
-                All park expenses
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Park Expenses Report"
-                description="List of all expenses for this park"
-                columns={[
-                  { label: 'Amount', value: 'amount' },
-                  { label: 'Description', value: 'description' },
-                  { label: 'Category', value: 'budgetCategoryName' },
-                  { label: 'Audit Status', value: 'auditStatus' },
-                  { label: 'Created At', value: 'createdAt' },
-                ]}
-                data={[]} // Data will be provided by ExpenseDisplayAuditor component
-                fileName="park-expenses-report"
-              /> */}
-              <ExpenseDisplayAuditor parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <Tabs defaultValue="users" className="w-full mt-4">
+            <TabsList className="grid w-full grid-cols-7">
+              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+              <TabsTrigger value="budgets">Budgets</TabsTrigger>
+              <TabsTrigger value="withdraw-requests">Withdraw Requests</TabsTrigger>
+              <TabsTrigger value="funds-requests">Request for Funds</TabsTrigger>
+              <TabsTrigger value="donations">Donations</TabsTrigger>
+              <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            </TabsList>
 
-        {/* Withdraw Requests  */}
-        <TabsContent value="withdraw-requests">
-          <Card>
-            <CardHeader>
-              <CardTitle>Withdraw Requests</CardTitle>
-              <CardDescription>
-                Requests to withdraw huge sums of money
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Withdraw Requests Report"
-                description="List of all withdraw requests for this park"
-                columns={[
-                  { label: 'Amount', value: 'amount' },
-                  { label: 'Reason', value: 'reason' },
-                  { label: 'Category', value: 'budgetCategoryName' },
-                  { label: 'Status', value: 'status' },
-                  { label: 'Audit Status', value: 'auditStatus' },
-                  { label: 'Created At', value: 'createdAt' },
-                ]}
-                data={[]} // Data will be provided by WithdrawRequestDisplayAuditor component
-                fileName="withdraw-requests-report"
-              /> */}
-              <WithdrawRequestDisplayAuditor parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            {/* Users  */}
+            <TabsContent value="users">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Users</CardTitle>
+                  <CardDescription>
+                    Users Associated to the Park
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <AuditorParkUsers parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        {/* Request for Funds  */}
-        <TabsContent value="funds-requests">
-          <Card>
-            <CardHeader>
-              <CardTitle>Requests for funds</CardTitle>
-              <CardDescription>
-                Requests for extra funds and emergency funds.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Funding Requests Report"
-                description="List of all funding requests for this park"
-                columns={[
-                  { label: 'Amount', value: 'requestedAmount' },
-                  { label: 'Type', value: 'type' },
-                  { label: 'Status', value: 'status' },
-                  { label: 'Reason', value: 'reason' },
-                  { label: 'Created At', value: 'createdAt' },
-                ]}
-                data={[]} // Data will be provided by FundingRequestsTabsAuditor component
-                fileName="funding-requests-report"
-              /> */}
-              <FundingRequestsTabsAuditor parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            {/* Budgets  */}
+            <TabsContent value="budgets">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Budgets</CardTitle>
+                  <CardDescription>
+                    All park budgets
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <ListBudgetsTableAuditor parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        {/* Donations  */}
-        <TabsContent value="donations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Donations</CardTitle>
-              <CardDescription>
-                Donations for this park.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Donations Report"
-                description="List of all donations for this park"
-                columns={[
-                  { label: 'Amount', value: 'amount' },
-                  { label: 'Donor Name', value: 'donorName' },
-                  { label: 'Status', value: 'status' },
-                  { label: 'Motive', value: 'motiveForDonation' },
-                  { label: 'Created At', value: 'createdAt' },
-                ]}
-                data={[]} // Data will be provided by AuditorDonationsTable component
-                fileName="donations-report"
-              /> */}
-              <AuditorDonationsTable parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            {/* Expenses  */}
+            <TabsContent value="expenses">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expenses</CardTitle>
+                  <CardDescription>
+                    All park expenses
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <ExpenseDisplayAuditor parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        {/* Bookings */}
-        <TabsContent value="bookings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Bookings</CardTitle>
-              <CardDescription>
-                All bookings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {/* <ReportExport
-                title="Bookings Report"
-                description="List of all bookings for this park"
-                columns={[
-                  { label: 'Booking ID', value: 'id' },
-                  { label: 'Amount', value: 'amount' },
-                  { label: 'Visit Date', value: 'visitDate' },
-                  { label: 'Status', value: 'status' },
-                ]}
-                data={[]} // Data will be provided by ListAuditorBookingsTable component
-                fileName="bookings-report"
-              /> */}
-              <ListAuditorBookingsTable parkId={park.id} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+            {/* Withdraw Requests  */}
+            <TabsContent value="withdraw-requests">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Withdraw Requests</CardTitle>
+                  <CardDescription>
+                    Requests to withdraw huge sums of money
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <WithdrawRequestDisplayAuditor parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Request for Funds  */}
+            <TabsContent value="funds-requests">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Requests for funds</CardTitle>
+                  <CardDescription>
+                    Requests for extra funds and emergency funds.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <FundingRequestsTabsAuditor parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Donations  */}
+            <TabsContent value="donations">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Donations</CardTitle>
+                  <CardDescription>
+                    Donations for this park.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <AuditorDonationsTable parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Bookings */}
+            <TabsContent value="bookings">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Bookings</CardTitle>
+                  <CardDescription>
+                    All bookings
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <ListAuditorBookingsTable parkId={park.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

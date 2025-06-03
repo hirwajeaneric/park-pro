@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import ViewOnlyParkDetailsAuditor from "@/components/widget/ViewOnlyParkDetailsAuditor";
-import { getParkById } from "@/lib/api";
+import { getAuditByParkIdAndYear, getParkById } from "@/lib/api";
 import ProtectedRoute from "@/lib/ProtectedRoute";
-import { Park } from "@/types";
+import { AuditResponse, Park } from "@/types";
 import { Metadata } from "next";
 
 export const dynamicParams = true;
@@ -33,8 +33,10 @@ export async function generateMetadata(
 export default async function ParkPage({ params }: Props) {
   const { parkId } = await params;
   let park: Park;
+  let audit: AuditResponse | null = null;
   try {
     park = await getParkById(parkId);
+    audit = await getAuditByParkIdAndYear(parkId, 2025);
   } catch (error) {
     return (
       <ProtectedRoute>
@@ -56,7 +58,7 @@ export default async function ParkPage({ params }: Props) {
     <ProtectedRoute>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <h1 className="text-2xl font-bold">{park.name}</h1>
-        <ViewOnlyParkDetailsAuditor park={park} />
+        <ViewOnlyParkDetailsAuditor park={park} audit={audit} />
       </div>
     </ProtectedRoute>
   );

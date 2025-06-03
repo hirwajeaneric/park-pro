@@ -61,7 +61,7 @@ export default function ExpenseDisplayAuditor({ parkId }: Props) {
             accessorKey: 'auditStatus',
             header: 'Audit Status',
             cell: ({ row }) => (
-                <Badge variant={row.getValue('auditStatus') === 'PASSED' ? 'success' : 'secondary'}>
+                    <Badge variant={row.getValue('auditStatus') === 'PASSED' ? 'success' : row.getValue('auditStatus') === 'UNJUSTIFIED' ? 'default' : 'destructive'}>
                     {row.getValue('auditStatus')}
                 </Badge>
             ),

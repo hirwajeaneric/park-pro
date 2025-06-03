@@ -43,12 +43,15 @@ import {
   CreateFundingRequestDto,
   FundingRequestResponse,
   OutstandingDonorResponse,
+  AuditResponse,
+  UpdateAuditProgressRequest,
+  CreateAuditRequest,
 } from '@/types';
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
 
-// Define a standard error response type from the backend
+// Defines a standard error response type from the backend
 interface BackendErrorResponse {
   message: string;
   errors?: Record<string, string[]>;
@@ -60,7 +63,7 @@ interface BackendErrorResponse {
 // BASE API CONFIGURATION
 // ==============================================
 const api = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8080',
 });
 
 // Add request interceptor for common headers (no token here)
@@ -930,7 +933,7 @@ export const updateExpenseAuditStatus = async (
 // ==============================================
 // WITHDRAW REQUEST OPERATIONS
 // ==============================================
-export const createWithdrawRequest = async ( budgetId: string, data: CreateWithdrawRequestForm ): Promise<WithdrawRequest> => {
+export const createWithdrawRequest = async (budgetId: string, data: CreateWithdrawRequestForm): Promise<WithdrawRequest> => {
   console.log("Hello");
   console.log(data, budgetId);
   try {
@@ -1965,6 +1968,87 @@ export const getFundingRequestsByFiscalYear = async (
         throw new Error('You are not authorized to view funding requests for this fiscal year');
       } else if (error.response?.status === 400) {
         throw new Error('Invalid fiscal year');
+      }
+    }
+    throw error;
+  }
+};
+
+// ==============================================
+// 8. AUDIT
+// ==============================================
+export const getAuditByParkIdAndYear = async (parkId: string, year: number): Promise<AuditResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/audits/park/${parkId}/year/${year}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view audits for this park');
+      } else if (error.response?.status === 404) {
+        throw new Error('Park not found');
+      }
+    }
+    throw error;
+  }
+};
+
+export const updateAuditProgress = async (auditId: string, request: UpdateAuditProgressRequest): Promise<AuditResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.patch(`/api/audits/${auditId}/progress`, request, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to update audit progress');
+      }
+    }
+    throw error;
+  }
+};
+
+export const createAudit = async (request: CreateAuditRequest): Promise<AuditResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.post(`/api/audits`, request, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) { 
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to create audit');
+      }
+    }
+    throw error;
+  }
+};
+
+export const getAuditById = async (auditId: string): Promise<AuditResponse> => {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('access-token')?.value;
+    if (!token) throw new Error('Authentication required');
+    const response = await api.get(`/api/audits/${auditId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('You are not authorized to view audit');
       }
     }
     throw error;
