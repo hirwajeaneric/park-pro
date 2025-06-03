@@ -192,11 +192,13 @@ export default function CreateExpenseForm() {
                                                 <SelectValue placeholder="Select a category" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {categories.map((category: BudgetCategory) => (
-                                                    <SelectItem key={category.id} value={category.id}>
-                                                        {category.name}
-                                                    </SelectItem>
-                                                ))}
+                                                {categories
+                                                    .filter(category => category.spendingStrategy === 'EXPENSE')
+                                                    .map((category: BudgetCategory) => (
+                                                        <SelectItem key={category.id} value={category.id}>
+                                                            {category.name}
+                                                        </SelectItem>
+                                                    ))}
                                             </SelectContent>
                                         </Select>
                                     </FormControl>

@@ -197,11 +197,13 @@ export default function CreateWithdrawRequestForm() {
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category: BudgetCategory) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
+                        {categories
+                          .filter(category => category.spendingStrategy === 'WITHDRAW_REQUEST')
+                          .map((category: BudgetCategory) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -219,7 +221,7 @@ export default function CreateWithdrawRequestForm() {
                     <Input
                       placeholder="Enter amount (e.g., 1000.50)"
                       type="number"
-                      step="0.01"
+                      // step="0.01"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
