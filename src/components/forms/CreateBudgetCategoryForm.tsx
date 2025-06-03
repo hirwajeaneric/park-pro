@@ -18,12 +18,14 @@ import { createBudgetCategory } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CreateBudgetCategoryForm as CreateBudgetCategoryFormTypes } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const CreateBudgetCategoryFormSchema = z.object({
   name: z.string().min(3, "The name must atleast be 3 character long."),
   allocatedAmount: z.coerce
     .number({ invalid_type_error: 'Total amount must be a number' })
-    .positive({ message: 'Total amount must be positive' })
+    .positive({ message: 'Total amount must be positive' }),
+  spendingStrategy: z.enum(['EXPENSE', 'WITHDRAW_REQUEST'])
 });
 
 export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: string }) {
@@ -35,6 +37,7 @@ export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: strin
     defaultValues: {
       name: "",
       allocatedAmount: 0,
+      spendingStrategy: 'EXPENSE'
     },
   });
 
@@ -94,6 +97,29 @@ export default function CreateBudgetCategoryForm({ budgetId }: { budgetId: strin
                     aria-required="true"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="spendingStrategy"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  Spending Strategy
+                </FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a spending strategy" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="EXPENSE">Expense</SelectItem>
+                    <SelectItem value="WITHDRAW_REQUEST">Withdraw Request</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

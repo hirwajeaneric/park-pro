@@ -30,10 +30,10 @@ export default async function page({ params }: Props) {
     case "finance":
       username = "Finance Manager";
       break;
-    case "parkman":
+    case "manager":
       username = "Park Manager";
       break;
-    case "gov":
+    case "government":
       username = "Government Officer";
       break;
     default:

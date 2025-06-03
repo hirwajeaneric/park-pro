@@ -9,6 +9,7 @@ import { getDonationsByParkAndFiscalYear } from '@/lib/api';
 import { DonationResponse } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '../ui/badge';
+import ReportExport from '../reports/ReportExport';
 
 export default function AuditorDonationsTable({ parkId }: { parkId: string }) {
   const [selectedFiscalYear, setSelectedFiscalYear] = useState<number>(new Date().getFullYear());
@@ -82,6 +83,19 @@ export default function AuditorDonationsTable({ parkId }: { parkId: string }) {
           </SelectContent>
         </Select>
       </div>
+      <ReportExport
+        title="Donations Report"
+        description="List of all donations for this park"
+        columns={[
+          { label: 'Amount', value: 'amount' },
+          { label: 'Donor Name', value: 'donorName' },
+          { label: 'Status', value: 'status' },
+          { label: 'Motive', value: 'motiveForDonation' },
+          { label: 'Created At', value: 'createdAt' },
+        ]}
+        data={donations}
+        fileName={`donations-report-fy-${selectedFiscalYear}`}
+      />
       <DataTable
         columns={columns}
         data={donations}

@@ -12,6 +12,7 @@ import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { listBudgetsByPark, listExpensesByBudget } from '@/lib/api';
 import { Budget, Expense } from '@/types';
+import ReportExport from '../reports/ReportExport';
 
 type Props = {
     parkId: string
@@ -107,23 +108,38 @@ export default function ExpenseDisplayAuditor({ parkId }: Props) {
                     </TabsList>
                     {budgets.map((budget: Budget) => (
                         <TabsContent key={budget.id} value={budget.id}>
-                            <DataTable
-                                columns={columns}
-                                data={expenses}
-                                isLoading={isExpensesLoading}
-                                searchKey="description"
-                                filters={[
-                                    {
-                                        column: 'auditStatus',
-                                        title: 'Audit Status',
-                                        options: [
-                                            { label: 'Passed', value: 'PASSED' },
-                                            { label: 'Failed', value: 'FAILED' },
-                                            { label: 'Unjustified', value: 'UNJUSTIFIED' },
-                                        ],
-                                    },
-                                ]}
-                            />
+                            <div className="space-y-4">
+                                <ReportExport
+                                    title="Park Expenses Report"
+                                    description="List of all expenses for this park"
+                                    columns={[
+                                        { label: 'Amount', value: 'amount' },
+                                        { label: 'Description', value: 'description' },
+                                        { label: 'Category', value: 'budgetCategoryName' },
+                                        { label: 'Audit Status', value: 'auditStatus' },
+                                        { label: 'Created At', value: 'createdAt' },
+                                    ]}
+                                    data={expenses}
+                                    fileName={`park-expenses-report-fy-${budget.fiscalYear}`}
+                                />
+                                <DataTable
+                                    columns={columns}
+                                    data={expenses}
+                                    isLoading={isExpensesLoading}
+                                    searchKey="description"
+                                    filters={[
+                                        {
+                                            column: 'auditStatus',
+                                            title: 'Audit Status',
+                                            options: [
+                                                { label: 'Passed', value: 'PASSED' },
+                                                { label: 'Failed', value: 'FAILED' },
+                                                { label: 'Unjustified', value: 'UNJUSTIFIED' },
+                                            ],
+                                        },
+                                    ]}
+                                />
+                            </div>
                         </TabsContent>
                     ))}
                 </Tabs>

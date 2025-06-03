@@ -45,7 +45,7 @@ export default function BudgetDisplayAuditor() {
       header: 'Total Amount',
       cell: ({ row }) => {
         const amount = row.getValue('totalAmount');
-        return amount !== null && amount !== undefined ? `$${(amount as number).toFixed(2)}` : 'No Budget';
+        return amount !== null && amount !== undefined ? `XAF ${(amount as number).toFixed(2)}` : 'No Budget';
       },
     },
     {
@@ -53,7 +53,7 @@ export default function BudgetDisplayAuditor() {
       header: 'Balance',
       cell: ({ row }) => {
         const balance = row.getValue('balance');
-        return balance !== null && balance !== undefined ? `$${(balance as number).toFixed(2)}` : 'No Budget';
+        return balance !== null && balance !== undefined ? `XAF ${(balance as number).toFixed(2)}` : 'No Budget';
       },
     },
     {

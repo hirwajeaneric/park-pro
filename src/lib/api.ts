@@ -80,7 +80,11 @@ api.interceptors.response.use(
       let errorMessage = backendError.message || 'An error occurred';
       if (backendError.errors) {
         const fieldErrors = Object.entries(backendError.errors)
-          .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+          .map(([field, messages]) => {
+            // Handle both string and array error messages
+            const messageStr = Array.isArray(messages) ? messages.join(', ') : messages;
+            return `${field}: ${messageStr}`;
+          })
           .join('; ');
         errorMessage = `${errorMessage}. ${fieldErrors}`;
       }
@@ -680,6 +684,7 @@ export const createBudgetCategory = async (
   const requestData = {
     name: data.name,
     percentage: percentage.toString(), // Send as string to match BigDecimal
+    spendingStrategy: data.spendingStrategy
   };
 
   console.log('Creating budget category:', { budgetId, requestData });

@@ -141,10 +141,12 @@ export type BudgetResponse = {
   updatedAt: string;
 };
 
-export type CreateBudgetForm = {
+export type BudgetStatus = 'DRAFT' | 'APPROVED' | 'REJECTED';
+
+export interface CreateBudgetForm {
   fiscalYear: number;
   totalAmount: number;
-  status: "DRAFT" | "APPROVED" | "REJECTED"
+  status: BudgetStatus;
 }
 
 export type UpdateBudgetForm = {
@@ -164,9 +166,12 @@ export type BudgetCategory = {
   updatedAt: string;
 }
 
-export type CreateBudgetCategoryForm = {
+export type SpendingStrategy = 'EXPENSE' | 'WITHDRAW_REQUEST';
+
+export interface CreateBudgetCategoryForm {
   name: string;
   allocatedAmount: number;
+  spendingStrategy: SpendingStrategy;
 }
 
 export type UpdateBudgetCategoryForm = {

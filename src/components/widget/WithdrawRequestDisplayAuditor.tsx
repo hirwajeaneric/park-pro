@@ -12,6 +12,7 @@ import { Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { listBudgetsByPark, listWithdrawRequestsByBudget } from '@/lib/api';
 import { Budget, WithdrawRequest } from '@/types';
+import ReportExport from '../reports/ReportExport';
 
 type Props = {
   parkId: string
@@ -122,32 +123,48 @@ export default function WithdrawRequestDisplayAuditor({ parkId }: Props) {
           </TabsList>
           {budgets.map((budget: Budget) => (
             <TabsContent key={budget.id} value={budget.id}>
-              <DataTable
-                columns={columns}
-                data={approvedWithdrawRequests}
-                isLoading={isRequestsLoading}
-                searchKey="reason"
-                filters={[
-                  {
-                    column: 'status',
-                    title: 'Status',
-                    options: [
-                      { label: 'Pending', value: 'PENDING' },
-                      { label: 'Approved', value: 'APPROVED' },
-                      { label: 'Rejected', value: 'REJECTED' },
-                    ],
-                  },
-                  {
-                    column: 'auditStatus',
-                    title: 'Audit Status',
-                    options: [
-                      { label: 'Passed', value: 'PASSED' },
-                      { label: 'Failed', value: 'FAILED' },
-                      { label: 'Unjustified', value: 'UNJUSTIFIED' },
-                    ],
-                  },
-                ]}
-              />
+              <div className="space-y-4">
+                <ReportExport
+                  title="Withdraw Requests Report"
+                  description="List of all withdraw requests for this park"
+                  columns={[
+                    { label: 'Amount', value: 'amount' },
+                    { label: 'Reason', value: 'reason' },
+                    { label: 'Category', value: 'budgetCategoryName' },
+                    { label: 'Status', value: 'status' },
+                    { label: 'Audit Status', value: 'auditStatus' },
+                    { label: 'Created At', value: 'createdAt' },
+                  ]}
+                  data={approvedWithdrawRequests}
+                  fileName={`withdraw-requests-report-fy-${budget.fiscalYear}`}
+                />
+                <DataTable
+                  columns={columns}
+                  data={approvedWithdrawRequests}
+                  isLoading={isRequestsLoading}
+                  searchKey="reason"
+                  filters={[
+                    {
+                      column: 'status',
+                      title: 'Status',
+                      options: [
+                        { label: 'Pending', value: 'PENDING' },
+                        { label: 'Approved', value: 'APPROVED' },
+                        { label: 'Rejected', value: 'REJECTED' },
+                      ],
+                    },
+                    {
+                      column: 'auditStatus',
+                      title: 'Audit Status',
+                      options: [
+                        { label: 'Passed', value: 'PASSED' },
+                        { label: 'Failed', value: 'FAILED' },
+                        { label: 'Unjustified', value: 'UNJUSTIFIED' },
+                      ],
+                    },
+                  ]}
+                />
+              </div>
             </TabsContent>
           ))}
         </Tabs>

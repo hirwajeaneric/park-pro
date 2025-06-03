@@ -240,7 +240,7 @@ export default function AuditorDashboard({
     const expenseColumns: ColumnDef<Expense & { parkName: string }>[] = [
         { accessorKey: 'id', header: 'Expense ID' },
         { accessorKey: 'parkName', header: 'Park Name' },
-        { accessorKey: 'amount', header: 'Amount', cell: ({ row }) => `$${Number(row.getValue('amount')).toFixed(2)}` },
+        { accessorKey: 'amount', header: 'Amount', cell: ({ row }) => `XAF ${Number(row.getValue('amount')).toFixed(2)}` },
         { accessorKey: 'budgetCategoryName', header: 'Category' },
         { accessorKey: 'auditStatus', header: 'Audit Status' },
         { accessorKey: 'description', header: 'Description', cell: ({ row }) => row.getValue('description') || 'N/A' },
@@ -260,7 +260,7 @@ export default function AuditorDashboard({
     const withdrawColumns: ColumnDef<WithdrawRequest & { parkName: string }>[] = [
         { accessorKey: 'id', header: 'Request ID' },
         { accessorKey: 'parkName', header: 'Park Name' },
-        { accessorKey: 'amount', header: 'Amount', cell: ({ row }) => `$${row.getValue('amount').toFixed(2)}` },
+        { accessorKey: 'amount', header: 'Amount', cell: ({ row }) => `XAF ${Number(row.getValue('amount')).toFixed(2)}` },
         { accessorKey: 'budgetCategoryName', header: 'Category' },
         { accessorKey: 'auditStatus', header: 'Audit Status' },
         { accessorKey: 'reason', header: 'Reason', cell: ({ row }) => row.getValue('reason') || 'N/A' },
@@ -316,7 +316,7 @@ export default function AuditorDashboard({
                         <CardTitle>Total Budget</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">${totalBudget.toFixed(2)}</p>
+                        <p className="text-2xl font-bold">XAF {totalBudget.toFixed(2)}</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -324,7 +324,7 @@ export default function AuditorDashboard({
                         <CardTitle>Total Expenses</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">${totalExpenses.toFixed(2)}</p>
+                        <p className="text-2xl font-bold">XAF {totalExpenses.toFixed(2)}</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -332,7 +332,7 @@ export default function AuditorDashboard({
                         <CardTitle>Total Withdraw Requests</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-2xl font-bold">${totalWithdrawRequests.toFixed(2)}</p>
+                        <p className="text-2xl font-bold">XAF {totalWithdrawRequests.toFixed(2)}</p>
                     </CardContent>
                 </Card>
             </div>

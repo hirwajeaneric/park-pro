@@ -18,6 +18,8 @@ import {
   CreateBudgetForm as CreateBudgetFormTypes,
   CreateBudgetCategoryForm as CreateBudgetCategoryFormTypes,
   IncomeStreamRequest,
+  SpendingStrategy,
+  BudgetStatus
 } from '@/types';
 
 // Define the internal type for income streams managed in the component state
@@ -28,13 +30,15 @@ type LocalIncomeStream = {
   totalContribution: number;
 };
 
+type LocalBudgetCategory = CreateBudgetCategoryFormTypes & { id: number };
+
 // Form schemas
 const CreateBudgetFormSchema = z.object({
   fiscalYear: z.number().min(2000, 'Fiscal year must be 2000 or later'),
   totalAmount: z.coerce
     .number()
     .positive('Total amount must be a positive number'),
-  status: z.enum(['DRAFT', 'APPROVED', 'REJECTED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'APPROVED', 'REJECTED'] as const).default('DRAFT') as z.ZodType<BudgetStatus>
 });
 
 const IncomeStreamFormInputSchema = z.object({
@@ -51,6 +55,9 @@ const CreateBudgetCategoryFormSchema = z.object({
   allocatedAmount: z.coerce
     .number({ invalid_type_error: 'Allocated amount must be a number' })
     .positive('Allocated amount must be positive'),
+  spendingStrategy: z.enum(['EXPENSE', 'WITHDRAW_REQUEST'], {
+    required_error: 'Spending strategy is required'
+  }) as z.ZodType<SpendingStrategy>
 });
 
 type FormStep = 'budget' | 'incomeStreams' | 'budgetCategories' | 'summary';
@@ -62,14 +69,11 @@ export default function MultiStepCreateBudgetForm() {
   const queryClient = useQueryClient();
   const [step, setStep] = useState<FormStep>('budget');
   const [incomeStreams, setIncomeStreams] = useState<LocalIncomeStream[]>([]);
-  const [budgetCategories, setBudgetCategories] = useState<
-    (CreateBudgetCategoryFormTypes & { id: number })[]
-  >([]);
+  const [budgetCategories, setBudgetCategories] = useState<LocalBudgetCategory[]>([]);
 
   // Initialize unique counters for list items
   const [incomeStreamIdCounter, setIncomeStreamIdCounter] = useState(0);
   const [budgetCategoryIdCounter, setBudgetCategoryIdCounter] = useState(0);
-
 
   // Budget form
   const budgetForm = useForm<CreateBudgetFormTypes>({
@@ -98,6 +102,7 @@ export default function MultiStepCreateBudgetForm() {
     defaultValues: {
       name: '',
       allocatedAmount: 0,
+      spendingStrategy: 'EXPENSE'
     },
   });
 
@@ -142,7 +147,6 @@ export default function MultiStepCreateBudgetForm() {
   const createBudgetMutation = useMutation({
     mutationFn: async (data: CreateBudgetFormTypes) => {
       const parkId = JSON.parse(localStorage.getItem('park-data') as string)?.id;
-      console.log(parkId);
       if (!parkId) throw new Error('Park ID is required');
       if (incomeStreams.length === 0)
         throw new Error('At least one income stream is required');
@@ -177,10 +181,13 @@ export default function MultiStepCreateBudgetForm() {
       for (const category of budgetCategories) {
         try {
           await createBudgetCategory(
-            { name: category.name, allocatedAmount: category.allocatedAmount },
+            {
+              name: category.name,
+              allocatedAmount: category.allocatedAmount,
+              spendingStrategy: category.spendingStrategy
+            },
             budget.id,
-            // Assuming data.totalAmount is now a number as per CreateBudgetFormTypes
-            data.totalAmount.toString() // Convert to string if API expects it this way
+            data.totalAmount.toString()
           );
         } catch (error: any) {
           const errorMessage =
@@ -209,7 +216,7 @@ export default function MultiStepCreateBudgetForm() {
     },
   });
 
-  const onBudgetSubmit = (data: CreateBudgetFormTypes) => {
+  const onBudgetSubmit = () => {
     setStep('incomeStreams');
   };
 
@@ -267,7 +274,6 @@ export default function MultiStepCreateBudgetForm() {
       const currentStream = prevStreams.find(stream => stream.id === idToUpdate);
       if (!currentStream) return prevStreams;
 
-      const oldPercentage = new Decimal(currentStream.percentage || 0);
       const newPercentageDecimal = new Decimal(newPercentage);
 
       // Calculate total percentage excluding the current stream's old percentage
@@ -342,7 +348,7 @@ export default function MultiStepCreateBudgetForm() {
   };
 
   const handleFinalSubmit = () => {
-    const parkId = JSON.parse(localStorage.getItem('park-data') as string)?.id; // Added optional chaining for safety
+    const parkId = JSON.parse(localStorage.getItem('park-data') as string)?.id;
     if (!parkId) {
       toast.error('Park ID is missing. Please ensure your park data is loaded.');
       return;
@@ -364,7 +370,7 @@ export default function MultiStepCreateBudgetForm() {
     }
 
     const totalAllocated = budgetCategories.reduce((sum, category) => {
-      return sum.add(new Decimal(category.allocatedAmount || 0)); // Ensure it's treated as number
+      return sum.add(new Decimal(category.allocatedAmount || 0));
     }, new Decimal(0)).toNumber();
 
     if (new Decimal(totalAllocated).greaterThan(new Decimal(totalBudgetAmount))) {
@@ -373,9 +379,8 @@ export default function MultiStepCreateBudgetForm() {
       return;
     }
 
-    budgetForm.handleSubmit((data) => {
-      createBudgetMutation.mutate(data);
-    })();
+    const formData = budgetForm.getValues();
+    createBudgetMutation.mutate(formData);
   };
 
   const currentStepIndex = steps.indexOf(step);
@@ -450,7 +455,10 @@ export default function MultiStepCreateBudgetForm() {
 
       {/* Step 1: Budget Details */}
       {step === 'budget' && (
-        <form onSubmit={budgetForm.handleSubmit(onBudgetSubmit)} className="space-y-6">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          onBudgetSubmit();
+        }} className="space-y-6">
           <div>
             <label htmlFor="fiscalYear" className="block text-sm font-medium text-gray-700">
               Fiscal Year
@@ -633,6 +641,22 @@ export default function MultiStepCreateBudgetForm() {
                 </p>
               )}
             </div>
+            <div>
+              <label htmlFor="spendingStrategy" className="block text-sm font-medium text-gray-700">
+                Spending Strategy
+              </label>
+              <select
+                id="spendingStrategy"
+                {...budgetCategoryForm.register('spendingStrategy')}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="EXPENSE">Expense</option>
+                <option value="WITHDRAW_REQUEST">Withdraw Request</option>
+              </select>
+              {budgetCategoryForm.formState.errors.spendingStrategy && (
+                <p className="text-red-500 text-sm mt-1">{budgetCategoryForm.formState.errors.spendingStrategy.message}</p>
+              )}
+            </div>
             <button
               type="submit"
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-150 ease-in-out"
@@ -651,24 +675,23 @@ export default function MultiStepCreateBudgetForm() {
                   <li key={category.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3">
                     <div className="flex-1 mb-2 sm:mb-0">
                       <p className="font-medium text-gray-900">{category.name}</p>
-                      {totalBudgetAmount > 0 && category.allocatedAmount >= 0 && ( // Changed to >= 0
-                        <p className="text-sm text-gray-600">
-                          {new Decimal(category.allocatedAmount).toFixed(2)} XAF (
-                          {totalBudgetAmount > 0
-                            ? new Decimal(category.allocatedAmount)
-                              .div(new Decimal(totalBudgetAmount))
-                              .mul(100)
-                              .toFixed(2)
-                            : 'N/A'}%)
-                        </p>
-                      )}
+                      <div className="text-sm text-gray-600">
+                        <p>{new Decimal(category.allocatedAmount).toFixed(2)} XAF
+                        ({totalBudgetAmount > 0
+                          ? new Decimal(category.allocatedAmount)
+                            .div(new Decimal(totalBudgetAmount))
+                            .mul(100)
+                            .toFixed(2)
+                          : 'N/A'}%)</p>
+                        <p className="text-xs text-gray-500">Strategy: {category.spendingStrategy}</p>
+                      </div>
                     </div>
                     <div className="flex items-center space-x-3">
                       <span className="text-gray-700">XAF</span>
                       <input
                         type="number"
                         step="0.01"
-                        value={category.allocatedAmount.toString()} // Ensure value is a string for input
+                        value={category.allocatedAmount.toString()}
                         onChange={(e) =>
                           handleBudgetCategoryAmountEdit(category.id, e.target.value)
                         }
@@ -744,16 +767,16 @@ export default function MultiStepCreateBudgetForm() {
                 {budgetCategories.map((category) => (
                   <li key={category.id} className="py-2">
                     <p className="font-medium text-gray-900">{category.name}</p>
-                    <p className="text-sm text-gray-600">
-                      {new Decimal(category.allocatedAmount).toFixed(2)} XAF (
-                      {totalBudgetAmount > 0 && category.allocatedAmount >= 0
+                    <div className="text-sm text-gray-600">
+                      <p>{new Decimal(category.allocatedAmount).toFixed(2)} XAF
+                      ({totalBudgetAmount > 0 && category.allocatedAmount >= 0
                         ? new Decimal(category.allocatedAmount)
                           .div(new Decimal(totalBudgetAmount))
                           .mul(100)
                           .toFixed(2)
-                        : 'N/A'}
-                      %)
-                    </p>
+                        : 'N/A'}%)</p>
+                      <p className="text-xs text-gray-500">Strategy: {category.spendingStrategy}</p>
+                    </div>
                   </li>
                 ))}
               </ul>

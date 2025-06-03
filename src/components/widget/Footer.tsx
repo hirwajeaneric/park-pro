@@ -7,7 +7,7 @@ export default function Footer() {
             <div className="container mx-auto px-4">
                 <div className="text-center mb-8">
                     <h2 className="text-2xl font-bold mb-2">Loango National Park</h2>
-                    <p>©2024 Loango National Park</p>
+                    <p>©{new Date().getFullYear()} Loango National Park</p>
                 </div>
 
                 <div className="flex justify-center space-x-8 mb-8">

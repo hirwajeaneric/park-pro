@@ -10,6 +10,7 @@ import { Budget } from '@/types';
 import { format } from 'date-fns';
 import { listBudgetsByPark } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import ReportExport from '../reports/ReportExport';
 
 export default function ListBudgetsTableAuditor({ parkId }: { parkId: string }) {
     const router = useRouter();
@@ -63,22 +64,37 @@ export default function ListBudgetsTableAuditor({ parkId }: { parkId: string }) 
     ];
 
     return (
-        <DataTable
-            columns={columns}
-            data={budgets}
-            isLoading={isLoading}
-            searchKey="fiscalYear"
-            filters={[
-                {
-                    column: 'status',
-                    title: 'Status',
-                    options: [
-                        { label: 'Draft', value: 'DRAFT' },
-                        { label: 'Approved', value: 'APPROVED' },
-                        { label: 'Rejected', value: 'REJECTED' },
-                    ],
-                }
-            ]}
-        />
+        <div className="space-y-4">
+            <ReportExport
+                title="Park Budgets Report"
+                description="List of all budgets for this park"
+                columns={[
+                    { label: 'Fiscal Year', value: 'fiscalYear' },
+                    { label: 'Total Amount', value: 'totalAmount' },
+                    { label: 'Balance', value: 'balance' },
+                    { label: 'Status', value: 'status' },
+                    { label: 'Created At', value: 'createdAt' },
+                ]}
+                data={budgets}
+                fileName="park-budgets-report"
+            />
+            <DataTable
+                columns={columns}
+                data={budgets}
+                isLoading={isLoading}
+                searchKey="fiscalYear"
+                filters={[
+                    {
+                        column: 'status',
+                        title: 'Status',
+                        options: [
+                            { label: 'Draft', value: 'DRAFT' },
+                            { label: 'Approved', value: 'APPROVED' },
+                            { label: 'Rejected', value: 'REJECTED' },
+                        ],
+                    }
+                ]}
+            />
+        </div>
     );
 }
