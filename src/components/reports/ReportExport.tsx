@@ -79,16 +79,13 @@ export default function ReportExport({
 
     const generatePDF = async () => {
         try {
-            console.log('Starting PDF generation...');
             const filteredData = getFilteredData();
-            console.log('Filtered data:', filteredData);
 
             if (!filteredData || filteredData.length === 0) {
                 throw new Error('No data available to export');
             }
 
             const doc = new jsPDF();
-            console.log('PDF document created');
 
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 20;
@@ -113,14 +110,14 @@ export default function ReportExport({
             doc.setTextColor(0, 0, 0); // Reset to black
             doc.text('ParkPro', pageWidth - margin - 60, yPosition);
             yPosition += 5;
-            doc.text('123 Business Street', pageWidth - margin - 60, yPosition);
+            doc.text('13493, Rue du Gouverneur Balley', pageWidth - margin - 60, yPosition);
             yPosition += 5;
-            doc.text('City, Country', pageWidth - margin - 60, yPosition);
+            doc.text('Libreville, Gabon', pageWidth - margin - 60, yPosition);
             yPosition += 5;
             doc.text(`Generated on: ${format(new Date(), 'MMMM dd, yyyy')}`, pageWidth - margin - 60, yPosition);
 
             // Move down for title and subtitle
-            yPosition += 30;
+            yPosition += 20;
 
             // Add title
             doc.setFontSize(20);
@@ -131,7 +128,7 @@ export default function ReportExport({
             if (subtitle) {
                 doc.setFontSize(16);
                 doc.text(subtitle, pageWidth / 2, yPosition, { align: 'center' });
-                yPosition += 10;
+                yPosition += 5;
             }
 
             // Add description if exists
@@ -143,9 +140,7 @@ export default function ReportExport({
             }
 
             // Add table
-            console.log('Preparing table data...');
             const tableColumn = columns.map(col => col.label);
-            console.log('Table columns:', tableColumn);
 
             const tableRows = filteredData.map(item => {
                 try {
@@ -167,7 +162,6 @@ export default function ReportExport({
                     return columns.map(() => '');
                 }
             });
-            console.log('Table rows prepared:', tableRows);
 
             autoTable(doc, {
                 head: [tableColumn],
@@ -190,10 +184,8 @@ export default function ReportExport({
                     0: { cellWidth: 'auto' },
                 },
             });
-            console.log('Table added to PDF');
 
             doc.save(`${fileName}.pdf`);
-            console.log('PDF saved successfully');
         } catch (error) {
             console.error('Detailed error in PDF generation:', error);
             alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
