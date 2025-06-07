@@ -44,7 +44,7 @@ export default function ActivityDetails({ activity }: { activity: ParkActivityCa
                                 <CardContent>
                                     <div className="space-y-4">
                                         <p className="text-gray-600">{activity.description}</p>
-                                        <p className="font-semibold">Price: ${activity.price}</p>
+                                        <p className="font-semibold">Price: XAF {Number(activity.price).toFixed(2)}</p>
                                         <p>Capacity per day: {activity.capacityPerDay} people</p>
 
                                         <div className="mt-8">
