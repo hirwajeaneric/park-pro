@@ -175,14 +175,14 @@ export default function IncomeStreamsTable({ budget }: { budget: Budget }) {
     {
       accessorKey: 'percentage',
       header: 'Percentage (%)',
-      cell: ({ row }) => `${row.getValue('percentage')}%`,
+      cell: ({ row }) => `${Number(row.getValue('percentage')).toFixed(2)}%`,
     },
     {
       accessorKey: 'totalContribution',
-      header: 'Total Contribution ($)',
+      header: 'Total Contribution (XAF)',
       cell: ({ row }) => {
         const value = row.getValue('totalContribution') as number;
-        return `$${value.toFixed(2)}`;
+        return `XAF ${value.toFixed(2)}`;
       },
     },
     {

@@ -129,7 +129,7 @@ export default function DonationForm() {
                   >
                     <CardContent className="p-4">
                       <h3 className="font-semibold text-lg">{option.title}</h3>
-                      <p className="text-primary font-bold text-xl">${option.amount}</p>
+                      <p className="text-primary font-bold text-xl">XAF {option.amount}</p>
                       <p className="text-gray-600 text-sm mt-2">{option.description}</p>
                     </CardContent>
                   </Card>

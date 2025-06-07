@@ -37,14 +37,17 @@ export default function ListBudgetCategoriesTable({ budgetId }: { budgetId: stri
         {
             accessorKey: 'allocatedAmount',
             header: 'Allocated Amount',
+            cell: ({ row }) => `XAF ${Number(row.getValue('allocatedAmount')).toFixed(2)}`,
         },
         {
             accessorKey: 'usedAmount',
             header: 'Used Amount',
+            cell: ({ row }) => `XAF ${Number(row.getValue('usedAmount')).toFixed(2)}`,
         },
         {
             accessorKey: 'balance',
             header: 'Balance',
+            cell: ({ row }) => `XAF ${Number(row.getValue('balance')).toFixed(2)}`,
         },
         {
             accessorKey: 'createdAt',

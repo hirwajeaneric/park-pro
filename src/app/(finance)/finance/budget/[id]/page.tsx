@@ -81,12 +81,15 @@ export default async function BudgetPage({ params }: Props) {
         <h1 className="text-2xl font-bold">Budget for {budget.fiscalYear}</h1>
         <Card>
           <CardHeader>
-            <CardTitle>Budget Details</CardTitle>
+            <CardTitle className="flex w-full justify-between">
+              <h2 className="text-xl font-bold">Budget Details</h2>
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p><strong>Balance:</strong> ${budget.balance.toFixed(2)}</p>
+          <CardContent className="space-y-2">
+            <p><strong>Total Amount:</strong> XAF {Number(budget.totalAmount).toFixed(2)}</p>
+            <p><strong>Balance:</strong> XAF {Number(budget.balance).toFixed(2)}</p>
             <p><strong>Status:</strong> <Badge variant={budgetCategoryBadgeVariant}>{budget.status.toUpperCase()}</Badge></p>
-            <p><strong>Approver:</strong> {budget.approvedBy || 'N/A'}</p>
+            {/* <p><strong>Approver:</strong> {budget.approvedBy || 'N/A'}</p> */}
           </CardContent>
           <CardFooter>
             <UpdateBudgetForm budget={budget} />
@@ -95,7 +98,7 @@ export default async function BudgetPage({ params }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex w-full justify-between">
-              <h2 className="text-2xl font-bold">Income Streams</h2>
+              <h2 className="text-xl font-bold">Income Streams</h2>
             </CardTitle>
             <CardDescription>
               <IncomeStreamsTable budget={budget} />
@@ -105,7 +108,7 @@ export default async function BudgetPage({ params }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex w-full justify-between">
-              <h2 className="text-2xl font-bold">Budget Categories</h2>
+              <h2 className="text-xl font-bold">Budget Categories</h2>
               <Button variant="secondary">
                 <Link href={`/finance/budget/${budget.id}/category/new`}>Add New Category</Link>
               </Button>

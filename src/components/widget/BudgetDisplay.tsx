@@ -31,6 +31,8 @@ export default function BudgetDisplayAuditor() {
     // },
   });
 
+  // console.log(budgets);
+
   const columns: ColumnDef<BudgetByFiscalYearResponse>[] = [
     {
       accessorKey: 'parkName',
