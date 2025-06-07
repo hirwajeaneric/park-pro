@@ -89,7 +89,7 @@ export default function UserProfileForm() {
       localStorage.setItem("user-profile", JSON.stringify(data));
       toast.success("Profile updated successfully!");
       setTimeout(() => {
-        router.push(`/account/profile`);
+        router.refresh();
       }, 2000);
     },
     onError: (error: Error) => {

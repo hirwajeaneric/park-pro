@@ -127,7 +127,7 @@ export default function CreateActivityForm() {
                     name="price"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Price</FormLabel>
+                            <FormLabel>Price (XAF)</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.01" placeholder="Enter price" {...field} />
                             </FormControl>
