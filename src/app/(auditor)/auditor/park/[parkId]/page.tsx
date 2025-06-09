@@ -36,7 +36,9 @@ export default async function ParkPage({ params }: Props) {
   let audit: AuditResponse | null = null;
   try {
     park = await getParkById(parkId);
-    audit = await getAuditByParkIdAndYear(parkId, 2025);
+    audit = await getAuditByParkIdAndYear(parkId, new Date().getFullYear());
+    console.log("audit");
+    console.log(audit);
   } catch (error) {
     return (
       <ProtectedRoute>

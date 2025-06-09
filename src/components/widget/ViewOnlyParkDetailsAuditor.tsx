@@ -73,14 +73,17 @@ const AuditStatsCard = ({ title, value, icon, color }: {
   </MuiCard>
 );
 
-export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park, audit: AuditResponse }) {
+export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park, audit?: AuditResponse | null }) {
   const [isLoading, setIsLoading] = useState(false);
   const currentYear = new Date().getFullYear();
 
   const closeAudit = async () => {
     try {
       setIsLoading(true);
-      if (!audit) return;
+      if (!audit?.id) {
+        toast.error('No active audit to close');
+        return;
+      }
 
       await updateAuditProgress(audit.id, {
         auditProgress: 'COMPLETED'
@@ -98,7 +101,10 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
   const openAudit = async () => {
     try {
       setIsLoading(true);
-      if (!park) return;
+      if (!park?.id) {
+        toast.error('Park information is required to create an audit');
+        return;
+      }
 
       await createAudit({
         parkId: park.id,
@@ -151,81 +157,77 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
     </Box>
   );
 
-  const renderAuditStats = () => (
-    <Box sx={{ }}>
-      <Typography variant="h6">
-        Audit Statistics for {audit.auditYear}
-      </Typography>
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-        <Chip
-          label={`Status: ${audit.auditProgress === 'COMPLETED' ? 'COMPLETED' : audit.auditProgress === 'IN_PROGRESS' ? 'IN PROGRESS' : 'NOT STARTED'}`}
-          color={audit.auditProgress === 'COMPLETED' ? 'success' :
-            audit.auditProgress === 'IN_PROGRESS' ? 'warning' : 'default'}
-          sx={{ mt: 2 }}
-        />
-        <div className="flex gap-20">
-          <Button
-            variant="default"
-            onClick={openAudit}
-            disabled={isLoading || audit !== null}
-            className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer"
-          >
-            {isLoading ? 'Processing...' : 'Open New Audit'}
-          </Button>
-          <Button
-            variant="destructive"
-            className='cursor-pointer'
-            onClick={closeAudit}
-            disabled={isLoading || !audit || audit.auditProgress === 'COMPLETED'}
-          >
-            {isLoading ? 'Processing...' : 'Close Audit'}
-          </Button>
+  const renderAuditStats = () => {
+    if (!audit) return null;
+
+    return (
+      <Box sx={{ }}>
+        <Typography variant="h6">
+          Audit Statistics for {audit.auditYear}
+        </Typography>
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+          <Chip
+            label={`Status: ${audit.auditProgress === 'COMPLETED' ? 'COMPLETED' : audit.auditProgress === 'IN_PROGRESS' ? 'IN PROGRESS' : 'NOT STARTED'}`}
+            color={audit.auditProgress === 'COMPLETED' ? 'success' :
+              audit.auditProgress === 'IN_PROGRESS' ? 'warning' : 'default'}
+            sx={{ mt: 2 }}
+          />
+          <div className="flex gap-20">
+            <Button
+              variant="destructive"
+              className='cursor-pointer'
+              onClick={closeAudit}
+              disabled={isLoading || audit.auditProgress === 'COMPLETED'}
+            >
+              {isLoading ? 'Processing...' : 'Close Audit'}
+            </Button>
+          </div>
+        </Box>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <AuditStatsCard
+              title="Passed"
+              value={audit.percentagePassed ?? 0}
+              icon={<CheckCircleIcon />}
+              color="#2e7d32"
+            />
+          </div>
+          <div>
+            <AuditStatsCard
+              title="Failed"
+              value={audit.percentageFailed ?? 0}
+              icon={<ErrorIcon />}
+              color="#d32f2f"
+            />
+          </div>
+          <div>
+            <AuditStatsCard
+              title="Unjustified"
+              value={audit.percentageUnjustified ?? 0}
+              icon={<HelpIcon />}
+              color="#ed6c02"
+            />
+          </div>
+          <div>
+            <AuditStatsCard
+              title="Total Score"
+              value={audit.totalPercentage ?? 0}
+              icon={<AssessmentIcon />}
+              color="#1976d2"
+            />
+          </div>
         </div>
       </Box>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div>
-          <AuditStatsCard
-            title="Passed"
-            value={audit.percentagePassed}
-            icon={<CheckCircleIcon />}
-            color="#2e7d32"
-          />
-        </div>
-        <div>
-          <AuditStatsCard
-            title="Failed"
-            value={audit.percentageFailed}
-            icon={<ErrorIcon />}
-            color="#d32f2f"
-          />
-        </div>
-        <div>
-          <AuditStatsCard
-            title="Unjustified"
-            value={audit.percentageUnjustified}
-            icon={<HelpIcon />}
-            color="#ed6c02"
-          />
-        </div>
-        <div>
-          <AuditStatsCard
-            title="Total Score"
-            value={audit.totalPercentage}
-            icon={<AssessmentIcon />}
-            color="#1976d2"
-          />
-        </div>
-      </div>
-    </Box>
-  );
+    );
+  };
 
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-col gap-2">
-          <p><strong>Name:</strong> {park?.name}</p>
-          <p><strong>Location:</strong> {park?.location}</p>
-          <p><strong>Description:</strong> {park?.description}</p>
+          <p><strong>Name:</strong> {park?.name ?? 'N/A'}</p>
+          <p><strong>Location:</strong> {park?.location ?? 'N/A'}</p>
+          <p><strong>Description:</strong> {park?.description ?? 'N/A'}</p>
         </div>
       </CardHeader>
       <CardContent>
@@ -255,7 +257,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <AuditorParkUsers parkId={park.id} />
+                  <AuditorParkUsers parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -270,7 +272,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <ListBudgetsTableAuditor parkId={park.id} />
+                  <ListBudgetsTableAuditor parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -285,7 +287,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <ExpenseDisplayAuditor parkId={park.id} />
+                  <ExpenseDisplayAuditor parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -300,7 +302,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <WithdrawRequestDisplayAuditor parkId={park.id} />
+                  <WithdrawRequestDisplayAuditor parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -315,7 +317,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <FundingRequestsTabsAuditor parkId={park.id} />
+                  <FundingRequestsTabsAuditor parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -330,7 +332,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <AuditorDonationsTable parkId={park.id} />
+                  <AuditorDonationsTable parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -345,7 +347,7 @@ export default function ViewOnlyParkDetailsAuditor({ park, audit }: { park: Park
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <ListAuditorBookingsTable parkId={park.id} />
+                  <ListAuditorBookingsTable parkId={park?.id ?? ''} />
                 </CardContent>
               </Card>
             </TabsContent>

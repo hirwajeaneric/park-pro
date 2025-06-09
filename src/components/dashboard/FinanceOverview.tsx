@@ -174,14 +174,14 @@ export default function FinanceOverview({ initialFiscalYear }: FinanceOverviewPr
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-blue-50 p-6 rounded-lg">
           <h2 className="text-sm text-gray-500">Money on Account</h2>
-          <p className="text-3xl font-bold">{formatCurrency(moneyOnAccount)}</p>
+          <p className="text-3xl font-bold">XAF {moneyOnAccount.toFixed(2)}</p>
           {/* <p className={`text-sm ${moneyOnAccountChange >= 0 ? "text-green-500" : "text-red-500"}`}>
             {moneyOnAccountChange >= 0 ? "+" : ""}{moneyOnAccountChange.toFixed(1)}%
           </p> */}
         </div>
         <div className="bg-blue-50 p-4 rounded-lg">
           <h2 className="text-sm text-gray-500">Money Spent</h2>
-          <p className="text-3xl font-bold">{formatCurrency(moneySpent)}</p>
+          <p className="text-3xl font-bold">XAF {moneySpent.toFixed(2)}</p>
           {/* <p className={`text-sm ${moneySpentChange >= 0 ? "text-green-500" : "text-red-500"}`}>
             {moneySpentChange >= 0 ? "+" : ""}{moneySpentChange.toFixed(1)}%
           </p> */}
