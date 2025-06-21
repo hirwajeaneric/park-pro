@@ -22,6 +22,8 @@ import { updateWithdrawRequest } from '@/lib/api';
 import { WithdrawRequest, UpdateWithdrawRequest } from '@/types';
 import { FileUpload } from '@/components/ui/file-upload';
 import Link from 'next/link';
+import ReceiptGenerator from '@/components/ui/receipt-generator';
+import { useState } from 'react';
 
 const UpdateWithdrawRequestFormSchema = z.object({
   amount: z.coerce.number().positive('Amount must be positive').optional(),
@@ -33,6 +35,7 @@ const UpdateWithdrawRequestFormSchema = z.object({
 export default function UpdateWithdrawRequestForm({ request }: { request: WithdrawRequest }) {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [showReceipt, setShowReceipt] = useState(false);
 
   // Form setup
   const form = useForm<UpdateWithdrawRequest>({
@@ -62,111 +65,148 @@ export default function UpdateWithdrawRequestForm({ request }: { request: Withdr
     updateMutation.mutate(data);
   };
 
+  const receiptData = {
+    id: request.id,
+    type: 'WITHDRAW_REQUEST' as const,
+    title: 'Withdrawal Request Receipt',
+    amount: request.amount.toString(),
+    currency: request.currency,
+    status: request.status,
+    parkName: request.parkName || 'N/A',
+    category: request.budgetCategoryName,
+    reason: request.reason,
+    createdAt: request.createdAt,
+    receiptNumber: `WR-${request.id.slice(0, 8).toUpperCase()}`,
+  };
+
   if (!request) return <div>Withdraw request not found</div>;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <div>
-        <h2 className="text-lg font-semibold">Details</h2>
-        <p><strong>Amount:</strong> {request.amount} {request.currency}</p>
-        <p><strong>Reason:</strong> {request.reason}</p>
-        <p><strong>Category:</strong> {request.budgetCategoryName}</p>
-        <p><strong>Status:</strong> {request.status}</p>
-        <p><strong>Audit Status:</strong> {request.auditStatus}</p>
-        <p><strong>Created:</strong> {format(new Date(request.createdAt), 'MMM dd, yyyy')}</p>
-        <p><strong>Park ID:</strong> {request.parkId}</p>
-        {request.receiptUrl && (
-          <p>
-            <strong>View Receipt:</strong>{' '}
-            <Link href={request.receiptUrl} className="underline text-blue-500" target="_blank">
-              Receipt
-            </Link>
-          </p>
-        )}
-        {request.rejectionReason && (
-          <p><strong>Rejection Reason:</strong> {request.rejectionReason}</p>
-        )}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold">Withdraw Request Details</h1>
+        <div className="flex gap-2">
+          {request.status === 'APPROVED' && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowReceipt(!showReceipt)}
+            >
+              {showReceipt ? 'Hide Receipt' : 'View Receipt'}
+            </Button>
+          )}
+        </div>
       </div>
-      <div>
-        <h2 className="text-lg font-semibold">Update Withdraw Request</h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
-            <FormField
-              control={form.control as any}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter amount (e.g., 1000.50)"
-                      type="number"
-                      step="0.01"
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control as any}
-              name="reason"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reason</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter reason" value={field.value ?? ''} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control as any}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter description (optional)" value={field.value ?? ''} onChange={field.onChange} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control as any}
-              name="receiptUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Receipt</FormLabel>
-                  <FormControl>
-                    <FileUpload
-                      endpoint="resumeUpload"
-                      value={field.value ?? ''}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex gap-4">
-              <Button type="submit" disabled={updateMutation.isPending}>
-                {updateMutation.isPending ? 'Updating...' : 'Update Withdraw Request'}
-              </Button>
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => router.push('/manager/withdraw-request')}
-              >
-                Back
-              </Button>
-            </div>
-          </form>
-        </Form>
+
+      {showReceipt && request.status === 'APPROVED' && (
+        <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <h2 className="text-lg font-semibold mb-4">Receipt</h2>
+          <ReceiptGenerator data={receiptData} />
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <h2 className="text-lg font-semibold">Details</h2>
+          <p><strong>Amount:</strong> {request.amount} {request.currency}</p>
+          <p><strong>Reason:</strong> {request.reason}</p>
+          <p><strong>Category:</strong> {request.budgetCategoryName}</p>
+          <p><strong>Status:</strong> {request.status}</p>
+          <p><strong>Audit Status:</strong> {request.auditStatus}</p>
+          <p><strong>Created:</strong> {format(new Date(request.createdAt), 'MMM dd, yyyy')}</p>
+          <p><strong>Park ID:</strong> {request.parkId}</p>
+          {request.receiptUrl && (
+            <p>
+              <strong>View Receipt:</strong>{' '}
+              <Link href={request.receiptUrl} className="underline text-blue-500" target="_blank">
+                Receipt
+              </Link>
+            </p>
+          )}
+          {request.rejectionReason && (
+            <p><strong>Rejection Reason:</strong> {request.rejectionReason}</p>
+          )}
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">Update Withdraw Request</h2>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-4">
+              <FormField
+                control={form.control as any}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Amount</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter amount (e.g., 1000.50)"
+                        type="number"
+                        step="0.01"
+                        value={field.value ?? ''}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control as any}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reason</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter reason" value={field.value ?? ''} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control as any}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter description (optional)" value={field.value ?? ''} onChange={field.onChange} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control as any}
+                name="receiptUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Receipt</FormLabel>
+                    <FormControl>
+                      <FileUpload
+                        endpoint="resumeUpload"
+                        value={field.value ?? ''}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex gap-4">
+                <Button type="submit" disabled={updateMutation.isPending}>
+                  {updateMutation.isPending ? 'Updating...' : 'Update Withdraw Request'}
+                </Button>
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => router.push('/manager/withdraw-request')}
+                >
+                  Back
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   );

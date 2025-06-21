@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,6 +18,7 @@ import { FundingRequestResponse, Budget } from '@/types';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import ReceiptGenerator from '@/components/ui/receipt-generator';
 
 const UpdateFundingRequestSchema = z.object({
   requestedAmount: z.coerce.number().positive('Requested amount must be positive'),
@@ -34,6 +36,7 @@ export default function FundingRequestDetails({ request }: { request: FundingReq
   const router = useRouter();
   const [parkId, setParkId] = useState<string | null>(null);
   const [parkDataError, setParkDataError] = useState<string | null>(null);
+  const [showReceipt, setShowReceipt] = useState(false);
 
   // Fetch parkId from localStorage
   useEffect(() => {
@@ -126,6 +129,22 @@ export default function FundingRequestDetails({ request }: { request: FundingReq
     updateMutation.mutate(data);
   };
 
+  const receiptData = {
+    id: request.id,
+    type: 'FUNDING_REQUEST' as const,
+    title: 'Funding Request Receipt',
+    amount: request.requestedAmount,
+    currency: request.currency,
+    status: request.status,
+    parkName: request.parkName,
+    category: request.budgetCategoryName,
+    reason: request.reason,
+    createdAt: request.createdAt,
+    approvedAt: request.approvedAt || undefined,
+    approvedAmount: request.approvedAmount || undefined,
+    receiptNumber: `FR-${request.id.slice(0, 8).toUpperCase()}`,
+  };
+
   if (parkDataError) {
     return <p className="text-red-500">{parkDataError}</p>;
   }
@@ -162,10 +181,32 @@ export default function FundingRequestDetails({ request }: { request: FundingReq
     <div className="space-y-6">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-2xl font-semibold">Funding Request Details</h1>
-        <Button variant="outline" onClick={() => router.push(`/finance/funding-requests`)}>
-          Back to Funding Requests
-        </Button>
+        <div className="flex gap-2">
+          {request.status === 'APPROVED' && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowReceipt(!showReceipt)}
+            >
+              {showReceipt ? 'Hide Receipt' : 'View Receipt'}
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => router.push(`/finance/funding-requests`)}>
+            Back to Funding Requests
+          </Button>
+        </div>
       </div>
+
+      {showReceipt && request.status === 'APPROVED' && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Receipt</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ReceiptGenerator data={receiptData} />
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Request #{request.id}</CardTitle>

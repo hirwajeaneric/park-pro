@@ -140,3 +140,53 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles for receipts */
+@media print {
+  .receipt-container {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    background: white !important;
+    color: black !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  .receipt-container * {
+    color: black !important;
+    background: transparent !important;
+  }
+  
+  .receipt-container .bg-gray-50 {
+    background: #f9fafb !important;
+  }
+  
+  .receipt-container .text-gray-600 {
+    color: #4b5563 !important;
+  }
+  
+  .receipt-container .text-gray-700 {
+    color: #374151 !important;
+  }
+  
+  .receipt-container .text-gray-800 {
+    color: #1f2937 !important;
+  }
+  
+  .receipt-container .border-gray-300 {
+    border-color: #d1d5db !important;
+  }
+  
+  .receipt-container .border-gray-200 {
+    border-color: #e5e7eb !important;
+  }
+  
+  /* Hide print/download buttons when printing */
+  .receipt-actions {
+    display: none !important;
+  }
+}
